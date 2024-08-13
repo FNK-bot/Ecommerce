@@ -1,0 +1,27 @@
+<%- include('./partials/header'); %>
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-light rounded p-4">
+        <form action="/admin/addCatagory" method="POST" enctype="multipart/form-data" class="container" onsubmit="return validateForm();">
+            <h2 class="mb-4">Add New Category</h2>
+            <!-- General info -->
+            <div class="form-group">
+                <label for="categoryName">Category Name</label>
+                <input type="text" name="name" placeholder="Type here" class="form-control" id="categoryName">
+            </div>
+            <div class="form-group">
+                <label for="categoryDescription">Description</label>
+                <textarea placeholder="Type here" name="discription" class="form-control" rows="4" id="categoryDescription"></textarea>
+            </div>
+            
+            <!-- Media -->
+            <div class="form-group">
+                <label for="categoryImage">Images</label>
+                <input class="form-control" type="file" accept="image/*" name="images" id="categoryImage">
+            </div>
+
+            <!-- Submit button -->
+            <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Add Category</button>
+        </form>
+    </div>
+</div>
+<%- include('./partials/footer'); %>

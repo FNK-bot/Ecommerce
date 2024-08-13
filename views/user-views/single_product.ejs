@@ -1,0 +1,315 @@
+<%- include('./partials/header'); %>
+<header>
+    <!-- Font Awesome -->
+    <!-- <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    rel="stylesheet"
+    /> -->
+    <!-- Google Fonts -->
+    <link
+    href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
+    rel="stylesheet"
+    />
+    <!-- MDB -->
+    <link
+    href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.min.css"
+    rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>//sweeetalert
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>Axios
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    
+    <style>
+      .main-image-container {
+        position: relative;
+        overflow: hidden;
+      }
+
+      #main-image {
+        transition: transform 0.5s ease;
+      }
+
+      #main-image:hover {
+        transform: scale(1.5);
+      }
+
+    </style>
+  
+</header>
+
+<!-- Heading -->
+<div class="bg-primary " style="padding-top: 80px;">
+  <div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav class="d-flex">
+      <h6 class="mb-0">
+        <a href="/" class="text-white-50">Home</a>
+        <span class="text-white-50 mx-2"> > </span>
+        <a href="/shop" class="text-white-50">shop</a>
+        <span class="text-white-50 mx-2"> > </span>
+        <a href="/product?product=<%= product._id %>" class="text-white"><u><%= product.name %></u></a>
+      </h6>
+    </nav>
+    <!-- Breadcrumb -->
+  </div>
+</div>
+<!-- Heading -->
+  <!-- content -->
+  <section class="py-5">
+    <div class="container">
+      <div class="row gx-5">
+        <aside class="col-lg-6">
+          <div class="border rounded-4 mb-3 d-flex justify-content-center main-image-container">
+            <a id="main-image-link" data-fslightbox="mygalley" class="rounded-4" target="_blank" data-type="image" href="/admin/assets/images/catagory/<%= product.images[0]%>">
+              <img id="main-image" style="max-width: 100%; max-height: 100vh; margin: auto;" class="rounded-4 fit" src="/admin/assets/images/catagory/<%= product.images[0]%>" />
+            </a>
+          </div>
+          <div class="d-flex justify-content-center mb-3">
+        
+            <% for (let i = 0; i < product.images.length; i++) { %>
+              <a data-fslightbox="mygalley" class="border mx-1 rounded-2 thumb-link" target="_blank" data-type="image" href="/admin/assets/images/catagory/<%= product.images[i]%>" class="item-thumb">
+                <img width="60" height="60" class="rounded-2 thumb-image" src="/admin/assets/images/catagory/<%= product.images[i]%>" data-large-src="/admin/assets/images/catagory/<%= product.images[i]%>" />
+              </a>
+            <% } %>
+        
+          </div>
+        </aside>
+        
+        <main class="col-lg-6">
+          <div class="ps-lg-3">
+            <h4 class="title text-dark">
+              <%= product.name %>
+            </h4>
+            <div class="d-flex flex-row my-3">
+              <div class="text-warning mb-1 me-2">
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fa fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+                <span class="ms-1">
+                  4.5
+                </span>
+              </div>
+              <!-- <span class="text-muted"><i class="fas fa-shopping-basket fa-sm mx-1"></i>154 orders</span> -->
+              <span class="text-success ms-2 '<%= stock = product.quantity >= 1 ? 'text-success ' :'text-danger ' %>' "><%= stock = product.quantity >= 1 ? 'In stock' :'Out Of Stock' %></span>
+            </div>
+  
+            <div class="mb-3">
+              <span class="h5">$<%= product.price %></span>
+              <span class="text-muted">Only</span>
+            </div>
+  
+            <p>
+             <%= product.discription %>
+            </p>
+  
+            <div class="row">
+              <dt class="col-3"></dt>
+              <dd class="col-9"></dd>
+  
+              <dt class="col-3"></dt>
+              <dd class="col-9"></dd>
+  
+              <dt class="col-3"></dt>
+              <dd class="col-9"></dd>
+  
+              <dt class="col-3">Brand</dt>
+              <dd class="col-9"><%= product.brand %></dd>
+            </div>
+  
+            <hr />
+            <div class="container">
+              <div class="row">
+                  <div class="col-md-4 col-6">
+                    <label class="mb-2">Size</label>
+                    <select class="form-select border border-secondary" style="height: 35px;">
+                      <option disabled>Select size</option>
+                      <option><%= product.size %></option>
+                    </select>
+                  </div>
+              
+              <!-- col.// -->
+              <div class="col-md-4 col-6 mb-3">
+                <label class="mb-2 d-block">Quantity</label>
+                <div class="input-group mb-3" style="width: 170px;">
+                  <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon1" data-mdb-ripple-color="dark">
+                    <i class="fa fa-minus"></i>
+                  </button>
+                  <input type="text" class="form-control text-center border border-secondary" placeholder="14" aria-label="Example text with button addon" aria-describedby="button-addon1" id="quantity-input" value="1" />
+                  <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon2" data-mdb-ripple-color="dark">
+                    <i class="fa fa-plus"></i>
+                  </button>
+                </div>
+              </div>
+              
+
+            </div>
+            <a href="#" class="btn btn-warning shadow-0"> Buy now </a>
+            <a href="#" class="btn btn-primary shadow-0" onclick="addTOCart('<%= product._id %>')"> <i class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
+            <a href="#" class="btn btn-light border border-secondary py-2 icon-hover px-3"> <i class="me-1 fa fa-heart fa-lg"></i> Save </a>
+          </div>
+        </main>
+      </div>
+    </div>
+  </section>
+  <!-- content -->
+  
+  <section class="bg-light border-top py-4">
+    <div class="container">
+      <section class="new_arrivals_area section-padding-80 clearfix">
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+                    <div class="section-heading text-center">
+                        <h2>Recommended Products</h2>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-12">
+            <% if (sProduct.length > 0) { %>
+                    <div class="popular-products-slides owl-carousel">
+                        <% for (let i = 0; i < sProduct.length; i++) { %>
+                        
+                        <!-- Single Product -->
+                        <div class="single-product-wrapper">
+                            <!-- Product Image -->
+                            <div class="product-img">
+                                <img src="/admin/assets/images/catagory/<%= sProduct[i].images[0] %>" alt="">
+                                <!-- Hover Thumb -->
+                                <img class="hover-img" src="/admin/assets/images/catagory/<%= sProduct[i].images[1] %>"alt="">
+                                <!-- Product Badge -->
+                                <div class="product-badge ">
+                                    <span>Latest</span>
+                                </div>
+
+                                <!-- Favourite -->
+                                <div class="product-favourite">
+                                    <a href="#" class="favme fa fa-heart"></a>
+                                </div>
+                            </div>
+                            <!-- Product Description -->
+                            <div class="product-description">
+                                <span><%= sProduct[i].brand %></span>
+                                <a href="/product?product=<%= sProduct[i]._id %>">
+                                    <h6><%= sProduct[i].name %></h6>
+                                </a>
+                                <p class="product-price">$<%= sProduct[i].price %></p>
+
+                                
+                            </div>
+                        </div>
+
+                        <% } %>
+                             <% } else { %>
+
+                                <div class="not-found">
+                                    <p>No Recommended Product Found</p>
+                                </div>
+                        <% } %>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+    <!-- ##### New Arrivals Area End ##### -->
+
+
+      </div>
+    </div>
+  
+<script>
+  function addTOCart(id) {
+    console.log('Function called with ID:', id);
+    
+      return axios.post('/addToCart', {
+          product_id: id,
+      })
+      .then((response) =>{
+          console.log(response);
+          console.log(`${id} is added -- ${response.data.messageType}`);
+          Swal.fire({
+              title:"CART",
+              text: response.data.message,
+              icon: response.data.messageType,
+              footer: `<a href='/cart'>Click here to View Cart</a>`
+          });
+      })
+      .catch((error)=> {
+          console.log(error);
+          Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Something went wrong!",
+              footer: 'Cannot Add item to cart'
+          });
+      });
+  }
+</script>
+
+
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+  const mainImage = document.getElementById('main-image');
+  const mainImageLink = document.getElementById('main-image-link');
+  const thumbnails = document.querySelectorAll('.thumb-image');
+
+  thumbnails.forEach(thumbnail => {
+    thumbnail.addEventListener('click', function(event) {
+      event.preventDefault();
+      const largeSrc = thumbnail.getAttribute('data-large-src');
+      mainImage.src = largeSrc;
+      mainImageLink.href = largeSrc;
+    });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const minusButton = document.getElementById('button-addon1');
+  const plusButton = document.getElementById('button-addon2');
+  const quantityInput = document.getElementById('quantity-input');
+
+  minusButton.addEventListener('click', function() {
+    let currentValue = parseInt(quantityInput.value);
+    if (!isNaN(currentValue) && currentValue >= 1) {
+      quantityInput.value = currentValue - 1;
+    }
+    if(currentValue === 1){
+      Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Please Add AtLeast One Quantity",
+              
+          });
+          quantityInput.value = 1;
+    }
+    
+  });
+
+  plusButton.addEventListener('click', function() {
+    let currentValue = parseInt(quantityInput.value);
+    if (!isNaN(currentValue) && currentValue <= <%=product.quantity%>) {
+      quantityInput.value = currentValue + 1;
+    }
+    if(currentValue > <%=product.quantity%>){
+      Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Maximum Quantity Reached",
+              
+          });
+    }
+  });
+});
+
+
+  </script>
+
+    <%- include('./partials/footer'); %>

@@ -1,0 +1,53 @@
+ 
+<%- include('./partials/header'); %>
+ <!-- Recent Sales Start -->
+ <div class="container-fluid pt-4 px-4">
+    <div class="bg-light text-center rounded p-4">
+        <div class="d-flex align-items-center justify-content-between mb-4">
+            <h6 class="mb-0">All Customers</h6>
+        </div>
+        <div class="table-responsive">
+            <table class="table text-start align-middle table-bordered table-hover mb-0">
+                <thead>
+                    <tr class="text-dark">
+                        <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                        <th scope="col">Customer</th>
+                        <th scope="col">Contact Number</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                <%if(users.length>0){%>
+
+                   <% for(let i=0;i < users.length;i++){ %>
+                    <tr>
+                        <td><input class="form-check-input" type="checkbox"></td>
+                        <td><%=users[i].username%></td>
+                        <td><%=users[i].mobile%></td>
+                        <td><%=users[i].email%></td>
+                        <td><%=users[i].isActive%></td>
+                        <td><%if(users[i].isBlocked){%>
+                            <a class="btn btn-sm btn-primary" href="/admin/users/unblock/<%=users[i]._id%>">UnBlock</a> 
+                            <%}else{%>
+                                <a class="btn btn-sm btn-danger" href="/admin/users/block/<%=users[i]._id%>">Block</a>
+                            <%}%>
+                        </td>
+                    </tr>
+                    <%}%>
+                <%}else{%>
+                    <tr>
+                        <td colspan="7" class="text-center"> No Users Found </td>
+                    </tr>
+                <%}%> 
+                </tbody>    
+            </table>
+
+        </div>
+    </div>
+</div>
+<!-- Recent Sales End -->
+<%- include('./partials/pageCon'); %>
+
+<%- include('./partials/footer'); %>

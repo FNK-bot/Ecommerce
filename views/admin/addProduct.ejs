@@ -1,0 +1,95 @@
+<%- include('./partials/header'); %>
+<div class="container-fluid pt-4 px-4">
+    <div class="bg-light  rounded p-4">
+    <form action="/admin/addProduct" method="POST" enctype="multipart/form-data" class="container ">
+        <h2 class="mb-4">Add New Product</h2>
+        <!-- General info -->
+        <div class="form-group">
+            <label for="productTitle">Product Name</label>
+            <input type="text" name="name" placeholder="Type here" class="form-control" id="productTitle">
+        </div>
+        <div class="form-group">
+            <label for="productDescription">Description</label>
+            <textarea placeholder="Type here" name="discription" class="form-control" rows="4" id="productDescription"></textarea>
+        </div>
+        <div class="form-group">
+            <label for="productBrand">Brand name</label>
+            <input type="text" name="brand" placeholder="Adidas" class="form-control" id="productBrand">
+        </div>
+
+        <!-- Pricing -->
+        <div class="form-group">
+            <label for="productPrice">Cost in USD</label>
+            <input type="text" name="price" placeholder="$00.0" class="form-control" id="productPrice">
+        </div>
+
+        <!-- Color -->
+        <div class="form-group">
+            <label for="productColor">Color</label>
+            <select class="form-select" name="color" id="productColor">
+                <option value="Black">Black</option>
+                <option value="White">White</option>
+                <option value="Red">Red</option>
+                <option value="Orange">Orange</option>
+                <option value="Yellow">Yellow</option>
+                <option value="Green">Green</option>
+                <option value="Blue">Blue</option>
+                <option value="Purple">Purple</option>
+                <option value="Pink">Pink</option>
+                <option value="Brown">Brown</option>
+                <option value="Gray">Gray</option>
+                <option value="Silver">Silver</option>
+                <option value="Gold">Gold</option>
+            </select>
+        </div>
+
+        <!-- Quantity -->
+        <div class="form-group">
+            <label for="productQuantity">Quantity</label>
+            <input type="text" name="quantity" placeholder="0" class="form-control" id="productQuantity">
+        </div>
+
+        <!-- Size -->
+        <div class="form-group">
+            <label for="productSize">Size</label>
+            <select class="form-select" name="size" id="productSize">
+                <option selected>Select Size</option>
+                <option value="xs">XS</option>
+                <option value="s">S</option>
+                <option value="m">M</option>
+                <option value="l">L</option>
+                <option value="xl">XL</option>
+                <option value="xxl">XXL</option>
+            </select>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+            <label for="productCategory">Categories</label>
+            <select class="form-select" name="categary" id="productCategory">
+                <option selected>Select Category</option>
+                <% if(category.length >0){ %>
+                <% for(let i=0;i< category.length;i++) {%>
+                <option value="<%=[i]%>" ><%=category[i].name%></option>
+                <%}%>
+                <% } else {%>
+                    <option value="disable" class="disable">No catagorys found</option>
+                <%}%>
+            </select>
+        </div>
+
+        <!-- Media -->
+        <div class="form-group">
+            <label for="productImages">Images</label>
+            <input class="form-control" type="file" accept="image/*" name="images" multiple id="productImages">
+        </div>
+
+        <!-- Submit button -->
+        <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Add Product</button>
+        <a href="/admin/products" class="btn btn-danger btn-lg btn-block mt-2" >Cancel</a>
+    </form>
+
+    
+</div>
+</div>
+<%- include('./partials/footer'); %>

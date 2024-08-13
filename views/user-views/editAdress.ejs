@@ -1,0 +1,112 @@
+<%- include('./partials/alertMessages'); %>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Address</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .error-message {
+            color: red;
+            font-size: 0.9em;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">Edit Address</h5>
+                <form action="/editAddress" method="post">
+                    <input type="hidden" name="addressId" value="<%= address._id %>">
+
+                    <div class="form-group">
+                        <label for="addressType">Address Type</label>
+                        <select class="form-select" name="addressType" id="addressType" required>
+                            <option value="<%=address.adressType%>" ><%=address.adressType%></option>
+                            <option value="home">Home</option>
+                            <option value="office">Office</option>
+                            <option value="other">Other</option>
+                        </select>
+                        <div class="error-message" id="addressTypeError">Please select an address type.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="addressLine1">Address Line</label>
+                        <input type="text" class="form-control" name="addressLine1" id="addressLine1" placeholder="Enter address line" required minlength="1" value="<%=address.addressLine%>">
+                        <div class="error-message" id="addressLine1Error">Address Line is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" required minlength="1" value="<%=address.name%>">
+                        <div class="error-message" id="nameError">Name is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone</label>
+                        <input type="tel" class="form-control" name="phone" id="phone" placeholder="Enter phone" value="<%=address.mobile%>" required pattern="^\d{10}$" title="Please enter a 10-digit phone number">
+                        <div class="error-message" id="phoneError">Please enter a valid 10-digit phone number.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" class="form-control" name="city" id="city" placeholder="Enter city" value="<%=address.city%>" required minlength="1">
+                        <div class="error-message" id="cityError">City is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="areaStreet">Area or Street</label>
+                        <input type="text" class="form-control" name="areaStreet" id="areaStreet" placeholder="Enter Area or Street" value="<%=address.areaStreet%>">
+                    </div>
+                    <div class="form-group">
+                        <label for="district">District</label>
+                        <input type="text" class="form-control" name="district" id="district" placeholder="Enter District" required minlength="1" value="<%=address.district%>">
+                        <div class="error-message" id="districtError">District is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="landmark">Landmark</label>
+                        <input type="text" class="form-control" name="landmark" id="landmark" placeholder="Enter landmark" value="<%=address.landmark%>" required minlength="1">
+                        <div class="error-message" id="landmarkError">Landmark is required.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="pin">Pin Code</label>
+                        <input type="number" class="form-control" name="pin" id="pin" placeholder="Enter Pin code" required pattern="^\d{6}$" title="Please enter a 6-digit pin code" value="<%=address.pinCode%>">
+                        <div class="error-message" id="pinError">Please enter a valid 6-digit pin code.</div>
+                    </div>
+                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">Update Address</button>
+                    <a href="/profile" class="btn btn-danger">Cancel</a>
+
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Alert</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to update the address?
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary" id="confirmUpdate">Save changes</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('confirmUpdate').addEventListener('click', function() {
+            document.querySelector('form').submit();
+        });
+    </script>
+</body>
+</html>

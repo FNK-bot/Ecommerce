@@ -1,0 +1,134 @@
+<%- include('./partials/header'); %>
+<%- include('./partials/alertMessages'); %>   
+<section style="padding-top: 86px;">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="/">Home</a></li>
+          <li class="breadcrumb-item"><a href="/profile">profile</a></li>
+
+        </ol>
+      </nav>
+    <div class="pt-20"></div>
+    <div class="container ">
+        <div class="card">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-4">
+                   <% if(user.image){ %>
+                        <img src="/admin/assets/images/catagory/<%=user.image%>" class="rounded-circle mr-3" style="height: 50px; width: 50px;" alt="Profile Picture">
+                    
+                    <%}else{%>
+                        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgHBgkIBwgKCgkLDRYPDQwMDRsUFRAWIB0iIiAdHx8kKDQsJCYxJx8fLT0tMTU3Ojo6Iys/RD84QzQ5OjcBCgoKDQwNGg8PGjclHyU3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N//AABEIAMAAzAMBIgACEQEDEQH/xAAbAAEAAwEBAQEAAAAAAAAAAAAAAgMEBQEHBv/EADAQAQACAQIFAgIJBQAAAAAAAAABAgMRMQQSIUFRYXEykRMiIzNCQ1KBoQUUU5Kx/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwD7iAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADybVjeYgHoh9JT9dfm9jJSdrR8wSDWAAAAAAAAAAAAAAAAAAFWbLGP1kE5tWI1mdFF+J/RHzU3vN51tOqKolbJe34kd+sivLlrjjr1nwCw08wyTxNtekREJU4nr9eP3gGrmtG3RZXPeu/WFUTrXmidYAbMeal/SfErXOiV2LNNZ0t1qitY8raLRExs9AAAAAAAAAAABDJeKV1nYEM+aKV6fEybzrOsy9tOs623l4oACIZb8lJnv2YbTNrazK/i561jwzgAAu4a/LaKT8MtjnRu30nmrE+YBIAFmLJOOfTvDZExMRMbS56/hsmk8k7TsK1AIAAAAAAAADJxN+a+naGm88tZt4YN+vkABUAAY+K++/ZS0cXXTJr5hnAAA9W7B9zT2Yd3Qxxy0rXxAJAAEdNNOwA3Yrc9Inumy8Lb601nvs1IoAAAAAAACnip0x+8skbNPF7VZgAFQABVnpN6TpGto6wxddZiekw6SjNw/PMzSdJ76gyCycGSJ05Zn2Spw97Tpb6sA8wY+e+vavWW1Gla0jlrCQAAAAJ4Z+0r76Nznx0mNHQ7ooAAAAAAADPxe1WZr4mPs49JZAAFQBTk4itPhjmnwC7R5Nq1+KYj3Yr5r33tp6QhIN30tP1w9+kpP46/NzwHS32HOrNonWLT819OJn8yNYBqEaXjJGtZ1SAAB7G8N/dhxdctY9W6EV6AAAAAAACOSvNSYYNvd0WPPTlvM9p6gqO0z4Gbick/BG3dURz55v9WvSvnyoAAAAAAAEqXtSdazpLbhyxlrrppMbwwJUtNLRau8A6AjjtF680eEvALuFrrebeIa1eCnJT1nqsRQAAAAAAABDNTnppG/ZMBzbzyVmZjbdz7TNpmZ7uvx+G18VpxxrbvHlx9es6/JUAAAAAAAAAAaeEt8VO27dw9Oa3N+GGDgsVsmaOXXSPinw7NKxWsVrtAqQCAAAAAAAAAAAw8ZwUZJ58Wlb948twD89alqW5bRNZjyi7ubh8eeumSNZjae8MGb+nZK9cU80fyowiVqXx9L1tE+sPO2wjwAAersXCZsk9KaR5noCjbfZp4XhL551mJrj8z3bOH/AKfTHPNknnn+G2IiI6IqGHFTFjilI6f9WAAAAAAAAAAAAAAAAADyYiY6xE+6m/CYL9bY6/t0XgMv9jw3+Of9pexwPDR+X85lpAV0w4qfBjrHtCwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAf//Z" class="rounded-circle mr-3" style="height: 50px; width: 50px;" alt="Profile Picture">
+                     <%}%>       
+                    <div>
+                        <h5 class="card-title mb-0"><%=user.username%></h5>
+                        <p class="card-text mb-0">Email: <%=user.email%>, Phone: <%=user.mobile ? user.mobile :'Update phone number'%> </p>
+                    </div>
+                    <div class="row ml-auto">
+                        <a href="/edit-profile?id=<%=user._id%>" class="col-12 btn-link">Edit Profile</a>
+                    <a href="/changepass?id=<%=user._id%>" class="col-12 btn-link">Change Password</a>
+                </div>  
+                </div>
+               
+
+                <div >
+                   
+               
+                    <h6 class="mb-3">Your Address</h6>
+                    <table class="table table-bordered">
+                <%let count=0%>
+                <%if(user.address.length>0){%>
+                        <thead>
+                          <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Home</th>
+                            <th scope="col">State</th>
+                            <th scope="col">city</th>
+                            <th scope="col">Pin code</th>
+                            <th scope="col">Action</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                        <% for(let i=0;i< user.address.length ;i++){ %>
+                            <%if(!user.address[i].isDeleted){%>
+                                <tr>
+                                    <th scope="row"><%= ++count%></th>
+                                    <td><%=user.address[i].addressLine%></td>
+                                    <td><%=user.address[i].district%></td>
+                                    <td><%=user.address[i].city%></td>
+                                    <td><%=user.address[i].mobile%></td>
+                                    <td><a href="/editAddress?id=<%=user.address[i]._id%>"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>
+                                    <a href="/deleteAddress?id=<%=user.address[i]._id%>"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                                   
+                                    </td>
+                                </tr>
+                            <%}%>
+                        <%}%>
+                
+                        
+                <%}if(count == 0){%>
+                            <tr>
+                                <th scope="row" colspan="7"> Address not Found </th>
+                                </td>
+                            </tr>
+                
+                    
+               
+                <%}%>
+
+                        </tbody>
+                      </table>
+                      <a class="btn-link mb-3" href="/add-new-address">Add New Address</a>
+                </div>   
+                
+                <div>
+                    
+                    
+                    <h6 class="mb-3">Your Orders</h6>
+
+                    <%if(orders.length>0){%>
+                        <% for(let i=0;i<orders.length;i++){%>
+                    <div class="card mt-3">
+                        <div class="card-body">
+                            <div class="row mb-2">
+                                <div class="col">
+                                    <p><strong>Order ID:</strong> <%= orders[i].orderID %></p>
+                                    <p><strong>Status:</strong> <%= orders[i].status %></p>
+                                    <p><strong>Date:</strong> <%= orders[i].date %></p>
+                                </div>
+                                <div class="col">
+                                    <p><strong>Contact:</strong> <%= orderAddress.name %></p>
+                                    <p><strong>Phone:</strong>  <%= orderAddress.mobile %></p>
+                                    
+                                </div>
+                                <div class="col">
+                                    <p><strong>Shipping Address:</strong></p>
+                                    <p> <%= orderAddress.district %></p>
+                                    <p> <%= orderAddress.addressLine %>8</p>
+                                </div>
+                                <div class="col">
+                                    <p><strong>Payment:</strong></p>
+                                    <p>Visa **** 4216</p>
+                                    <p><strong>Shipping fee:</strong> $56</p>
+                                    <p><strong>Total paid:</strong> $456</p>
+                                </div>
+                            </div>
+                            <div class="d-flex justify-content-end">
+                                <a href="/deleteOrder?id=<%= orders[i]._id %>"><button class="btn btn-outline-danger mr-2">Cancel Order</button></a>
+                                <button class="btn btn-primary">Track Order</button>
+                            </div>
+                        </div>
+                    </div>
+                        <%}%>
+                        <%}else{%>
+                            
+                            <div class="not-found">
+                                <h6>No Orders Yet</h6>
+                            </div>
+               
+                <%}%>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>

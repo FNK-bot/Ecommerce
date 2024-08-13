@@ -1,0 +1,55 @@
+ 
+<%- include('./partials/header'); %>
+<!-- Recent Sales Start -->
+<div class="container-fluid pt-4 px-4">
+   <div class="bg-light text-center rounded p-4">
+       <div class="d-flex align-items-center justify-content-between mb-4">
+           <h6 class="mb-0">All Products</h6>
+       </div>
+       <div class="table-responsive">
+           <table class="table text-start align-middle table-bordered table-hover mb-0">
+               <thead>
+                   <tr class="text-dark">
+                       <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                       <th scope="col">Order ID</th>
+                       <th scope="col">Payment method</th>   
+                       <th scope="col">Date of Order Placed</th>
+                       <th scope="col">status</th>
+                       <th scope="col">Action</th>
+                       
+                    </tr>
+               </thead>
+              
+               <tbody>
+                <% if (orders.length > 0) { %>
+                    <% for (let i = 0; i < orders.length; i++) { %>
+                   <tr>
+                       <td><input class="form-check-input" type="checkbox"></td>
+                       <td><%= orders[i].orderID %></td>
+                       <td><%= orders[i].method %></td>
+                       <td><%=  orders[i].createdOn %></td>
+                       <td><%= orders[i].status %></td>
+                       <td>
+                        <% if(orders[i].status == 'Not-Shipped') {%>
+                            <a class="btn btn-sm btn-success" href="/admin/shippOrder?id=<%=orders[i]._id%>">Shipp order</a>
+                        <% }else{ %>
+                            <a class="btn btn-sm btn-warning" href="/admin/unShippOrder?id=<%=orders[i]._id%>">Unshipp order</a>
+                            <% } %>
+                       </td>
+                       <td><a class="btn btn-sm btn-danger" href="/admin/deleteOrder?id=<%=orders[i]._id%>">Delete</a></td>
+                    </tr>
+                    <% } %>
+                             <% } else { %>
+                                    <tr>
+                                        <td colspan="7">No oder Available  <a class="badge badge-primary"  href="/admin/addProduct">Click here to add product</a> </td>
+                                    </tr>
+                                    <% } %>
+
+           </table>
+       </div>
+   </div>
+</div>
+<!-- Recent Sales End -->
+<%- include('./partials/pageCon'); %>
+
+<%- include('./partials/footer'); %>

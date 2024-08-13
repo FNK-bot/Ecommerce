@@ -1,0 +1,50 @@
+ 
+<%- include('./partials/header'); %>
+<!-- Recent Sales Start -->
+<div class="container-fluid pt-4 px-4">
+   <div class="bg-light text-center rounded p-4">
+       <div class="d-flex align-items-center justify-content-between mb-4">
+           <h6 class="mb-0">All Catagories</h6>
+       </div>
+       <div class="table-responsive">
+           <table class="table text-start align-middle table-bordered table-hover mb-0">
+               <thead>
+                   <tr class="text-dark">
+                       <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                       <th scope="col">Title</th>
+                       <th scope="col">Image</th>
+                       <th scope="col">description</th>
+                       <th scope="col">Action</th>
+                       <th scope="col">Options</th>
+                   </tr>
+               </thead>
+               <% if (catogary.length > 0) { %>
+
+                <% for (let i = 0; i < catogary.length; i++) { %>
+
+               <tbody>
+                   <tr>
+                       <td><input class="form-check-input" type="checkbox"></td>
+                       <td><%= catogary[i].name %></td>
+                       <td><img class="rounded"  style="width: 50px; height: 60px;" src="/admin/assets/images/catagory/<%= catogary[i].image %>" alt="image"></td>
+                       <td><%= catogary[i].discription %></td>
+                       <td><a class="btn btn-sm btn-danger" href="/admin/unlistCatagory?id=<%= catogary[i]._id %>">Unlist</a></td>
+                       <td><a class="btn btn-sm btn-primary" href="/admin/editCatagory?id=<%= catogary[i]._id %>">Edit</a>
+                       <td> <a class="btn btn-sm btn-danger" href="/admin/deleteCatagory?id=<%= catogary[i]._id %>">Delete</a>
+                    </td>
+                   </tr>
+                   <% } %>
+                   <% } else { %>
+                       <tr>
+                           <td colspan="7">Catogary not found <a href="/admin/addCatagory" >add one</a></td>
+                           
+                       </tr>
+                   <% } %> 
+           </table>
+       </div>
+   </div>
+</div>
+<!-- Recent Sales End -->
+
+<%- include('./partials/pageCon'); %>
+<%- include('./partials/footer'); %>

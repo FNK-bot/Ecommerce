@@ -1,0 +1,49 @@
+Pendings:
+implement form validation 
+add confirm password field
+handle sessions properly
+show 'category already exist' message in the same page
+category should be unique - edit category
+image cropping
+preview the existing images with delete option
+confirmation popup before blocking & unblocking
+handle blocking of already logged in user
+google authentication is crashing (handle the duplicate accounts)
+soft delete
+
+don't use var
+mongo url & other  should be in .env
+keep admin data in DB
+
+Next Week:
+User side : 
+User profile(Show user details, show address, show orders, edit profile, cancel orders, change password).
+Add address management in user profile( Multiple Address, Add, Edit, Delete).
+Cart management (Add to cart, list products in cart, remove products from cart)
+Qty (add to cart) should be controlled based on stocks left
+Handle maximum qty per person to add to cart for a product 
+Out of stock product need to shown or hidden based on filter
+Advanced search with sort based on 
+Popularity 
+Price: low to high
+Price : high to low 
+Average ratings 
+Featured 
+New arrivals 
+aA - zZ 
+zZ - aA 
+Inventory/Stock management.
+Checkout page(Multiple address,edit and saved address)
+Place order with Cash on Delivery(Address selection)
+Purchase with COD.
+Order Management-Order cancellation option, Order history and status.
+Admin side : 
+Order Management
+Admin Side: List orders, change order status, cancel orders
+Stocks left - should be shown in product listing and product details page
+Marks : 
+Task:6 & 
+Practical:5.5
+
+
+algo map .io
