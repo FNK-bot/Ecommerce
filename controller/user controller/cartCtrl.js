@@ -260,13 +260,14 @@ const getCheckOut = async(req,res)=>{
 
 //generte oderId
 function generateOderId() {
-    var digits = "1234567890";
-    var otp = "";
+    let digits = "1234567890";
+    let otp = "";
     for (i = 0; i < 6; i++) {
         otp += digits[Math.floor(Math.random() * 10)];
     }
     return otp;
 }
+
 const postChekOut = async (req,res)=>{
     try {
         console.log(`data recieved on order`,req.body)
