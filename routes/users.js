@@ -78,4 +78,5 @@ router.post('/checkOut',isLogged,postChekOut)
 
 //order
 router.get('/deleteOrder',isLogged,deleteOrder)
+
 module.exports = router;

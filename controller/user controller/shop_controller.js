@@ -8,7 +8,7 @@ const getShop = async (req,res)=>{
         
         const catagory= await Catagory.find()
         const product = await Product.find();
-        const user = req.session.user_id;
+        const user = await User.findById(req.session.user_id)
         let totalProducts = product.length;
         const itemsperpage =totalProducts > 9 ? 9 :totalProducts;
         console.log('item per page'+itemsperpage)
@@ -16,20 +16,17 @@ const getShop = async (req,res)=>{
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
         const totalpages = Math.ceil(totalProducts/9);
-        const currentproduct = product.slice(startindex,endindex);
+         currentproduct = product.slice(startindex,endindex);
        
         if(user){
-            const userdata=await User.findById(user)
-            res.render("user-views/shop", { user:userdata, product:currentproduct ,catagory,totalpages,currentpage,totalProducts});
-
+            res.render("user-views/shop", { user, product:currentproduct ,catagory,totalpages,currentpage,totalProducts});
         }else{ 
-         
             res.render("user-views/shop", { user:null, product:currentproduct , catagory,totalpages,currentpage,totalProducts});
         }
     } catch (error) {
        
         console.log('error in getShop error:',error)
     }
-}
+};
 
 module.exports = getShop
