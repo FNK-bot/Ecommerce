@@ -1,41 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart Page</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+        integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-   
-    
+
+
     <style>
         body {
             margin-top: 20px;
             background-color: #f1f3f7;
-        }   
+        }
+
         .avatar-lg {
             height: 5rem;
             width: 5rem;
         }
+
         .font-size-18 {
-            font-size: 18px!important;
+            font-size: 18px !important;
         }
+
         .text-truncate {
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
+
         a {
-            text-decoration: none!important;
+            text-decoration: none !important;
         }
+
         .w-xl {
             min-width: 160px;
         }
+
         .card {
             margin-bottom: 24px;
             box-shadow: 0 2px 3px #e4e8f0;
         }
+
         .card {
             position: relative;
             display: flex;
@@ -47,10 +57,12 @@
             border: 1px solid #eff0f2;
             border-radius: 1rem;
         }
+
         .quantity-selector {
             display: flex;
             align-items: center;
         }
+
         .quantity-selector button {
             width: 30px;
             height: 30px;
@@ -61,6 +73,7 @@
             align-items: center;
             justify-content: center;
         }
+
         .quantity-selector input {
             width: 40px;
             height: 30px;
@@ -71,238 +84,340 @@
         }
     </style>
 </head>
+
 <body>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<div class="container">
-    <% if(cart.length>0){%>
-    <div class="row">
-        <div class="col-xl-8">
-            <% for(let i=0;i<cart.length;i++) {%>
-            <div class="card border shadow-none">
-                <div class="card-body">
-                    <div class="d-flex align-items-start border-bottom pb-3">
-                        <div class="me-4">
-                            <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="pr-img" class="avatar-lg rounded">
-                        </div>
-                        <div class="flex-grow-1 align-self-center overflow-hidden" style="padding-left: 10px;">
-                            <div>
-                                <h5 class="text-truncate font-size-18"><a href="#" class="text-dark"><%= product[i].name %> </a></h5>
-                                <p class="text-muted mb-0">
-                                    <i class="bx bxs-star text-warning"></i>
-                                    <i class="bx bxs-star text-warning"></i>
-                                    <i class="bx bxs-star text-warning"></i>
-                                    <i class="bx bxs-star text-warning"></i>
-                                    <i class="bx bxs-star-half text-warning"></i>
-                                </p>
-                                <p class="mb-0 mt-1">Color : <span class="fw-medium"><%= product[i].color %></span></p>
-                            </div>
-                        </div>
-                        <div class="flex-shrink-0 ms-2">
-                            <ul class="list-inline mb-0 font-size-16">
-                                <li class="list-inline-item">
-                                    <a href="/deleteCartItem?id=<%=cart[i].ProductId%>" class="text-muted px-1"  >
-                                        <i class="mdi mdi-trash-can-outline"></i>
-                                    </a>
-                                </li>
-                                <li class="list-inline-item">
-                                    <a href="#" class="text-muted px-1">
-                                        <i class="mdi mdi-heart-outline"></i>
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div>
-                        <div class="row">
-                            <div class="col-md-4">
-                                <div class="mt-3">
-                                    <p class="text-muted mb-2">Price</p>
-                                    <h5 class="mb-0 mt-2"><span class="text-muted me-2"></span>$<%=product[i].price%></h5>
+    <div class="container">
+        <% if(cart.length>0){%>
+            <div class="row">
+                <div class="col-xl-8">
+                    <% for(let i=0;i<cart.length;i++) {%>
+                        <div class="card border shadow-none">
+                            <div class="card-body">
+                                <div class="d-flex align-items-start border-bottom pb-3">
+                                    <div class="me-4">
+                                        <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>"
+                                            alt="pr-img" class="avatar-lg rounded">
+                                    </div>
+                                    <div class="flex-grow-1 align-self-center overflow-hidden"
+                                        style="padding-left: 10px;">
+                                        <div>
+                                            <h5 class="text-truncate font-size-18"><a href="#" class="text-dark">
+                                                    <%= product[i].name %>
+                                                </a></h5>
+                                            <p class="text-muted mb-0">
+                                                <i class="bx bxs-star text-warning"></i>
+                                                <i class="bx bxs-star text-warning"></i>
+                                                <i class="bx bxs-star text-warning"></i>
+                                                <i class="bx bxs-star text-warning"></i>
+                                                <i class="bx bxs-star-half text-warning"></i>
+                                            </p>
+                                            <p class="mb-0 mt-1">Color : <span class="fw-medium">
+                                                    <%= product[i].color %>
+                                                </span></p>
+                                        </div>
+                                    </div>
+                                    <div class="flex-shrink-0 ms-2">
+                                        <ul class="list-inline mb-0 font-size-16">
+                                            <li class="list-inline-item">
+                                                <a href="/deleteCartItem?id=<%=cart[i].ProductId%>"
+                                                    class="text-muted px-1">
+                                                    <i class="mdi mdi-trash-can-outline"></i>
+                                                </a>
+                                            </li>
+                                            <li class="list-inline-item">
+                                                <a href="#" class="text-muted px-1">
+                                                    <i class="mdi mdi-heart-outline"></i>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="col-md-5">
-                                <div class="mt-3">
-                                    <p class="text-muted mb-2">Quantity</p>
-                                    <div class="quantity-selector">
-                                        
+                                <div>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <div class="mt-3">
+                                                <p class="text-muted mb-2">Price</p>
+                                                <h5 class="mb-0 mt-2"><span class="text-muted me-2"></span>$
+                                                    <%=product[i].price%>
+                                                </h5>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-5">
+                                            <div class="mt-3">
+                                                <p class="text-muted mb-2">Quantity</p>
+                                                <div class="quantity-selector">
 
-                                        <button class="btn-minus" onclick=" onMinus( '<%= cart[i].quantity %>' , '<%= cart[i].ProductId %>' ) " >-</button>
-                                        <input type="text" value="<%= cart[i].quantity %>" id="qnt-display-<%= cart[i].ProductId %>" readonly>
-                                        <button class="btn-plus"  onclick=" onPlus( '<%= cart[i].quantity %>' , '<%= cart[i].ProductId %>' ) " >+</button>
+
+                                                    <button class="btn-minus"
+                                                        onclick=" onMinus( '<%= cart[i].quantity %>' , '<%= cart[i].ProductId %>' ) ">-</button>
+                                                    <input type="text" value="<%= cart[i].quantity %>"
+                                                        id="qnt-display-<%= cart[i].ProductId %>" readonly>
+                                                    <button class="btn-plus"
+                                                        onclick=" onPlus( '<%= cart[i].quantity %>' , '<%= cart[i].ProductId %>' ) ">+</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3">
+                                            <div class="mt-3">
+                                                <p class="text-muted mb-2">Total</p>
+                                                <h5 id="singleTotal-<%= cart[i].ProductId %>"> $<%= product[i].price *
+                                                        cart[i].quantity %>
+                                                </h5>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="col-md-3">
-                                <div class="mt-3">
-                                    <p class="text-muted mb-2">Total</p>
-                                    <h5 id="singleTotal-<%= cart[i].ProductId %>"> $<%= product[i].price * cart[i].quantity %></h5>
+                        </div>
+                        <!-- end card -->
+                        <% } %>
+                            <!-- Repeat similar card structure for other products -->
+                            <div class="row my-4">
+                                <div class="col-sm-6">
+                                    <a href="/shop" class="btn btn-link text-muted">
+                                        <i class="mdi mdi-arrow-left me-1"></i> Continue Shopping </a>
+                                </div>
+                                <div class="col-sm-6">
+                                    <div class="text-sm-end mt-2 mt-sm-0 " style="padding-left: 220px;">
+                                        <a href="/checkOut" class="btn btn-success">
+                                            <i class="mdi mdi-cart-outline me-1"></i> Checkout </a>
+                                    </div>
+                                </div>
+                            </div>
+                </div>
+                <div class="col-xl-4">
+                    <div class="mt-5 mt-lg-0">
+                        <div class="card border shadow-none">
+                            <div class="card-header bg-transparent border-bottom py-3 px-4">
+                                <h5 class="font-size-16 mb-0">Order Summary <span class="float-end">#MN0124</span></h5>
+                            </div>
+                            <div class="card-body p-4 pt-2">
+                                <div class="table-responsive">
+                                    <table class="table mb-0">
+                                        <tbody>
+                                            <tr>
+                                                <td>Sub Total :</td>
+                                                <td class="text-end" id="sub-total">$ <%= subTotal %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Discount :</td>
+                                                <td class="text-end" id="discount">- $ <%= discount %>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>Shipping Charge :</td>
+                                                <td class="text-end">$ 00</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Estimated Tax :</td>
+                                                <td class="text-end">$ 00.00</td>
+                                            </tr>
+                                            <tr class="bg-light">
+                                                <th>Total :</th>
+                                                <td class="text-end">
+                                                    <span class="fw-bold" id="total">
+                                                        $ <%= total %>
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <!-- end table-responsive -->
+                                <div class="mt-4">
+                                    <h5 class="font-size-16 mb-3">Apply Discount Coupon</h5>
+                                    <%if(coupen=='no' ){%>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Enter coupon code"
+                                                id="coupenInput">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-primary" type="button"
+                                                    id="applybtn">Apply</button>
+                                            </div>
+                                        </div>
+                                        <p class="d-none" id="coupenMessage"></p>
+                                        <%}else{%>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" placeholder="<%=coupen%>"
+                                                    id="coupenInput" value="<%=coupen%>" disabled>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-danger" type="button"
+                                                        id="applybtn">Remove</button>
+                                                </div>
+                                            </div>
+                                            <p class="alert-danger" id="coupenMessage">coupen Applied</p>
+                                            <%}%>
+
+                                                <a href="/mycoupens">View My Coupens <span
+                                                        class="mdi mdi-tag-arrow-right-outline"></span>
+                                                </a>
                                 </div>
                             </div>
                         </div>
+                        <!-- end card -->
                     </div>
                 </div>
             </div>
-            <!-- end card -->
-             <% } %>
-            <!-- Repeat similar card structure for other products -->
-            <div class="row my-4">
-                <div class="col-sm-6">
+            <%}else{%>
+                <div class="not-found text-center">
+                    <p class="alert alert-danger mt-5">Add Something To cart</p>
                     <a href="/shop" class="btn btn-link text-muted">
                         <i class="mdi mdi-arrow-left me-1"></i> Continue Shopping </a>
-                </div>
-                <div class="col-sm-6">
-                    <div class="text-sm-end mt-2 mt-sm-0 " style="padding-left: 220px;">
-                        <a href="/checkOut" class="btn btn-success">
-                            <i class="mdi mdi-cart-outline me-1"></i> Checkout </a>
+                    <div class="not-found-img mt-4">
+                        <img src="data:image/png;base64,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"
+                            alt="">
                     </div>
                 </div>
-            </div>
-        </div>
-        <div class="col-xl-4">
-            <div class="mt-5 mt-lg-0">
-                <div class="card border shadow-none">
-                    <div class="card-header bg-transparent border-bottom py-3 px-4">
-                        <h5 class="font-size-16 mb-0">Order Summary <span class="float-end">#MN0124</span></h5>
-                    </div>
-                    <div class="card-body p-4 pt-2">
-                        <div class="table-responsive">
-                            <table class="table mb-0">
-                                <tbody>
-                                    <tr>
-                                        <td>Sub Total :</td>
-                                        <td class="text-end" id="sub-total">$ <%= subTotal %></td>
-                                    </tr>
-                                    <tr>
-                                        <td>Discount :</td>
-                                        <td class="text-end">- $ 00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Shipping Charge :</td>
-                                        <td class="text-end">$ 00</td>
-                                    </tr>
-                                    <tr>
-                                        <td>Estimated Tax :</td>
-                                        <td class="text-end">$ 00.00</td>
-                                    </tr>
-                                    <tr class="bg-light">
-                                        <th>Total :</th>
-                                        <td class="text-end">
-                                            <span class="fw-bold" id="total">
-                                                $ <%= total %>
-                                            </span>
-                                        </td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                        <!-- end table-responsive -->
-                        <div class="mt-4">
-                            <h5 class="font-size-16 mb-3">Apply Discount Coupon</h5>
-                            <div class="input-group">
-                                <input type="text" class="form-control" placeholder="Enter coupon code">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="button">Apply</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!-- end card -->
-            </div>
-        </div>
+                <% } %>
     </div>
-    <%}else{%>
-        <div class="not-found text-center">
-            <p class="alert alert-danger mt-5">Add Something To cart</p>
-            <a href="/shop" class="btn btn-link text-muted">
-                <i class="mdi mdi-arrow-left me-1"></i> Continue Shopping </a>
-            <div class="not-found-img mt-4">
-                <img src="data:image/png;base64,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" alt="">
-            </div>
-        </div>
-     <% } %>
-</div>
-<!-- Bootstrap and JavaScript Libraries -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Bootstrap and JavaScript Libraries -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<script>
-   
-    function onPlus(qnt,cid){   
-        axios.put('/incrementQnt',{qnt,cid})
-        .then((response)=>{
-            Swal.fire({
-              title:"CART",
-              text: response.data.message,
-              icon: response.data.messageType,
-              footer: `Cart updated`
-          });
-            console.log(response.data)
+    <script>
 
-            const quantityInput = document.getElementById(`qnt-display-${cid}`)
-            const productTotal = document.getElementById(`singleTotal-${cid}`)
-            const subTotal = document.getElementById('sub-total')
-            const total = document.getElementById('total')
-            productTotal.innerText = `$${response.data.singleTotal}`;
-            quantityInput.value = response.data.cartQnt;
-           
-            subTotal.innerText = `$${response.data.subTotal}`;
-            total.innerText = `$${response.data.total}`;
-            console.log(quantityInput.value)
-         
-        }).catch((error)=>{
-            console.log(error);
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Something went wrong!",
-                footer: 'Cannot Add item to cart'
-            });
+        function onPlus(qnt, cid) {
+            axios.put('/incrementQnt', { qnt, cid })
+                .then((response) => {
+                    if (response.data.ms) {
+                        Swal.fire({
+                            title: "CART",
+                            text: response.data.message,
+                            icon: response.data.messageType,
+                            footer: `Cart updated`
+                        });
+                    }
+                    console.log(response.data)
+
+                    const quantityInput = document.getElementById(`qnt-display-${cid}`)
+                    const productTotal = document.getElementById(`singleTotal-${cid}`)
+                    const subTotal = document.getElementById('sub-total')
+                    const total = document.getElementById('total')
+                    productTotal.innerText = `$${response.data.singleTotal}`;
+                    quantityInput.value = response.data.cartQnt;
+
+                    subTotal.innerText = `$${response.data.subTotal}`;
+                    total.innerText = `$${response.data.total}`;
+                    console.log(quantityInput.value)
+                    const discount = document.getElementById('discount')
+                    discount.innerText = '- $00'
+
+                }).catch((error) => {
+                    console.log(error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                        footer: 'Cannot Add item to cart'
+                    });
+                })
+        }
+
+
+        function onMinus(qnt, cid) {
+
+
+            axios.put('/decrementQnt', { qnt, cid })
+                .then((response) => {
+                    if (response.data.ms) {
+                        Swal.fire({
+                            title: "CART",
+                            text: response.data.message,
+                            icon: response.data.messageType,
+                            footer: `Cart updated`
+                        });
+                    }
+
+                    const quantityInput = document.getElementById(`qnt-display-${cid}`)
+                    const productTotal = document.getElementById(`singleTotal-${cid}`)
+                    const subTotal = document.getElementById('sub-total')
+                    const total = document.getElementById('total')
+                    const discount = document.getElementById('discount')
+                    discount.innerText = '- $00'
+
+                    console.log(response.data)
+                    productTotal.innerText = `$${response.data.singleTotal}`;
+                    subTotal.innerText = `$${response.data.subTotal}`;
+                    total.innerText = `$${response.data.total}`;
+                    quantityInput.value = response.data.cartQnt;
+                    console.log(quantityInput.value)
+
+                }).catch((error) => {
+                    console.log(error);
+                    Swal.fire({
+                        icon: "error",
+                        title: "Oops...",
+                        text: "Something went wrong!",
+                        footer: 'Cannot Add item to cart'
+                    });
+                })
+        }
+
+
+        //Discount coupen fucntions
+        const total = document.getElementById('total');
+        const applyBtn = document.getElementById('applybtn');
+        const coupenInput = document.getElementById('coupenInput')
+        const coupenMessage = document.getElementById('coupenMessage')
+        const discount = document.getElementById('discount')
+        function errorMessage(message, type = 'error') {
+            // Swal.fire({
+            //     position: "top-end",
+            //     icon: type,
+            //     title: message,
+            //     showConfirmButton: false,
+            //     timer: 1500
+            // });
+            coupenMessage.className = type == 'success' ? 'alert-success' : 'alert-danger';
+            coupenMessage.innerText = message
+        }
+        applyBtn.addEventListener('click', () => {
+            if (coupenInput.value.length > 0) {
+                if (applyBtn.innerText == 'Apply') {
+                    axios.put('/apply-coupen', { code: coupenInput.value }).then((res) => {
+                        if (res.data.isValid) {
+                            total.innerText = '$' + res.data.total;
+                            discount.innerText = '- $' + res.data.discount
+                            coupenInput.disabled = true
+                            applyBtn.innerText = 'Remove';
+                            applyBtn.className = 'btn btn-danger';
+
+                            errorMessage(res.data.msg, 'success')
+
+                        }
+                        else {
+                            errorMessage(res.data.msg)
+                        }
+                    }).catch((err) => {
+                        errorMessage(err)
+                    })
+                }
+                if (applyBtn.innerText == 'Remove') {
+                    axios.put('/cancel-coupen', { code: coupenInput.value }).then((res) => {
+                        if (res.data.isValid) {
+                            applyBtn.innerText = 'Apply';
+                            applyBtn.className = 'btn btn-primary';
+                            coupenInput.disabled = false
+                            total.innerText = '$' + res.data.total;
+                            discount.innerText = '$' + res.data.discount
+                            errorMessage(res.data.msg, 'success')
+                        }
+                        else {
+                            errorMessage(res.data.msg)
+                        }
+                    })
+                }
+            }
+            else {
+                errorMessage('Enter the coupen code')
+            }
         })
-    }
 
-    
-    function onMinus(qnt,cid) {
-
-
-        axios.put('/decrementQnt',{qnt,cid})
-        .then((response)=>{
-            Swal.fire({
-              title:"CART",
-              text: response.data.message,
-              icon: response.data.messageType,
-              footer: `Cart updated`
-          });
-
-            const quantityInput = document.getElementById(`qnt-display-${cid}`)
-            const productTotal = document.getElementById(`singleTotal-${cid}`)
-            const subTotal = document.getElementById('sub-total')
-            const total = document.getElementById('total')
-
-             console.log(response.data)
-            productTotal.innerText = `$${response.data.singleTotal}`;
-            subTotal.innerText = `$${response.data.subTotal}`;
-            total.innerText = `$${response.data.total}`;
-            quantityInput.value = response.data.cartQnt;
-            console.log(quantityInput.value)
-         
-        }).catch((error)=>{
-            console.log(error);
-            Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: "Something went wrong!",
-                footer: 'Cannot Add item to cart'
-            });
-        })
-    }
-
-
-
-
-</script>
-
+    </script>
 </body>
+
 </html>

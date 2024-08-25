@@ -1,0 +1,162 @@
+<%- include('./partials/header'); %>
+
+
+
+    <!-- Sale & Revenue Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="row g-4">
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fa fa-chart-bar fa-3x text-primary"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Total Sales</p>
+                        <h6 class="mb-0">
+                            <%= totalSale %>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fa fa-chart-pie fa-3x text-primary"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Total Revenue</p>
+                        <h6 class="mb-0">$<%= totalRevenue %>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-sm-6 col-xl-3">
+                <div class="bg-light rounded d-flex align-items-center justify-content-between p-4">
+                    <i class="fa fa-chart-area fa-3x text-primary"></i>
+                    <div class="ms-3">
+                        <p class="mb-2">Total Discount</p>
+                        <h6 class="mb-0">-$<%= totalDiscount %>
+                        </h6>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Sale & Revenue End -->
+    <%if(orders.length>0){%>
+        <<!-- Filter Section Start -->
+            <div class="container-fluid pt-4">
+                <form action="/admin/salesReport" method="GET" class="d-flex   align-items-end ">
+                    <div class="form-group me-3" style="padding-left: 15px;">
+                        <label for="filter" class="form-label">Filter By:</label>
+                        <select name="filter" id="filter" class="form-select">
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                            <option value="yearly">Yearly</option>
+                            <option value="custom">Custom</option>
+                        </select>
+                    </div>
+                    <div class="form-group me-3 ">
+                        <label for="startDate" class="form-label">Start Date:</label>
+                        <input type="date" name="startDate" id="startDate" class="form-control" disabled>
+                    </div>
+                    <div class="form-group me-3 ">
+                        <label for="endDate" class="form-label">End Date:</label>
+                        <input type="date" name="endDate" id="endDate" class="form-control" disabled>
+                    </div>
+                    <div class="form-group ">
+                        <button type="submit" class="btn btn-primary">Filter</button>
+                    </div>
+                </form>
+            </div>
+            <!-- Filter Section End -->
+
+
+            <!-- Sales Report Start -->
+            <div class="container-fluid pt-4 px-4">
+
+                <div class="bg-light text-center rounded p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-4">
+
+                        <h6 class="mb-0">Sales Report</h6>
+                        <div>
+                            <a href="/admin/salesReport?download=pdf" class="btn btn-danger">Download PDF</a>
+                            <a href="/admin/salesReport?download=excel" class="btn btn-success">Download Excel</a>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+
+                        <table class="table text-start align-middle table-bordered table-hover mb-0">
+                            <thead>
+                                <tr class="text-dark">
+                                    <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Order ID</th>
+                                    <th scope="col">Customer</th>
+                                    <th scope="col">Discount</th>
+                                    <th scope="col">Amount</th>
+                                    <th scope="col">Method</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% for (let order of orders) { %>
+                                    <tr>
+                                        <td><input class="form-check-input" type="checkbox"></td>
+                                        <td>
+                                            <%= order.createdOn.toLocaleDateString() %>
+                                        </td>
+                                        <td>
+                                            <%= order.orderID %>
+                                        </td>
+                                        <td>
+                                            <%= order.userName %>
+                                        </td>
+                                        <td>$<%= order.discount %>
+                                        </td>
+                                        <td>$<%= order.totalPrice %>
+                                        </td>
+                                        <td>
+                                            <%= order.method %>
+                                        </td>
+                                        <td>
+                                            <%= order.status %>
+                                        </td>
+                                    </tr>
+                                    <% } %>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+            <!-- Sales Report End -->
+            <% } else {%>
+                <div class="container-fluid pt-4 px-4">
+
+                    <div class="bg-light text-center rounded p-4">
+                        <div class="notFound text-center ">
+                            <h5>No Orders yet !</h5>
+                        </div>
+                    </div>
+                </div>
+                <% } %>
+                    <%- include('./partials/footer'); %>
+
+                        <script>
+                            // Enable or disable date inputs based on the filter selected
+                            document.getElementById('filter').addEventListener('change', function () {
+                                const filter = this.value;
+                                const startDateInput = document.getElementById('startDate');
+                                const endDateInput = document.getElementById('endDate');
+
+                                if (filter === 'custom') {
+                                    startDateInput.disabled = false;
+                                    endDateInput.disabled = false;
+                                } else {
+                                    startDateInput.disabled = true;
+                                    endDateInput.disabled = true;
+                                    startDateInput.value = '';
+                                    endDateInput.value = '';
+                                }
+                            });
+                        </script>

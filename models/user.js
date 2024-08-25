@@ -40,15 +40,15 @@ const addressSchema = new mongoose.Schema({
     },
     adressType: {
         type: String,
-        default:"Home"
+        default: "Home"
     },
     isMain: {
         type: Boolean,
         default: false,
     },
-    isDeleted:{
-        type:Boolean,
-        default:false,
+    isDeleted: {
+        type: Boolean,
+        default: false,
     }
 });
 
@@ -66,8 +66,8 @@ const userSchema = new mongoose.Schema({
     },
     mobile: {
         type: Number,
-        required:false,
-        sparse:true,
+        required: false,
+        sparse: true,
     },
     password: {
         type: String,
@@ -84,52 +84,96 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
-    image:{
-        type:String
+    image: {
+        type: String
     },
-    googleID:{
-        type:String,
-        unique:true,
+    googleID: {
+        type: String,
+        unique: true,
     }
     ,
-    isGoogle:{
-      type:Boolean,
-      default: false,
-      sparse:true,
+    isGoogle: {
+        type: Boolean,
+        default: false,
+        sparse: true,
 
     },
     address:
         [addressSchema]
     ,
-      cart:{
-      type:Array,
-        ProductId:{
-            type:mongoose.Schema.Types.ObjectId,
-            required:true,
-            ref:"Product"
+    cart: {
+        cartItems: [{
+            ProductId: {
+                type: mongoose.Schema.Types.ObjectId,
+
+                ref: "Product"
+            },
+            quantity: {
+                type: Number,
+
+            },
+            size: {
+                type: String,
+            },
+            total: {
+                type: Number,
+
+            }
+        }],
+        subtotal: { type: Number },
+        discount: { type: Number, default: 0 },
+        total: {
+            type: Number,
+            default: 0,
         },
-        quantity:{
-            type:Number,
-            required:true,
-        },
-        size:{
-            type:String,
-        },
-        total:{
-            type:Number,
-            required:true
-        },
-        subTotal:{
-            type:Number,
-            
+        coupen: { type: String, default: 'no' }
+
+    },
+    coupens: {
+        type: Array,
+        coupenIds: [{
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            ref: 'Coupens'
+        }]
+        ,
+        isActivated: {
+            type: Boolean,
+            default: false
         }
     },
-        
-   
+    wishList: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Product"
+        },
+        isDeleted: {
+            type: Boolean,
+            required: true,
+            default: false,
+        }
+    }],
+    wallet: {
+        type: Number,
+        required: true,
+        default: 0,
+    }
+
+
 });
 
 
-
+userSchema.pre('save', function (next) {
+    if (this.cart.cartItems.length > 0) {
+        console.log('user schema middleware checked')
+        let cartTotal = this.cart.cartItems.reduce((acc, item) => {
+            return acc + item.total
+        }, 0)
+        this.cart.subtotal = cartTotal;
+        this.cart.total = cartTotal - this.cart.discount
+    }
+    next()
+})
 
 userSchema.methods.isPasswordMatched = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);

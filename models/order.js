@@ -1,60 +1,65 @@
-const mongoose = require('mongoose'); // Erase if already required
+const mongoose = require('mongoose');
 
 
-
-
-
-// Declare the Schema of the Mongo model
-var oderSchema = new mongoose.Schema({
-    orderID:{
-        required:true,
-        type:Number,
-        unique:true,
+// Schema of the Mongo model
+let oderSchema = new mongoose.Schema({
+    orderID: {
+        required: true,
+        type: Number,
+        unique: true,
 
     },
-    totalPrice:{
-        required:true,
-        type:Number
+    totalPrice: {
+        required: true,
+        type: Number
     },
-    size:{  
-        type:String 
+    size: {
+        type: String
     },
-    createdOn:{
-        required:true, 
-        type:Date,
-        default:Date.now
+    createdOn: {
+        required: true,
+        type: Date,
+        default: Date.now
     },
-    date:{
-        required:true,
-        type:String,
+    date: {
+        required: true,
+        type: String,
 
     },
-    productId:{
-        required:true,
-        type:Array
+    productId: {
+        required: true,
+        type: Array
     },
-    userId:{
-        required:true,
-        type:String
+    userId: {
+        required: true,
+        type: String
 
     },
-    method:{
-        required:true,
-        type:String,
+    method: {
+        required: true,
+        type: String,
     },
-    status:{
-        required:true,
-        type:String
+    status: {
+        required: true,
+        type: String
     },
-    addressId:{
-        type:String,
-        required:true
+    address: {
+        type: Object,
+        required: true
     },
-    isDeleted:{
-        type:Boolean,
-        default:false,
-    }
-    
+    isDeleted: {
+        type: Boolean,
+        default: false,
+    },
+    discount: {
+        type: Number,
+        default: 0,
+    },
+    userName: {
+        type: String,
+        required: true,
+
+    },
 });
 
 

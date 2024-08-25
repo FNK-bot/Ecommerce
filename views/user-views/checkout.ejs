@@ -2,29 +2,30 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Checkout Page</title>
-    <link rel="stylesheet" href="/css/checkOut.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/css/checkOut.css" />
+    <link rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+        integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet" />
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 
 <body>
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <div class="container">
-        <form id="checkout-form" method="POST" action="/checkOut">
-
+        <form id="checkout-form">
+            <!-- <form id="checkout-form"> -->
             <div class="row">
                 <div class="col-xl-8">
-
                     <div class="card">
                         <div class="card-body">
+                            <input type="hidden" name="totalAmount" id="totalAmountInput"
+                                value='<%=totalCartPrice %>' />
                             <ol class="activity-checkout mb-0 px-4 mt-3">
-
                                 <!-- Address Selection -->
                                 <li class="checkout-item">
                                     <div class="avatar checkout-icon p-1">
@@ -35,39 +36,66 @@
                                     <div class="feed-item-list">
                                         <div>
                                             <h5 class="font-size-16 mb-1">Select Address</h5>
-                                            <p class="text-muted text-truncate mb-3"> <a href="/add-new-address" class="btn btn-link text-muted">+ Add New Address </a></p>
+                                            <p class="text-muted text-truncate mb-3">
+                                                <a href="/add-new-address" class="btn btn-link text-muted">+ Add New
+                                                    Address
+                                                </a>
+                                            </p>
 
                                             <div class="mb-3">
                                                 <div class="row">
-                                                    <% let count = 0 %>
-                                                    <% if(address.length > 0){ %>
-                                                    <% for(let i = 0; i < address.length; i++){ %>
-                                                    <% if(!address[i].isDeleted) { %>
-                                                    <div class="col-lg-4 col-sm-6">
-                                                        <div>
-                                                            <label class="card-radio-label mb-0">
-                                                                <input type="radio" name="address" value="<%= address[i]._id %>" class="card-radio-input" onclick="getAddress('<%= address[i]._id %>')" required>
-                                                                <div class="card-radio text-truncate p-3">
-                                                                    <span class="fs-14 mb-4 d-block">Address <%= ++count%> </span>
-                                                                    <span class="fs-14 mb-2 d-block"><%= address[i].name %></span>
-                                                                    <span class="text-muted fw-normal text-wrap mb-1 d-block"><%= address[i].addressLine %></span>
-                                                                    <span class="text-muted fw-normal d-block"><%= address[i].mobile %></span>
-                                                                </div>
-                                                            </label>
-                                                            <div class="edit-btn bg-light rounded">
-                                                                <a href="/editAddress?id=<%= address[i]._id %>" data-bs-toggle="tooltip" title="Edit">
-                                                                    <i class="bx bx-pencil font-size-16"></i>
-                                                                </a>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <% } %>
-                                                    <% } %>
-                                                    <% } else { %>
-                                                    <div class="no-address">
-                                                        <a class="btn-link mb-3" href="/add-new-address">No Address Found. Click to add new.</a>
-                                                    </div>
-                                                    <% } %>
+                                                    <% let count=0 %>
+                                                        <% if(address.length> 0){ %> <% for(let i=0; i < address.length;
+                                                                i++){ %>
+                                                                <% if(!address[i].isDeleted) { %>
+                                                                    <div class="col-lg-4 col-sm-6">
+                                                                        <div>
+                                                                            <label class="card-radio-label mb-0">
+                                                                                <input id="addressRadio" type="radio"
+                                                                                    name="address"
+                                                                                    value="<%= address[i]._id %>"
+                                                                                    class="card-radio-input" required />
+                                                                                <div
+                                                                                    class="card-radio text-truncate p-3">
+                                                                                    <input type="hidden"
+                                                                                        value="<%=address[i]._id%>">
+                                                                                    <span
+                                                                                        class="fs-14 mb-4 d-block">Address
+                                                                                        <%= ++count%>
+                                                                                    </span>
+                                                                                    <span class="fs-14 mb-2 d-block">
+                                                                                        <%= address[i].name %>
+                                                                                    </span>
+                                                                                    <span
+                                                                                        class="text-muted fw-normal text-wrap mb-1 d-block">
+                                                                                        <%= address[i].addressLine %>
+                                                                                    </span>
+                                                                                    <span
+                                                                                        class="text-muted fw-normal d-block">
+                                                                                        <%= address[i].mobile %>
+                                                                                    </span>
+                                                                                </div>
+                                                                            </label>
+                                                                            <div class="edit-btn bg-light rounded">
+                                                                                <a href="/editAddress?id=<%= address[i]._id %>"
+                                                                                    data-bs-toggle="tooltip"
+                                                                                    title="Edit">
+                                                                                    <i
+                                                                                        class="bx bx-pencil font-size-16"></i>
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <% } %>
+                                                                        <% } %>
+                                                                            <% } else { %>
+                                                                                <div class="no-address">
+                                                                                    <a class="btn-link mb-3"
+                                                                                        href="/add-new-address">No
+                                                                                        Address Found. Click to add
+                                                                                        new.</a>
+                                                                                </div>
+                                                                                <% } %>
                                                 </div>
                                             </div>
                                         </div>
@@ -84,30 +112,36 @@
                                     <div class="feed-item-list">
                                         <div>
                                             <h5 class="font-size-16 mb-1">Payment Info</h5>
-                                            <p class="text-muted text-truncate mb-4">Select Payment Method</p>
+                                            <p class="text-muted text-truncate mb-4">
+                                                Select Payment Method
+                                            </p>
                                         </div>
                                         <div>
                                             <h5 class="font-size-14 mb-3">Payment method :</h5>
                                             <div class="row">
-                                                <div class="col-lg-3 col-sm-6">
+                                                <!-- <div class="col-lg-3 col-sm-6">
                                                     <div>
                                                         <label class="card-radio-label">
-                                                            <input type="radio" name="pay-method" value="card" class="card-radio-input" required>
+                                                            <input type="radio" name="paymentMethod" value="card" class="card-radio-input" required>
                                                             <span class="card-radio py-3 text-center text-truncate">
                                                                 <i class="bx bx-credit-card d-block h2 mb-3"></i>
                                                                 Credit / Debit Card
                                                             </span>
                                                         </label>
                                                     </div>
-                                                </div>
+                                                </div> -->
 
                                                 <div class="col-lg-3 col-sm-6">
                                                     <div>
                                                         <label class="card-radio-label">
-                                                            <input type="radio" name="pay-method" value="paypal" class="card-radio-input">
+                                                            <input type="radio" name="paymentMethod" value="Razorpay"
+                                                                class="card-radio-input" />
                                                             <span class="card-radio py-3 text-center text-truncate">
-                                                                <i class="bx bxl-paypal d-block h2 mb-3"></i>
-                                                                Paypal
+                                                                <img class="d-block h2 mb-3" referrerpolicy="origin"
+                                                                    src="https://badges.razorpay.com/badge-dark.png "
+                                                                    style="height: 45px; width: 113px"
+                                                                    alt="Razorpay | Payment Gateway | Neobank" />
+                                                                Razorpay
                                                             </span>
                                                         </label>
                                                     </div>
@@ -116,7 +150,8 @@
                                                 <div class="col-lg-3 col-sm-6">
                                                     <div>
                                                         <label class="card-radio-label">
-                                                            <input type="radio" name="pay-method" value="cod" class="card-radio-input" checked="">
+                                                            <input type="radio" name="paymentMethod" value="cod"
+                                                                class="card-radio-input" checked="" />
                                                             <span class="card-radio py-3 text-center text-truncate">
                                                                 <i class="bx bx-money d-block h2 mb-3"></i>
                                                                 Cash on Delivery
@@ -124,7 +159,6 @@
                                                         </label>
                                                     </div>
                                                 </div>
-
                                             </div>
                                         </div>
                                     </div>
@@ -141,7 +175,7 @@
                             </a>
                         </div>
                         <div class="col text-end">
-                            <button class="btn btn-success" type="submit">
+                            <button class="btn btn-success" type="button" onclick="check()">
                                 <i class="mdi mdi-cart-outline me-1"></i> Proceed
                             </button>
                         </div>
@@ -155,121 +189,172 @@
 
                 <!-- Order Summary -->
                 <div class="col-xl-4">
-                    <div class="card checkout-order-summary">
+                    <div class="card checkout-order-summary" style="width:max-content;">
                         <div class="card-body">
                             <div class="p-3 bg-light mb-3">
-                                <h5 class="font-size-16 mb-0">Order Summary <span class="float-end ms-2">#MN0124</span></h5>
+                                <h5 class="font-size-16 mb-0">
+                                    Order Summary <span class="float-end ms-2">#MN0124</span>
+                                </h5>
                             </div>
                             <div class="table-responsive">
                                 <table class="table table-centered mb-0 table-nowrap">
                                     <thead>
                                         <tr>
-                                            <th class="border-top-0" style="width: 110px;" scope="col">Product</th>
+                                            <th class="border-top-0" style="width: 110px" scope="col">
+                                                Product
+                                            </th>
                                             <th class="border-top-0" scope="col">Product Desc</th>
                                             <th class="border-top-0" scope="col">Price</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <% for(let i = 0; i < cart.length; i++){ %>
-                                        <tr>
-                                            <th scope="row"><img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="product-img" class="avatar-lg rounded"></th>
-                                            <td>
-                                                <h5 class="font-size-16 text-truncate"><a href="#" class="text-dark"><%= product[i].name %></a></h5>
-                                                <p class="text-muted mb-0">
-                                                    <i class="bx bxs-star text-warning"></i>
-                                                    <i class="bx bxs-star text-warning"></i>
-                                                    <i class="bx bxs-star text-warning"></i>
-                                                    <i class="bx bxs-star text-warning"></i>
-                                                    <i class="bx bxs-star-half text-warning"></i>
-                                                </p>
-                                                <p class="text-muted mb-0 mt-1">$ <%= product[i].price %> x <%= cart[i].quantity %> </p>
-                                            </td>
-                                            <td>$<%= cart[i].total %></td>
-                                        </tr>
-                                        <% } %>
+                                        <% for(let i=0; i < cart.length; i++){ %>
+                                            <tr>
+                                                <th scope="row">
+                                                    <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>"
+                                                        alt="product-img" class="avatar-lg rounded" />
+                                                </th>
+                                                <td>
+                                                    <h5 class="font-size-16 text-truncate">
+                                                        <a href="#" class="text-dark">
+                                                            <%= product[i].name %>
+                                                        </a>
+                                                    </h5>
+                                                    <p class="text-muted mb-0">
+                                                        <i class="bx bxs-star text-warning"></i>
+                                                        <i class="bx bxs-star text-warning"></i>
+                                                        <i class="bx bxs-star text-warning"></i>
+                                                        <i class="bx bxs-star text-warning"></i>
+                                                        <i class="bx bxs-star-half text-warning"></i>
+                                                    </p>
+                                                    <p class="text-muted mb-0 mt-1">
+                                                        $ <%= product[i].price %> x <%= cart[i].quantity %>
+                                                    </p>
+                                                </td>
+                                                <td>$<%= cart[i].total %>
+                                                </td>
+                                            </tr>
+                                            <% } %>
 
-                                        <tr>
-                                            <td colspan="2">
-                                                <h5 class="font-size-14 m-0">Sub Total :</h5>
-                                            </td>
-                                            <td>
-                                                $<%= subTotal %>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <h5 class="font-size-14 m-0">Discount :</h5>
-                                            </td>
-                                            <td>
-                                                $00
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td colspan="2">
-                                                <h5 class="font-size-14 m-0">Shipping Charge :</h5>
-                                            </td>
-                                            <td>
-                                                $00
-                                            </td>
-                                        </tr>
-                                        <tr class="bg-light">
-                                            <td colspan="2">
-                                                <h5 class="font-size-14 m-0">Total :</h5>
-                                            </td>
-                                            <td>
-                                                $<%= totalCartPrice  %>
-                                            </td>
-                                        </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <h5 class="font-size-14 m-0">Sub Total :</h5>
+                                                    </td>
+                                                    <td>$<%= subTotal %>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <h5 class="font-size-14 m-0">Discount :</h5>
+                                                    </td>
+                                                    <td>- $<%=discount%>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td colspan="2">
+                                                        <h5 class="font-size-14 m-0">Shipping Charge :</h5>
+                                                    </td>
+                                                    <td>$00</td>
+                                                </tr>
+                                                <tr class="bg-light">
+                                                    <td colspan="2">
+                                                        <h5 class="font-size-14 m-0">Total :</h5>
+                                                    </td>
+                                                    <td id="totalAmount">$<%= totalCartPrice %>
+                                                    </td>
+                                                </tr>
                                     </tbody>
                                 </table>
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
         </form>
     </div>
 
+
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
+        async function check() {
+            const selectedAddress = document.querySelector('input[name="address"]:checked');
+            const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+            if (!selectedAddress) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Please select an address before proceeding.",
+                });
+                return;
+            }
+            console.log('possst')
+            const response = await fetch('/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    address: selectedAddress.value,
+                    paymentMethod: paymentMethod.value,
+                })
+            });
+            console.log('possst2')
+            const data = await response.json();
+            if (data.paymentCod == true) {
+                console.log('cod payment done')
+                Swal.fire({
+                    title: "Order Placed !",
+                    text: `Order Placed By COD`,
+                    icon: "success"
+                });
+                console.log(data)
+                let orderId = data.orderId;
+                location.href = `/orderSuccess?id=${orderId}`
+                console.log('redireceted')
+            }
+            if (data.message === 'Razorpay gateway') {
+                const options = {
+                    key: 'rzp_test_hI8AqR65rNlG93',
+                    amount: data.amount,
+                    currency: data.currency,
+                    name: 'Essence',
+                    description: 'Order Payment',
+                    order_id: data.order_id, // This is the order_id created in the backend
+                    handler: function (response) {
+                        console.log(response)
+                        Swal.fire({
+                            title: "Payment success!",
+                            text: `payment id ${response.razorpay_payment_id}`,
+                            icon: "success"
+                        });
+                        // Add logic here to handle the payment success, e.g., redirect to success page 
+                        axios.post('/checkOut', { onlinePayment: true, address: selectedAddress.value }).then((res) => {
+                            console.log('online payment done')
+                            console.log(res)
+                            let orderId = res.data.orderId;
+                            location.href = `/orderSuccess?id=${orderId}`
+                            console.log('redireceted')
+                        })
 
-const addressRadios = document.querySelectorAll('input[name="address"]');
-addressRadios.forEach(radio => {
-    radio.disabled = false;
-});
+                    },
+                    prefill: {
+                        name: 'Customer Name',
+                        email: 'customer.email@example.com',
+                        contact: '9999999999'
+                    },
+                    theme: {
+                        color: '#F37254'
+                    }
+                };
 
-        document.getElementById('checkout-form').addEventListener('submit', function (e) {
-    // Check if any address is selected
-    const selectedAddress = document.querySelector('input[name="address"]:checked');
-    if (!selectedAddress) {
-        e.preventDefault(); // Prevent form submission
-
-        // Find the address section
-        const addressSection = document.querySelector('.checkout-item .feed-item-list');
-        if (addressSection) {
-            // Make the address section visible
-            addressSection.style.display = 'block';
-            addressSection.style.visibility = 'visible';
+                const rzp = new Razorpay(options);
+                rzp.open();
+            }
         }
-
-        // Find the first address radio button
-        const firstAddressRadio = document.querySelector('input[name="address"]');
-        if (firstAddressRadio) {
-            // Remove any disabling or focus-blocking styles
-            firstAddressRadio.disabled = false;
-            firstAddressRadio.focus();
-        }
-
-        // Show an error alert to prompt user action
-        Swal.fire({
-            icon: 'error',
-            title: 'Error',
-            text: 'Please select an address before proceeding.',
-        });
-    }
-});
 
     </script>
+
+
 </body>
 
 </html>

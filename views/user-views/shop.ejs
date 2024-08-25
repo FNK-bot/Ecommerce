@@ -1,293 +1,253 @@
 <%- include('./partials/header'); %>
-<!-- ##### Breadcumb Area Start ##### -->
-<div
-  class="breadcumb_area bg-img"
-  style="background-image: url(/img/bg-img/breadcumb.jpg)"
->
-  <div class="container h-100">
-    <div class="row h-100 align-items-center">
-      <div class="col-12">
-        <div class="page-title text-center">
-          <h2>dresses</h2>
+  <!-- ##### Breadcumb Area Start ##### -->
+  <div class="breadcumb_area bg-img" style="background-image: url(/img/bg-img/breadcumb.jpg)">
+    <div class="container h-100">
+      <div class="row h-100 align-items-center">
+        <div class="col-12">
+          <div class="page-title text-center">
+            <h2>dresses</h2>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
-<!-- ##### Breadcumb Area End ##### -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<!-- ##### Shop Grid Area Start ##### -->
-<section class="shop_grid_area section-padding-80">
-  <div class="container">
-    <div class="row">
-      <div class="col-12 col-md-4 col-lg-3">
-        <div class="shop_sidebar_area">
-          <!-- ##### Single Widget ##### -->
-          <div class="widget catagory mb-50">
-            <!-- Widget Title -->
-            <h6 class="widget-title mb-30">Catagories</h6>
+  <!-- ##### Breadcumb Area End ##### -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <!-- ##### Shop Grid Area Start ##### -->
+  <section class="shop_grid_area section-padding-80">
+    <div class="container">
+      <div class="row">
+        <div class="col-12 col-md-4 col-lg-3">
+          <div class="shop_sidebar_area">
+            <!-- ##### Single Widget ##### -->
+            <div class="widget catagory mb-50">
+              <!-- Widget Title -->
+              <h6 class="widget-title mb-30">Catagories</h6>
 
-            <!--  Catagories  -->
-            <div class="catagories-menu">
-              <ul id="menu-content2" class="menu-content collapse show">
-                <% if (catagory.length > 0) { %> <% for (let i = 0; i <
-                catagory.length; i++) { %>
-                <!-- Single Item -->
-                <li
-                  data-toggle="collapse"
-                  data-target="#<%= catagory[i].name %>"
-                >
-                  <ul class="sub-menu collapse show">
-                    <li><a href="/shop"><%= catagory[i].name %></a></li>
-                  </ul>
-                </li>
-                <% } %> <% } else { %>
-                <div class="not-found">
-                  <p>No Catagory Found</p>
-                </div>
-                <% } %>
-              </ul>
-            </div>
-          </div>
-
-          <!-- ##### Single Widget ##### -->
-          <div class="widget price mb-50">
-            <!-- Widget Title -->
-            <h6 class="widget-title mb-30">Filter by</h6>
-            <!-- Widget Title 2 -->
-            <p class="widget-title2 mb-30">Price</p>
-
-            <div class="widget-desc">
-              <div class="slider-range">
-                <div
-                  data-min="49"
-                  data-max="360"
-                  data-unit="$"
-                  class="slider-range-price ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"
-                  data-value-min="49"
-                  data-value-max="360"
-                  data-label-result="Range:"
-                >
-                  <div
-                    class="ui-slider-range ui-widget-header ui-corner-all"
-                  ></div>
-                  <span
-                    class="ui-slider-handle ui-state-default ui-corner-all"
-                    tabindex="0"
-                  ></span>
-                  <span
-                    class="ui-slider-handle ui-state-default ui-corner-all"
-                    tabindex="0"
-                  ></span>
-                </div>
-                <div class="range-price">Range: $49.00 - $360.00</div>
+              <!--  Catagories  -->
+              <div class="catagories-menu">
+                <ul id="menu-content2" class="menu-content collapse show">
+                  <% if (catagory.length> 0) { %> <% for (let i=0; i < catagory.length; i++) { %>
+                      <!-- Single Item -->
+                      <li data-toggle="collapse" data-target="#<%= catagory[i].name %>">
+                        <ul class="sub-menu collapse show">
+                          <li><a href="/shop">
+                              <%= catagory[i].name %>
+                            </a></li>
+                        </ul>
+                      </li>
+                      <% } %>
+                        <% } else { %>
+                          <div class="not-found">
+                            <p>No Catagory Found</p>
+                          </div>
+                          <% } %>
+                </ul>
               </div>
             </div>
-          </div>
 
-          <!-- ##### Single Widget ##### -->
-          <div class="widget color mb-50">
-            <!-- Widget Title 2 -->
-            <p class="widget-title2 mb-30">Color</p>
-            <div class="widget-desc">
-              <ul class="d-flex">
-                <li><a href="#" class="color1"></a></li>
-                <li><a href="#" class="color2"></a></li>
-                <li><a href="#" class="color3"></a></li>
-                <li><a href="#" class="color4"></a></li>
-                <li><a href="#" class="color5"></a></li>
-                <li><a href="#" class="color6"></a></li>
-                <li><a href="#" class="color7"></a></li>
-                <li><a href="#" class="color8"></a></li>
-                <li><a href="#" class="color9"></a></li>
-                <li><a href="#" class="color10"></a></li>
-              </ul>
+            <!-- ##### Single Widget ##### -->
+            <div class="widget price mb-50">
+              <!-- Widget Title -->
+              <h6 class="widget-title mb-30">Filter by</h6>
+              <!-- Widget Title 2 -->
+              <p class="widget-title2 mb-30">Price</p>
+
+              <div class="widget-desc">
+                <div class="slider-range">
+                  <div data-min="49" data-max="360" data-unit="$"
+                    class="slider-range-price ui-slider ui-slider-horizontal ui-widget ui-widget-content ui-corner-all"
+                    data-value-min="49" data-value-max="360" data-label-result="Range:">
+                    <div class="ui-slider-range ui-widget-header ui-corner-all"></div>
+                    <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0"></span>
+                    <span class="ui-slider-handle ui-state-default ui-corner-all" tabindex="0"></span>
+                  </div>
+                  <div class="range-price">Range: $49.00 - $360.00</div>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <!-- ##### Single Widget ##### -->
-          <div class="widget brands mb-50">
-            <!-- Widget Title 2 -->
-            <p class="widget-title2 mb-30">Brands</p>
-            <div class="widget-desc">
-              <ul>
-                <li><a href="#">Asos</a></li>
-                <li><a href="#">Mango</a></li>
-                <li><a href="#">River Island</a></li>
-                <li><a href="#">Topshop</a></li>
-                <li><a href="#">Zara</a></li>
-              </ul>
+            <!-- ##### Single Widget ##### -->
+            <div class="widget color mb-50">
+              <!-- Widget Title 2 -->
+              <p class="widget-title2 mb-30">Color</p>
+              <div class="widget-desc">
+                <ul class="d-flex">
+                  <li><a href="#" class="color1"></a></li>
+                  <li><a href="#" class="color2"></a></li>
+                  <li><a href="#" class="color3"></a></li>
+                  <li><a href="#" class="color4"></a></li>
+                  <li><a href="#" class="color5"></a></li>
+                  <li><a href="#" class="color6"></a></li>
+                  <li><a href="#" class="color7"></a></li>
+                  <li><a href="#" class="color8"></a></li>
+                  <li><a href="#" class="color9"></a></li>
+                  <li><a href="#" class="color10"></a></li>
+                </ul>
+              </div>
+            </div>
+
+            <!-- ##### Single Widget ##### -->
+            <div class="widget brands mb-50">
+              <!-- Widget Title 2 -->
+              <p class="widget-title2 mb-30">Brands</p>
+              <div class="widget-desc">
+                <ul>
+                  <li><a href="#">Asos</a></li>
+                  <li><a href="#">Mango</a></li>
+                  <li><a href="#">River Island</a></li>
+                  <li><a href="#">Topshop</a></li>
+                  <li><a href="#">Zara</a></li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div class="col-12 col-md-8 col-lg-9">
-        <div class="shop_grid_product_area">
-          <div class="row">
-            <div class="col-12">
-              <div
-                class="product-topbar d-flex align-items-center justify-content-between"
-              >
-                <!-- Total Products -->
-                <div class="total-products">
-                  <p><span><%=totalProducts%> </span> products found</p>
-                </div>
-                <!-- Sorting -->
-                <div class="product-sorting d-flex">
-                  <p>Sort by:</p>
-                  <!-- <form action="#" method="get"> -->
-
-                  <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                    <button
-                      class="btn btn-outline-info"
-                      id="priceLH"
-                      type="button"
-                      onclick="priceHL('<%= JSON.stringify(product)%>')"
-                    >
-                      $ H-L
-                    </button>
-                    <button
-                      class="btn btn-outline-info"
-                      id="priceHL"
-                      type="button"
-                      onclick="priceLH('<%= JSON.stringify(product)%>')"
-                    >
-                      $ L-H
-                    </button>
-                    <button
-                      class="btn btn-outline-info"
-                      id="nameAZ"
-                      type="button"
-                      onclick="nameAZ('<%= JSON.stringify(product)%>')"
-                    >
-                      Aa - Zz
-                    </button>
-                    <button
-                      class="btn btn-outline-info"
-                      id="nameZA"
-                      type="button"
-                      onclick="nameZA('<%= JSON.stringify(product)%>')"
-                    >
-                      Zz - Aa
-                    </button>
+        <div class="col-12 col-md-8 col-lg-9">
+          <div class="shop_grid_product_area">
+            <div class="row">
+              <div class="col-12">
+                <div class="product-topbar d-flex align-items-center justify-content-between">
+                  <!-- Total Products -->
+                  <div class="total-products">
+                    <p><span>
+                        <%=totalProducts%>
+                      </span> products found</p>
                   </div>
+                  <!-- Sorting -->
+                  <div class="product-sorting d-flex">
+                    <p>Sort by:</p>
+                    <!-- <form action="#" method="get"> -->
 
-                  <!-- <input type="submit" class="d-none" value=""> -->
-                  <!-- </form> -->
+                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                      <button class="btn btn-outline-info" id="priceLH" type="button"
+                        onclick="priceHL('<%= JSON.stringify(product)%>')">
+                        $ H-L
+                      </button>
+                      <button class="btn btn-outline-info" id="priceHL" type="button"
+                        onclick="priceLH('<%= JSON.stringify(product)%>')">
+                        $ L-H
+                      </button>
+                      <button class="btn btn-outline-info" id="nameAZ" type="button"
+                        onclick="nameAZ('<%= JSON.stringify(product)%>')">
+                        Aa - Zz
+                      </button>
+                      <button class="btn btn-outline-info" id="nameZA" type="button"
+                        onclick="nameZA('<%= JSON.stringify(product)%>')">
+                        Zz - Aa
+                      </button>
+                    </div>
+
+                    <!-- <input type="submit" class="d-none" value=""> -->
+                    <!-- </form> -->
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div class="row" id="products-container">
-            <% if (product.length > 0) { %> <% for (let i = 0; i <
-            product.length; i++) { %>
-            <!-- Single Product -->
-            <div class="col-12 col-sm-6 col-lg-4" id="products-sec">
-              <div class="single-product-wrapper">
-                <!-- Product Image -->
-                <div class="product-img">
-                  <img
-                    src="/admin/assets/images/catagory/<%= product[i].images[0] %>"
-                    alt=""
-                  />
-                  <!-- Hover Thumb -->
-                  <img
-                    class="hover-img"
-                    src="/admin/assets/images/catagory/<%= product[i].images[1] %>"
-                    alt=""
-                  />
+            <div class="row" id="products-container">
+              <% if (product.length> 0) { %> <% for (let i=0; i < product.length; i++) { %>
+                  <!-- Single Product -->
+                  <div class="col-12 col-sm-6 col-lg-4" id="products-sec">
+                    <div class="single-product-wrapper">
+                      <!-- Product Image -->
+                      <div class="product-img">
+                        <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="" />
+                        <!-- Hover Thumb -->
+                        <img class="hover-img" src="/admin/assets/images/catagory/<%= product[i].images[1] %>" alt="" />
 
-                  <!-- Product Badge -->
-                  <div class="product-badge new-badge">
-                    <span>New</span>
-                  </div>
-                  <!-- Favourite -->
-                  <div class="product-favourite">
-                    <a href="#" class="favme fa fa-heart"></a>
-                  </div>
-                </div>
+                        <!-- Product Badge -->
+                        <div class="product-badge new-badge">
+                          <span>New</span>
+                        </div>
+                        <!-- Favourite -->
+                        <div class="product-favourite" id="favorite-<%= product[i]._id %>"
+                          onclick="addToFav('<%= product[i]._id %>')">
+                          <a class="favme fa fa-heart"></a>
+                        </div>
+                      </div>
 
-                <!-- Product Description -->
-                <div class="product-description">
-                  <span><%= product[i].brand %></span>
-                  <a href="/product?product=<%= product[i]._id %>">
-                    <h6><%= product[i].name %></h6>
-                  </a>
-                  <p class="product-price">
-                    <span class="old-price">$75.00</span>$<%= product[i].price
-                    %>
-                  </p>
+                      <!-- Product Description -->
+                      <div class="product-description">
+                        <span>
+                          <%= product[i].brand %>
+                        </span>
+                        <a href="/product?product=<%= product[i]._id %>">
+                          <h6>
+                            <%= product[i].name %>
+                          </h6>
+                        </a>
+                        <p class="product-price">
+                          <span class="old-price">$75.00</span>$<%= product[i].price %>
+                        </p>
 
-                  <!-- Hover Content -->
-                  <div class="hover-content">
-                    <!-- Add to Cart -->
-                    <div class="add-to-cart-btn">
-                      <a href="#" class="btn essence-btn">Add to Cart</a>
+                        <!-- Hover Content -->
+                        <div class="hover-content">
+                          <!-- Add to Cart -->
+                          <div class="add-to-cart-btn" onclick="addTOCart('<%= product[i]._id %>')">
+                            <a class="btn essence-btn">Add to Cart</a>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
-            </div>
-            <% } %> <% } else { %>
+                  <% } %>
+                    <% } else { %>
 
-            <div class="not-found">
-              <p>No Product Found</p>
+                      <div class="not-found">
+                        <p>No Product Found</p>
+                      </div>
+                      <% } %>
             </div>
-            <% } %>
           </div>
+          <!-- Pagination -->
+          <nav aria-label="navigation">
+            <ul class="pagination mt-50 mb-70">
+              <% if (totalpages) { %>
+                <div class="pagination justify-content-center">
+                  <% if (currentpage> 1) { %>
+                    <li class="page-item">
+                      <a class="page-link" href="?page=<%= currentpage - 1 %>"><i class="fa fa-angle-left"></i></a>
+                    </li>
+                    <% } %>
+                      <% for (let i=1; i <=totalpages; i++) { %>
+                        <!-- Change the loop to start from 1 and go up to totalpages -->
+                        <li class="page-item">
+                          <a class="page-link <%= i === currentpage ? 'active' : '' %>" href="?page=<%= i %>">
+                            <%= i %>
+                          </a>
+                        </li>
+                        <% } %>
+                          <% if (currentpage < totalpages) { %>
+                            <li class="page-item">
+                              <a class="page-link" href="?page=<%= currentpage + 1 %>"><i
+                                  class="fa fa-angle-right"></i></a>
+                            </li>
+                            <% } %>
+                </div>
+                <% } %>
+            </ul>
+          </nav>
         </div>
-        <!-- Pagination -->
-        <nav aria-label="navigation">
-          <ul class="pagination mt-50 mb-70">
-            <% if (totalpages) { %>
-            <div class="pagination justify-content-center">
-              <% if (currentpage > 1) { %>
-              <li class="page-item">
-                <a class="page-link" href="?page=<%= currentpage - 1 %>"
-                  ><i class="fa fa-angle-left"></i
-                ></a>
-              </li>
-              <% } %> <% for (let i = 1; i <= totalpages; i++) { %>
-              <!-- Change the loop to start from 1 and go up to totalpages -->
-              <li class="page-item">
-                <a
-                  class="page-link <%= i === currentpage ? 'active' : '' %>"
-                  href="?page=<%= i %>"
-                  ><%= i %></a
-                >
-              </li>
-              <% } %> <% if (currentpage < totalpages) { %>
-              <li class="page-item">
-                <a class="page-link" href="?page=<%= currentpage + 1 %>"
-                  ><i class="fa fa-angle-right"></i
-                ></a>
-              </li>
-              <% } %>
-            </div>
-            <% } %>
-          </ul>
-        </nav>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<script>
-  // Your code here
+  <script>
+    // Your code here
 
-  let productsCotainer = document.getElementById("products-container");
-  let priceLBtn = document.getElementById("priceLH");
-  let priceHLBtn = document.getElementById("priceHL");
-  let nameAZBtn = document.getElementById("nameAZ");
-  let nameZABtn = document.getElementById("nameZA");
+    let productsCotainer = document.getElementById("products-container");
+    let priceLHBtn = document.getElementById("priceLH");
+    let priceHLBtn = document.getElementById("priceHL");
+    let nameAZBtn = document.getElementById("nameAZ");
+    let nameZABtn = document.getElementById("nameZA");
 
-  function updateProducts(products) {
-    let html = "";
-    for (let i = 0; i < products.length; i++) {
-      html += `<div class="col-12 col-sm-6 col-lg-4" id="products-sec">
+    function updateProducts(products) {
+      let html = "";
+      for (let i = 0; i < products.length; i++) {
+        html += `<div class="col-12 col-sm-6 col-lg-4" id="products-sec">
             <div class="single-product-wrapper">
                 <!-- Product Image -->
                 <div class="product-img">
@@ -300,7 +260,7 @@
                         <span>New</span>
                     </div>
                     <!-- Favourite -->
-                    <div class="product-favourite">
+                    <div class="product-favourite" onclick='addToFav(${products[i]._id})'>
                         <a href="#" class="favme fa fa-heart"></a>
                     </div>
                 </div>
@@ -324,36 +284,89 @@
                 </div>
             </div>
         </div>`;
+      }
+      console.log("html changed ");
+      productsCotainer.innerHTML = html;
     }
-    console.log("html changed ");
-    productsCotainer.innerHTML = html;
-  }
 
-  function priceLH(products) {
-    console.log("priceLH", products);
-    let productsArr = JSON.parse(products);
-    productsArr.sort((a, b) => a.price - b.price);
-    updateProducts(productsArr);
-    priceHLBtn.style.backgroundColor = "white";
-    priceHLBtn.style.color = "black ";
-  }
-  function priceHL(products) {
-    console.log("priceHL", products);
-    let productsArr = JSON.parse(products);
-    productsArr.sort((a, b) => b.price - a.price);
-    updateProducts(productsArr);
-  }
-  function nameAZ(products) {
-    console.log("nameA-Z", products);
-    let productsArr = JSON.parse(products);
-    productsArr.sort((a, b) => a.name.localeCompare(b.name));
-    updateProducts(productsArr);
-  }
-  function nameZA(products) {
-    console.log("nameZ-A", products);
-    let productsArr = JSON.parse(products);
-    productsArr.sort((a, b) => b.name.localeCompare(a.name));
-    updateProducts(productsArr);
-  }
-</script>
-<%- include('./partials/footer'); %>
+    function priceLH(products) {
+      console.log("priceLH", products);
+      let productsArr = JSON.parse(products);
+      productsArr.sort((a, b) => a.price - b.price);
+      updateProducts(productsArr);
+      priceLHBtn.style.backgroundColor = "white";
+      priceLHBtn.style.color = "black ";
+    }
+    function priceHL(products) {
+      console.log("priceHL", products);
+      let productsArr = JSON.parse(products);
+      productsArr.sort((a, b) => b.price - a.price);
+      updateProducts(productsArr);
+      priceHLBtn.style.backgroundColor = "white";
+      priceHLBtn.style.color = "black ";
+    }
+    function nameAZ(products) {
+      console.log("nameA-Z", products);
+      let productsArr = JSON.parse(products);
+      productsArr.sort((a, b) => a.name.localeCompare(b.name));
+      updateProducts(productsArr);
+      nameAZBtn.style.backgroundColor = "white";
+      nameAZBtn.style.color = "black ";
+    }
+    function nameZA(products) {
+      console.log("nameZ-A", products);
+      let productsArr = JSON.parse(products);
+      productsArr.sort((a, b) => b.name.localeCompare(a.name));
+      updateProducts(productsArr);
+      nameZABtn.style.backgroundColor = "white";
+      nameZABtn.style.color = "black ";
+    }
+
+
+    // add to favarate
+    function addToFav(id) {
+      axios.get(`/addToWishlist?id=${id}`,).then((res) => {
+        Swal.fire({
+          icon: res.data.type,
+          title: res.data.msg,
+          showConfirmButton: false,
+          timer: 1000
+        });
+      }).catch((err) => {
+        Swal.fire({
+          icon: "error",
+          title: err,
+          showConfirmButton: false,
+          timer: 1000
+        });
+      })
+    }
+    //ADD TO CART
+    function addTOCart(id) {
+      console.log('Function called with ID:', id);
+
+      return axios.post('/addToCart', {
+        product_id: id,
+      })
+        .then((response) => {
+          console.log(response);
+          console.log(`${id} is added -- ${response.data.messageType}`);
+          Swal.fire({
+            title: "CART",
+            text: response.data.message,
+            icon: response.data.messageType,
+            footer: `<a href='/cart'>Click here to View Cart</a>`
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Something went wrong!",
+            footer: 'Cannot Add item to cart'
+          });
+        });
+    }
+  </script>
+  <%- include('./partials/footer'); %>

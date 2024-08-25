@@ -19,8 +19,8 @@
     <link rel="stylesheet" href="/style.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
-    
-    
+
+
 </head>
 
 <body>
@@ -43,7 +43,7 @@
                         <div class="cross-wrap"><span class="top"></span><span class="bottom"></span></div>
                     </div>
                     <!-- Nav Start -->
-                    
+
                     <!-- Nav End -->
                 </div>
             </nav>
@@ -59,35 +59,37 @@
                 </div>
                 <!-- Favourite Area -->
                 <div class="favourite-area ">
-                    <a href="#"><i class="fa fa-heart fa-lg"  aria-hidden="true"></i></a>
+                    <a href="/wishlist"><i class="fa fa-heart fa-lg" aria-hidden="true"></i></a>
                 </div>
                 <% if(user){ %>
                     <div class="user-login-info ">
                         <a href="/profile"><i class="fa fa-user-circle-o fa-lg" aria-hidden="true"></i></a>
                     </div>
                     <%}%>
-                <!-- User Login Info -->
-                <div class="user-login-info ">
-                    <% if(user){ %>
-                        <a href="/logout"><i class="fa fa-sign-out fa-lg" aria-hidden="true"></i></a>
-                    <% }else{%>
-                        <a href="/login"><i class="fa  fa-sign-in  fa-lg" aria-hidden="true"></i></a>
-                    <%}%>
-                </div>
-                
-                <!-- Cart Area -->
-                <div class="cart-area ">
-                    <a href="/cart" ><i class="fa fa-shopping-cart fa-lg" aria-hidden="true"></i> <span><%= carNum = user ? user.cart.length : '+' %></span></a>
-                </div>
+                        <!-- User Login Info -->
+                        <div class="user-login-info ">
+                            <% if(user){ %>
+                                <a href="/logout"><i class="fa fa-sign-out fa-lg" aria-hidden="true"></i></a>
+                                <% }else{%>
+                                    <a href="/login"><i class="fa  fa-sign-in  fa-lg" aria-hidden="true"></i></a>
+                                    <%}%>
+                        </div>
 
-              
+                        <!-- Cart Area -->
+                        <div class="cart-area ">
+                            <a href="/cart"><i class="fa fa-shopping-cart fa-lg" aria-hidden="true"></i> <span>
+                                    <%= carNum=user ? user.cart.cartItems.length : '+' %>
+                                </span></a>
+                        </div>
+
+
             </div>
 
         </div>
     </header>
-    
+
     <!-- ##### Header Area End ##### -->
 
     <!-- ##### Right Side Cart Area ##### -->
-    
+
     <!-- ##### Right Side Cart End ##### -->
