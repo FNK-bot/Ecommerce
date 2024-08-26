@@ -1,162 +1,179 @@
 const Catagory = require('../../models/catagory');
 const Product = require('../../models/product')
-
-const getAllProduct = async(req,res)=>{
+const sharp = require('sharp');
+const path = require('path');
+const fs = require('fs');
+const getAllProduct = async (req, res) => {
     try {
-        const allProducts= await Product.find()
+        const allProducts = await Product.find()
         // console.log('All products',allProducts)
         const itemsperpage = 6;
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
         const totalpages = Math.ceil(allProducts.length / 5);
-        const currentproduct = allProducts.slice(startindex,endindex);
-        console.log('Product id =',allProducts._id)
-        console.log('current products',currentproduct);
-        res.render('admin/products',{ product: currentproduct,totalpages,currentpage,message:''})
+        const currentproduct = allProducts.slice(startindex, endindex);
+        console.log('Product id =', allProducts._id)
+        console.log('current products', currentproduct);
+        res.render('admin/products', { product: currentproduct, totalpages, currentpage, message: '' })
 
         // res.status(200)
         // res.render('admin/products')
     } catch (error) {
-       console.log('error in products ',error)
+        console.log('error in products ', error)
     }
 }
 
 //add product
 
-const getAddProduct = async(req,res)=>{
+const getAddProduct = async (req, res) => {
     try {
         res.status(200)
         console.log('')
         const allProducts = await Product.find();
         const getAllCatagory = await Catagory.find();
-        res.render('admin/addProduct',{product:allProducts,category:getAllCatagory,message:''})
+        res.render('admin/addProduct', { product: allProducts, category: getAllCatagory, message: '' })
     } catch (error) {
-        console.log('error in add products '+error)
+        console.log('error in add products ' + error)
     }
 }
-const postAddProduct = async(req,res)=>{
+
+
+const postAddProduct = async (req, res) => {
     try {
-        res.status(200)
         console.log('body ', req.body);
-        message = '';
-        console.log('req.file ',req.files)
-        checkProductExist = await Product.findOne({name:req.body.name});
-        console.log('check product exist',checkProductExist)
-        if(checkProductExist){
-            message = 'Product already exist';
-            console.log(message)
-            res.redirect('/admin/products')
-        }
-        else{
-            
-            const images = [];
+        let message = '';
+        console.log('req.files ', req.files);
+
+        const checkProductExist = await Product.findOne({ name: req.body.name });
+        console.log('check product exist', checkProductExist);
+
+        if (checkProductExist) {
+            message = 'Product already exists';
+            console.log(message);
+            return res.redirect('/admin/products');
+        } else {
+            const processedImages = [];
+
             if (req.files && req.files.length > 0) {
                 for (let i = 0; i < req.files.length; i++) {
-                    images.push(req.files[i].filename);
-                    console.log(req.files[i].filename)
+                    const file = req.files[i];
+                    const originalPath = file.path;
+                    const processedFilename = `product-${Date.now()}-${file.originalname}`;
+                    const processedPath = path.join('public/admin/assets/images/catagory', processedFilename);
+
+                    await sharp(originalPath)
+                        .resize(500, 500) // Set desired width and height
+                        .toFile(processedPath);
+
+                    // Optionally delete the original uploaded file
+                    fs.unlinkSync(originalPath);
+
+                    processedImages.push(processedFilename);
                 }
             }
+
             const newProduct = new Product({
-                name:req.body.name,
-                discription:req.body.discription,
-                brand:req.body.brand,
-                offerPrice:req.body.offerPrice,
-                price:req.body.price,
-                categary:req.body.categary,
-                quantity:req.body.quantity,
-                size:req.body.size,
-                color:req.body.color,
-                images:images,
+                name: req.body.name,
+                discription: req.body.discription,
+                brand: req.body.brand,
+                offerPrice: req.body.offerPrice,
+                price: req.body.price,
+                categary: req.body.categary,
+                quantity: req.body.quantity,
+                size: req.body.size,
+                color: req.body.color,
+                images: processedImages,
+            });
 
-            })
-            if(await newProduct.save()){
-                console.log('done')
-                console.log(newProduct);
-                res.redirect('/admin/products')
+            if (await newProduct.save()) {
+                console.log('Product added successfully');
+                return res.redirect('/admin/products');
+            } else {
+                console.log('Error while saving the product');
             }
-            console.log('errr')
-            
-
         }
-        
+
     } catch (error) {
-        console.log('error in post products '+ error )
+        console.log('Error in postAddProduct: ', error);
     }
-}
+};
+
 
 //edit product
 
-const getEditProduct = async(req,res)=>{
+const getEditProduct = async (req, res) => {
     try {
-        res.status(200) 
+        res.status(200)
         console.log('Get edit product control')
         const id = req.params.id;
         editProduct = await Product.findById(id);
         const getAllCatagory = await Catagory.find();
-        let message =''
-        res.render('admin/editProduct',{product:editProduct,category:getAllCatagory})
+        let message = ''
+        res.render('admin/editProduct', { product: editProduct, category: getAllCatagory })
     } catch (error) {
         console.log('error in products')
     }
 }
-const postEditProduct =  async(req,res)=>{
+
+
+const postEditProduct = async (req, res) => {
     try {
-        res.status(200)
-        console.log('Post edit product control')
+        console.log('Post edit product control');
         const id = req.params.id;
         let images = [];
         let editProduct;
+
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
-                images.push(req.files[i].filename);
+                const file = req.files[i];
+                const originalPath = file.path;
+                const processedFilename = `product-${Date.now()}-${file.originalname}`;
+                const processedPath = path.join('public/admin/assets/images/catagory', processedFilename);
+
+                await sharp(originalPath)
+                    .resize(255, 348, { fit: 'cover', position: 'top' }) // Set desired width and height
+                    .toFile(processedPath);
+
+                // Optionally delete the original uploaded file
+                fs.unlinkSync(originalPath);
+
+                images.push(processedFilename);
             }
-        }
-        else{
+        } else {
             images = null;
         }
-        if(images){
-            console.log('images'+images )
-            editProduct = await Product.findByIdAndUpdate(id,{
-            name:req.body.name,
-            discription:req.body.discription,
-            brand:req.body.brand,
-            offerPrice:req.body.offerPrice, 
-            price:req.body.price,
-            categary:req.body.categary,
-            quantity:req.body.quantity,
-            size:req.body.size,
-            color:req.body.color,
-            images:images,
 
-        },{new:true});
-        }
-        else{
-            console.log('No images' )
-            editProduct = await Product.findByIdAndUpdate(id,{
-            name:req.body.name,
-            discription:req.body.discription,
-            brand:req.body.brand,
-            offerPrice:req.body.offerPrice,
-            price:req.body.price,
-            categary:req.body.categary,
-            quantity:req.body.quantity,
-            size:req.body.size,
-            color:req.body.color,
+        const updateData = {
+            name: req.body.name,
+            discription: req.body.discription,
+            brand: req.body.brand,
+            offerPrice: req.body.offerPrice,
+            price: req.body.price,
+            categary: req.body.categary,
+            quantity: req.body.quantity,
+            size: req.body.size,
+            color: req.body.color,
+        };
 
-        },{new:true});
+        if (images) {
+            updateData.images = images;
         }
-        message = `${editProduct.name} product edited successfully`
-        console.log(message)
-        res.redirect('/admin/products')
+
+        editProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+
+        const message = `${editProduct.name} product edited successfully`;
+        console.log(message);
+        res.redirect('/admin/products');
     } catch (error) {
-        console.log('error in edit products'+error)
+        console.log('Error in editing products: ' + error);
     }
-}
+};
+
 
 // delete
 
-const deleteProduct = async (req,res)=>{
+const deleteProduct = async (req, res) => {
     try {
         console.log('delete product control')
         console.log(req.params.id)
@@ -166,9 +183,11 @@ const deleteProduct = async (req,res)=>{
         messege = `${deletedProduct.name} product is deleted succesfully`
         res.redirect('/admin/products');
     }
-    catch(err){
-        console.log('error in delete product',err)
+    catch (err) {
+        console.log('error in delete product', err)
     }
 }
-module.exports = {getAllProduct,postEditProduct,
-    getAddProduct,getEditProduct,postAddProduct,deleteProduct};
+module.exports = {
+    getAllProduct, postEditProduct,
+    getAddProduct, getEditProduct, postAddProduct, deleteProduct
+};

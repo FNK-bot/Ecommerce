@@ -20,7 +20,8 @@ const { getOtpPage, getLogin, getRegister, getForgotPassword, postRegister,
 const { getProfile, getEditAdress, getEditProfile, getAddAdress, postAddAddress,
      getDeleteAddress, postEditProfile, postEditAdress,
      getChangePassword,
-     postChangePassword } = require('../controller/user controller/profileCtrl');
+     postChangePassword,
+     returnOrder } = require('../controller/user controller/profileCtrl');
 
 const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem,
      getCheckOut, postChekOut, deleteOrder,
@@ -85,6 +86,7 @@ router.post('/checkOut', isLogged, postChekOut)
 //order
 router.get('/orderSuccess', isLogged, getOrderSuccess)
 router.get('/deleteOrder', isLogged, deleteOrder)
+router.get('/returnOrder', isLogged, returnOrder)
 
 //coupens
 router.get('/mycoupens', isLogged, getCoupens)

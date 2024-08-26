@@ -398,16 +398,27 @@ const deleteOrder = async (req, res) => {
 // get Order success Page 
 const getOrderSuccess = async (req, res) => {
     try {
+        let alertMessage;
         let user = await User.findById(req.session.user_id);
         let orderId = req.query.id
         let suggestedProducts = await Product.find().limit(4);
-        res.render('user-views/orderSuccess', { orderId, product: suggestedProducts })
         let findCoupen = await Coupens.findOne({ code: 'la5dkxnadw' });
-        user.coupens.push({
-            coupenId: findCoupen._id
-        });
-        await user.save()
-        console.log('user coupen pushed')
+        if (user.coupens.length == 0) {
+            user.coupens.push({
+                coupenId: findCoupen._id
+            });
+            await user.save()
+            console.log('user coupen pushed')
+            alertMessage = {
+                type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+                message: 'New Coupen Added'
+            };
+        }
+        else {
+            console.log('coupen is there')
+        }
+        res.render('user-views/orderSuccess', { orderId, product: suggestedProducts, alertMessage })
+        req.session.alertMessage = null;
 
     } catch (error) {
         console.log(`ERROR IN GET ORDER SUCCRSS PAGE, ERROR:${error}`)

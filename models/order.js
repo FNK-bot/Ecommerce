@@ -60,6 +60,21 @@ let oderSchema = new mongoose.Schema({
         required: true,
 
     },
+    isReturned: {
+        status: {
+            type: Boolean,
+            default: false,
+        },
+        isRefunded: {
+            type: Boolean,
+            default: false,
+        },
+        refundAmount: {
+            type: Number,
+            default: 0,
+        }
+    },
+
 });
 
 

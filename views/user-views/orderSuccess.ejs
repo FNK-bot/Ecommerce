@@ -1,96 +1,118 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>check out Page</title>
-    <link rel="stylesheet" href="/css/checkOut.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css" integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    
-    <style>
-        body {
-    margin-top: 20px;
-}
-.text-center {
-    text-align: center !important;
-}
-.mb-5 {
-    margin-bottom: 3rem !important;
-}
-.mx-auto {
-    margin-right: auto !important;
-    margin-left: auto !important;
-}
-.text-reset {
-    --bs-text-opacity: 1;
-    color: inherit !important;
-}
-a {
-    color: #5465ff;
-    text-decoration: none;
-}
-body {
-    background: #eee;
-}
-.card {
-    box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
-}
-.card {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
-    word-wrap: break-word;
-    background-color: #fff;
-    background-clip: border-box;
-    border: 0 solid rgba(0, 0, 0, 0.125);
-    border-radius: 1rem;
-}
-.card-body {
-    -webkit-box-flex: 1;
-    -ms-flex: 1 1 auto;
-    flex: 1 1 auto;
-    padding: 1.5rem 1.5rem;
-}
-    </style>
-</head>
-<body>
+<%- include('./partials/alertMessages'); %>
+    <!DOCTYPE html>
+    <html lang="en">
 
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>check out Page</title>
+        <link rel="stylesheet" href="/css/checkOut.css">
+        <link rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/MaterialDesign-Webfont/5.3.45/css/materialdesignicons.css"
+            integrity="sha256-NAxhqDvtY0l4xn+YVa6WjAcmd94NNfttjNsDmNatFVc=" crossorigin="anonymous" />
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
-<div class="container-fluid">
-    <div class="container text-center">
-        <h1>Thank you.</h1>
-        <p class="lead w-lg-50 mx-auto">Your order has been placed successfully.</p>
-        <p class="w-lg-50 mx-auto">Your order number is <a href="#"><%= orderId %></a>. We will immediatelly process your and it will be delivered in 2 - 5 business days.</p>
-    </div>
-    <div class="container">
-        <h6 class="h5 mb-5 text-center"><a href="/profile">Click here to View My Orders</a></h6>
-        <h2 class="h5 mb-5 text-center">You may also like these products</h2>
-        <div class="row">
-            <% for(let i = 0; i < product.length; i++){ %>
-            <div class="col-lg-3">
-                <div class="card text-center mb-3">
-                    <div class="py-5 px-4">
-                        <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="" class="img-fluid mb-4" />
-                        <h3 class="fs-6 text-truncate"><a href="product?product=<%= product[i]._id %>" class="stretched-link text-reset"><%= product[i].name %></a></h3>
-                        <span class="text-success">$<%= product[i].price %></span> <del class="text-muted">$650.83</del>
-                    </div>
-                    
+        <style>
+            body {
+                margin-top: 20px;
+            }
+
+            .text-center {
+                text-align: center !important;
+            }
+
+            .mb-5 {
+                margin-bottom: 3rem !important;
+            }
+
+            .mx-auto {
+                margin-right: auto !important;
+                margin-left: auto !important;
+            }
+
+            .text-reset {
+                --bs-text-opacity: 1;
+                color: inherit !important;
+            }
+
+            a {
+                color: #5465ff;
+                text-decoration: none;
+            }
+
+            body {
+                background: #eee;
+            }
+
+            .card {
+                box-shadow: 0 20px 27px 0 rgb(0 0 0 / 5%);
+            }
+
+            .card {
+                position: relative;
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+                word-wrap: break-word;
+                background-color: #fff;
+                background-clip: border-box;
+                border: 0 solid rgba(0, 0, 0, 0.125);
+                border-radius: 1rem;
+            }
+
+            .card-body {
+                -webkit-box-flex: 1;
+                -ms-flex: 1 1 auto;
+                flex: 1 1 auto;
+                padding: 1.5rem 1.5rem;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+        <div class="container-fluid">
+            <div class="container text-center">
+                <h1>Thank you.</h1>
+                <p class="lead w-lg-50 mx-auto">Your order has been placed successfully.</p>
+                <p class="w-lg-50 mx-auto">Your order number is <a href="#">
+                        <%= orderId %>
+                    </a>. We will immediatelly process your and it will be delivered in 2 - 5 business days.</p>
+            </div>
+            <div class="container">
+                <h6 class="h5 mb-5 text-center"><a href="/profile">Click here to View My Orders</a></h6>
+                <h2 class="h5 mb-5 text-center">You may also like these products</h2>
+                <div class="row">
+                    <% for(let i=0; i < product.length; i++){ %>
+                        <div class="col-lg-3">
+                            <div class="card text-center mb-3">
+                                <div class="py-5 px-4">
+                                    <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt=""
+                                        class="img-fluid mb-4" />
+                                    <h3 class="fs-6 text-truncate"><a href="product?product=<%= product[i]._id %>"
+                                            class="stretched-link text-reset">
+                                            <%= product[i].name %>
+                                        </a></h3>
+                                    <span class="text-success">$<%= product[i].price %></span> <del
+                                        class="text-muted">$650.83</del>
+                                </div>
+
+                            </div>
+                        </div>
+                        <% } %>
+
                 </div>
             </div>
-            <% } %>
-            
+            <div class="container text-center">
+                <a href="/shop" class="btn btn-link text-muted">
+                    <i class="mdi mdi-arrow-left me-1"></i> Continue Shopping </a>
+            </div>
         </div>
-    </div>
-    <div class="container text-center">
-        <a href="/shop" class="btn btn-link text-muted">
-            <i class="mdi mdi-arrow-left me-1"></i> Continue Shopping </a>
-    </div>
-</div>
 
-</body>
-</html>
+    </body>
+
+    </html>

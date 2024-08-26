@@ -15,9 +15,6 @@ const generateHashedPassword = async (password) => {
 
 
 
-//utility
-
-
 //landing
 const getProfile = async (req, res) => {
 
@@ -25,12 +22,18 @@ const getProfile = async (req, res) => {
     const orders = await Order.find({ userId: req.session.user_id });
     console.log('orders', orders);
     try {
-
-        let alertMessage = {
-            type: req.session.mType,
-            message: req.session.mContent,
+        let alertMessage;
+        if (!req.session.alertMessage) {
+            alertMessage = {
+                type: req.session.mType,
+                message: req.session.mContent,
+            }
+        }
+        else {
+            alertMessage = req.session.alertMessage
         }
 
+        req.session.alertMessage = null;
         req.session.mType = ' ';
         req.session.mContent = " ";
         console.log(`User profile User Data : ${user}`)
@@ -45,33 +48,19 @@ const getProfile = async (req, res) => {
 
 //address
 const getAddAdress = async (req, res) => {
-
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
     try {
         let user = await User.findById({ _id: req.session.user_id })
         const alertMessage = null
-        res.render('user-views/addAdress', { user, alertMessage, orders, orderAddress })
+        res.render('user-views/addAdress', { user, alertMessage })
     } catch (error) {
-
+        console.log('Error in get address error', error)
     }
 }
 
 
 const postAddAddress = async (req, res) => {
-
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
-    // let user = await User.findById({_id:req.session.user_id})
     try {
+        let user = await User.findById({ _id: req.session.user_id })
         console.log(req.body)
         const newAddress = {
             addressType: req.body.addressType,
@@ -93,14 +82,17 @@ const postAddAddress = async (req, res) => {
                 type: 'success', // Can be 'success', 'error', 'warning', or 'info'
                 message: 'New Adress Added'
             };
-            res.render('user-views/profile', { user, alertMessage, orders, orderAddress })
+            req.session.alertMessage = alertMessage;
+            res.redirect('/profile')
+
         }
         else {
             const alertMessage = {
                 type: 'error', // Can be 'success', 'error', 'warning', or 'info'
                 message: 'Cannot Add New Address'
             };
-            res.render('user-views/profile', { user, alertMessage, orders, orderAddress })
+            req.session.alertMessage = alertMessage;
+            res.redirect('/profile')
         }
     } catch (error) {
         console.log(`Error In Post Add Address Error ${error}`)
@@ -109,25 +101,19 @@ const postAddAddress = async (req, res) => {
             type: 'error',
             message: 'Cannot Add New Address'
         };
-        res.render('user-views/profile', { user, alertMessage, orders, orderAddress });
+        req.session.alertMessage = alertMessage;
+        res.redirect('/profile')
     }
 }
 
 const getEditAdress = async (req, res) => {
-
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
-    // let user = await User.findById({_id:req.session.user_id});
     try {
+        let user = await User.findById({ _id: req.session.user_id })
         let id = req.query.id;
         let address = user.address.id(id)
         const alertMessage = null;
         console.log(`Edit address : user obj \n ${address}`)
-        res.render('user-views/editAdress', { address, alertMessage })
+        res.render('user-views/editAdress', { user, alertMessage, address })
     } catch (error) {
         console.log(`Error In get edit Address Error ${error}`)
 
@@ -135,20 +121,14 @@ const getEditAdress = async (req, res) => {
             type: 'error',
             message: 'Cannot Edit Address'
         };
-        res.render('user-views/profile', { user, alertMessage, orders, orderAddress });
-
+        req.session.alertMessage = alertMessage;
+        res.redirect('/profile')
     }
 }
 
 const postEditAdress = async (req, res) => {
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
-    // let user = await User.findById({_id:req.session.user_id})
     try {
+        let user = await User.findById({ _id: req.session.user_id })
         console.log(`post Edit Address body `, req.body)
         const addressId = req.body.addressId;
         const address = user.address.id(addressId);
@@ -165,20 +145,8 @@ const postEditAdress = async (req, res) => {
             address.district = req.body.district;
             address.landmark = req.body.landmark;
             await user.save()
-            //  alertMessage = {
-            //     type: 'success', // Can be 'success', 'error', 'warning', or 'info'
-            //     message: 'Address updated successfully.'
-            //   };
-            // res.redirect(url.format({
-            //     pathname:"/profile",
-            //     query: {
-            //        "Mtype": success'',
-            //        "Mcontent": 'Address updated successfully',
-            //             }
-            //      }))
             req.session.mType = 'success'
             req.session.mContent = 'Address updated successfully'
-
             res.redirect('/profile')
         }
         else {
@@ -187,31 +155,26 @@ const postEditAdress = async (req, res) => {
                 type: 'error', // Can be 'success', 'error', 'warning', or 'info'
                 message: 'Cannot Edit Address'
             };
+            req.session.alertMessage = alertMessage;
+            res.redirect('/profile')
         }
-
-
-        res.render('user-views/profile', { user, alertMessage, orders, orderAddress })
+        // req.session.alertMessage = alertMessage;
+        // res.redirect('/profile')
     } catch (error) {
         console.log(`Error In post edit Address Error ${error}`)
-
         const alertMessage = {
             type: 'error',
             message: 'Cannot Edit Address'
-        };
-        res.render('user-views/profile', { user, alertMessage, orders, orderAddress });
+        }
+        req.session.alertMessage = alertMessage;
+        res.redirect('/profile')
     }
 }
 
 
 const getDeleteAddress = async (req, res) => {
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
-    // let user = await User.findById(req.session.user_id);
     try {
+        let user = await User.findById({ _id: req.session.user_id })
         const id = req.query.id;
         let deleteAdress = user.address.id(id)
         deleteAdress.isDeleted = true;
@@ -220,14 +183,16 @@ const getDeleteAddress = async (req, res) => {
                 type: 'success', // Can be 'success', 'error', 'warning', or 'info'
                 message: 'Adress Deleted'
             };
-            res.render('user-views/profile', { user, alertMessage, orders, orderAddress })
+            req.session.alertMessage = alertMessage;
+            res.redirect('/profile')
         }
         else {
             const alertMessage = {
                 type: 'error', // Can be 'success', 'error', 'warning', or 'info'
                 message: 'Cannot  delete  Address'
             };
-            res.render('user-views/profile', { user, alertMessage, orders, orderAddress })
+            req.session.alertMessage = alertMessage;
+            res.redirect('/profile')
         }
     } catch (error) {
         console.log(`Erro while deleting address`)
@@ -235,7 +200,8 @@ const getDeleteAddress = async (req, res) => {
             type: 'error',
             message: 'Cannot delete  Address'
         };
-        res.render('user-views/profile', { user, alertMessage, orders, orderAddress });
+        req.session.alertMessage = alertMessage;
+        res.redirect('/profile')
     }
 }
 
@@ -246,12 +212,6 @@ const getDeleteAddress = async (req, res) => {
 //profile
 
 const getEditProfile = async (req, res) => {
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
     try {
         let user = await User.findById({ _id: req.session.user_id })
         res.render('user-views/editProfile', { user })
@@ -264,13 +224,8 @@ const getEditProfile = async (req, res) => {
 
 
 const postEditProfile = async (req, res) => {
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
     try {
+        let user = await User.findById({ _id: req.session.user_id })
         console.log(`Posted data from post edit - ${req.body.name}`);
         console.log(req.body)
         // console.log(`Posted image from post edit - ${req.file.filename}`);
@@ -298,32 +253,26 @@ const postEditProfile = async (req, res) => {
                 mobile: req.body.phone,
             }, { new: true })
         }
-        let user = await User.findById({ _id: req.session.user_id })
         const alertMessage = {
             type: 'success', // Can be 'success', 'error', 'warning', or 'info'
             message: 'Profile Updated'
         };
-        res.render('user-views/profile', { user, alertMessage, orders, orderAddress })
+        req.session.alertMessage = alertMessage;
+        res.redirect('/profile')
 
     } catch (error) {
-        let user = await User.findById({ _id: req.session.user_id })
         console.log(`error in post edit profile error : ${error}`)
         const alertMessage = {
             type: 'error', // Can be 'success', 'error', 'warning', or 'info'
             message: 'Cannot  update  Profile'
         };
-        res.render('user-views/profile', { user, alertMessage, orders, orderAddress })
+        req.session.alertMessage = alertMessage;
+        res.redirect('/profile')
     }
 
 }
 
 const getChangePassword = async (req, res) => {
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
     try {
         let user = await User.findById({ _id: req.session.user_id })
         let alertMessage = {
@@ -332,23 +281,20 @@ const getChangePassword = async (req, res) => {
         }
         req.session.mType = ' ';
         req.session.mContent = " ";
-        res.render('user-views/changePassword', { user, alertMessage, orders, orderAddress });
+        res.render('user-views/changePassword', { user, alertMessage });
     } catch (error) {
         console.log(`error in get change password`)
+        req.session.alertMessage = {
+            type: 'error', // Can be 'success', 'error', 'warning', or 'info'
+            message: 'Cannot  get change password'
+        };
+        res.redirect('/profile')
     }
 }
 const postChangePassword = async (req, res) => {
-    let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    // console.log('orders',orders);       
-    const orderAddress = user.address.
-        find(addressItem => orders.find(orderItem => addressItem._id.toString() === orderItem.addressId.toString()));
-    // console.log('order address',orderAddress)
     try {
-        let userId = req.session.user_id;
         let currentPassword = req.body.currentPassword ? req.body.currentPassword : false;
         let { newPassword, confirmPassword } = req.body;
-
         let user = await User.findById({ _id: req.session.user_id })
         if (currentPassword) {
             if (await user.isPasswordMatched(currentPassword) && !(currentPassword == newPassword)) {
@@ -358,9 +304,6 @@ const postChangePassword = async (req, res) => {
                 await user.save()
                 req.session.mType = 'success';
                 req.session.mContent = "Password changed ";
-                // setTimeout((req,res)=>{
-                //     req.session.userAuth = false;
-                // },100)
                 res.redirect('/profile')
             }
 
@@ -369,13 +312,11 @@ const postChangePassword = async (req, res) => {
                 req.session.mContent = "new password and Current password is same ";
                 res.redirect('/profile');
             }
-
             else {
                 req.session.mType = 'error';
                 req.session.mContent = "Current password is wrong ";
                 res.redirect('/changepass');
             }
-
         }
         else {
             console.log('creating new password matched');
@@ -384,22 +325,40 @@ const postChangePassword = async (req, res) => {
             await user.save()
             req.session.mType = 'success';
             req.session.mContent = "New Password Added";
-            // setTimeout((req,res)=>{
-            //     req.session.userAuth = false;
-            // },100)
             res.redirect('/profile')
         }
-
-
 
     } catch (error) {
         console.log(`error in post change password`)
     }
 }
 
+//return and cancel order
+const returnOrder = async (req, res) => {
+    try {
+        let user = await User.findById({ _id: req.session.user_id });
+        const order_id = req.query.id;
+        const order = await Order.findById(order_id);
+        console.log('returned order', order)
+        order.status = 'returned'
+        order.isReturned.status = true;
+        order.isReturned.isRefunded = true;
+        order.isReturned.refundAmount = order.totalPrice;
+        order.status = 'returned';
+        // order.totalPrice = 0;
+        req.session.mType = 'success'
+        req.session.mContent = `$${order.totalPrice} is added to youre wallet please check balence`;
+        user.wallet = user.wallet + order.totalPrice,
+            await order.save();
+        await user.save();
+        res.redirect('/profile')
+    } catch (error) {
+        console.log(`error in return oder err`, error)
+    }
+}
 
 module.exports = {
     getProfile, getEditAdress, getEditProfile, getAddAdress,
     postAddAddress, getDeleteAddress, postEditProfile, postEditAdress
-    , getChangePassword, postChangePassword,
+    , getChangePassword, postChangePassword, returnOrder
 }
