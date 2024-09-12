@@ -97,14 +97,14 @@
                             <div class="card-body">
                                 <div class="d-flex align-items-start border-bottom pb-3">
                                     <div class="me-4">
-                                        <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>"
+                                        <img src="/admin/assets/images/catagory/<%= product[i]?.images[0] %>"
                                             alt="pr-img" class="avatar-lg rounded">
                                     </div>
                                     <div class="flex-grow-1 align-self-center overflow-hidden"
                                         style="padding-left: 10px;">
                                         <div>
                                             <h5 class="text-truncate font-size-18"><a href="#" class="text-dark">
-                                                    <%= product[i].name %>
+                                                    <%= product[i]?.name %>
                                                 </a></h5>
                                             <p class="text-muted mb-0">
                                                 <i class="bx bxs-star text-warning"></i>
@@ -114,14 +114,14 @@
                                                 <i class="bx bxs-star-half text-warning"></i>
                                             </p>
                                             <p class="mb-0 mt-1">Color : <span class="fw-medium">
-                                                    <%= product[i].color %>
+                                                    <%= product[i]?.color %>
                                                 </span></p>
                                         </div>
                                     </div>
                                     <div class="flex-shrink-0 ms-2">
                                         <ul class="list-inline mb-0 font-size-16">
                                             <li class="list-inline-item">
-                                                <a href="/deleteCartItem?id=<%=cart[i].ProductId%>"
+                                                <a href="/deleteCartItem?id=<%=cart[i]?.ProductId%>"
                                                     class="text-muted px-1">
                                                     <i class="mdi mdi-trash-can-outline"></i>
                                                 </a>
@@ -140,7 +140,7 @@
                                             <div class="mt-3">
                                                 <p class="text-muted mb-2">Price</p>
                                                 <h5 class="mb-0 mt-2"><span class="text-muted me-2"></span>$
-                                                    <%=product[i].price%>
+                                                    <%=product[i]?.price%>
                                                 </h5>
                                             </div>
                                         </div>
@@ -151,19 +151,19 @@
 
 
                                                     <button class="btn-minus"
-                                                        onclick=" onMinus( '<%= cart[i].quantity %>' , '<%= cart[i].ProductId %>' ) ">-</button>
-                                                    <input type="text" value="<%= cart[i].quantity %>"
-                                                        id="qnt-display-<%= cart[i].ProductId %>" readonly>
+                                                        onclick=" onMinus( '<%= cart[i]?.quantity %>' , '<%= cart[i]?.ProductId %>' ) ">-</button>
+                                                    <input type="text" value="<%= cart[i]?.quantity %>"
+                                                        id="qnt-display-<%= cart[i]?.ProductId %>" readonly>
                                                     <button class="btn-plus"
-                                                        onclick=" onPlus( '<%= cart[i].quantity %>' , '<%= cart[i].ProductId %>' ) ">+</button>
+                                                        onclick=" onPlus( '<%= cart[i]?.quantity %>' , '<%= cart[i]?.ProductId %>' ) ">+</button>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-3">
                                             <div class="mt-3">
                                                 <p class="text-muted mb-2">Total</p>
-                                                <h5 id="singleTotal-<%= cart[i].ProductId %>"> $<%= product[i].price *
-                                                        cart[i].quantity %>
+                                                <h5 id="singleTotal-<%= cart[i]?.ProductId %>"> $<%= product[i]?.price *
+                                                        cart[i]?.quantity %>
                                                 </h5>
                                             </div>
                                         </div>

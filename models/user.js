@@ -72,10 +72,6 @@ const userSchema = new mongoose.Schema({
     password: {
         type: String,
     },
-    isAdmin: {
-        type: String,
-        default: "0",
-    },
     isBlocked: {
         type: Boolean,
         default: false,
@@ -120,12 +116,8 @@ const userSchema = new mongoose.Schema({
 
             }
         }],
-        subtotal: { type: Number },
         discount: { type: Number, default: 0 },
-        total: {
-            type: Number,
-            default: 0,
-        },
+
         coupen: { type: String, default: 'no' }
 
     },
@@ -157,23 +149,36 @@ const userSchema = new mongoose.Schema({
         type: Number,
         required: true,
         default: 0,
-    }
+    },
+    transactionHistory: [
+        {
+            method: {
+                type: String,
+                default: 'wallet'
+            },
+            date: {
+                type: Date,
+                default: Date.now()
+            },
+            amount: {
+                type: Number,
+                default: 0,
+            },
+            isCredited: {
+                type: Boolean,
+                default: true,
+            },
+            isDebited: {
+                type: Boolean,
+                default: false,
+            }
+        }
+    ]
 
 
 });
 
 
-userSchema.pre('save', function (next) {
-    if (this.cart.cartItems.length > 0) {
-        console.log('user schema middleware checked')
-        let cartTotal = this.cart.cartItems.reduce((acc, item) => {
-            return acc + item.total
-        }, 0)
-        this.cart.subtotal = cartTotal;
-        this.cart.total = cartTotal - this.cart.discount
-    }
-    next()
-})
 
 userSchema.methods.isPasswordMatched = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);

@@ -19,23 +19,26 @@
     <div class="top_catagory_area section-padding-80 clearfix">
         <div class="container">
             <div class="row justify-content-center">
-                <% if (catagory.length > 0) { %>
+                <% if (catagory.length> 0) { %>
 
-                    <% for (let i = 0; i < catagory.length; i++) { %>
-                <!-- Single Catagory -->
-                <div class="col-12 col-sm-6 col-md-4">
-                    <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img" style="background-image: url('/admin/assets/images/catagory/<%= catagory[i].image %>');">
-                        <div class="catagory-content">
-                            <a href="/shop"><%= catagory[i].name %></a>
+                    <% for (let i=0; i < catagory.length; i++) { %>
+                        <!-- Single Catagory -->
+                        <div class="col-12 col-sm-6 col-md-4">
+                            <div class="single_catagory_area d-flex align-items-center justify-content-center bg-img"
+                                style="background-image: url('/admin/assets/images/catagory/<%= catagory[i].image %>');">
+                                <div class="catagory-content">
+                                    <a href="/shop">
+                                        <%= catagory[i].name %>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
-                <% } %>
-                   <% } else { %>
-                       <div class="not-found">
-                        <p>No Catagory Found</p>
-                       </div>
-                   <% } %> 
+                        <% } %>
+                            <% } else { %>
+                                <div class="not-found">
+                                    <p>No Catagory Found</p>
+                                </div>
+                                <% } %>
 
             </div>
         </div>
@@ -47,7 +50,8 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-                    <div class="cta-content bg-img background-overlay" style="background-image: url(/img/bg-img/bg-5.jpg);">
+                    <div class="cta-content bg-img background-overlay"
+                        style="background-image: url(/img/bg-img/bg-5.jpg);">
                         <div class="h-100 d-flex align-items-center justify-content-end">
                             <div class="cta--text">
                                 <h6>-60%</h6>
@@ -77,54 +81,68 @@
         <div class="container">
             <div class="row">
                 <div class="col-12">
-            <% if (product.length > 0) { %>
-                    <div class="popular-products-slides owl-carousel">
-                        <% for (let i = 0; i < product.length; i++) { %>
-                        
-                        <!-- Single Product -->
-                        <div class="single-product-wrapper">
-                            <!-- Product Image -->
-                            <div class="product-img">
-                                <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="">
-                                <!-- Hover Thumb -->
-                                <img class="hover-img" src="/admin/assets/images/catagory/<%= product[i].images[1] %>"alt="">
-                                <!-- Product Badge -->
-                                <div class="product-badge offer-badge">
-                                    <span>-30%</span>
-                                </div>
+                    <% if (product.length> 0) { %>
+                        <div class="popular-products-slides owl-carousel">
+                            <% for (let i=0; i < product.length; i++) { %>
 
-                                <!-- Favourite -->
-                                <div class="product-favourite">
-                                    <a href="#" class="favme fa fa-heart"></a>
-                                </div>
-                            </div>
-                            <!-- Product Description -->
-                            <div class="product-description">
-                                <span><%= product[i].brand %></span>
-                                <a href="/product?product=<%= product[i]._id %>">
-                                    <h6><%= product[i].name %></h6>
-                                </a>
-                                <p class="product-price">$<%= product[i].price %></p>
+                                <!-- Single Product -->
+                                <div class="single-product-wrapper">
+                                    <!-- Product Image -->
+                                    <div class="product-img">
+                                        <img src="/admin/assets/images/catagory/<%= product[i]?.images[0] %>" alt="">
+                                        <!-- Hover Thumb -->
+                                        <img class="hover-img"
+                                            src="/admin/assets/images/catagory/<%= product[i]?.images[1] %>" alt="">
+                                        <!-- Product Badge -->
+                                        <%if(product[i].offer.status==true){%>
+                                            <div class="product-badge offer-badge">
+                                                <span>
+                                                    <%= '$' + product[i].offer.amount%> Off
+                                                </span>
+                                            </div>
+                                            <%}%>
 
-                                <!-- Hover Content -->
-                                <div class="hover-content">
-                                    <!-- Add to Cart -->
-                                    <div class="add-to-cart-btn">
-                                        <a href="#" class="btn essence-btn">Add to Cart</a>
+                                                <!-- Favourite -->
+                                                <div class="product-favourite">
+                                                    <a href="#" class="favme fa fa-heart"></a>
+                                                </div>
+                                    </div>
+                                    <!-- Product Description -->
+                                    <div class="product-description">
+                                        <span>
+                                            <%= brand[i]?.name %>
+                                        </span>
+                                        <a href="/product?product=<%= product[i]._id %>">
+                                            <h6>
+                                                <%= product[i].name %>
+                                            </h6>
+                                        </a>
+                                        <p class="product-price">
+                                            <span class="old-price">
+                                                <%=product[i].offer.status==true ?'$' +
+                                                    product[i].offer.amount:'$'+product[i].price%>
+                                            </span>$<%= product[i].price %>
+                                        </p>
+
+                                        <!-- Hover Content -->
+                                        <div class="hover-content">
+                                            <!-- Add to Cart -->
+                                            <div class="add-to-cart-btn">
+                                                <a href="#" class="btn essence-btn">Add to Cart</a>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+
+                                <% } %>
+                                    <% } else { %>
+
+                                        <div class="not-found">
+                                            <p>No Product Found</p>
+                                        </div>
+                                        <% } %>
+
                         </div>
-
-                        <% } %>
-                             <% } else { %>
-
-                                <div class="not-found">
-                                    <p>No Product Found</p>
-                                </div>
-                        <% } %>
-
-                    </div>
                 </div>
 
             </div>
@@ -160,4 +178,4 @@
         </div>
     </div>
     <!-- ##### Brands Area End ##### -->
-<%- include('./partials/footer') -%>
+    <%- include('./partials/footer') -%>

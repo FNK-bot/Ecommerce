@@ -149,13 +149,16 @@
 
                                                 <div class="col-lg-3 col-sm-6">
                                                     <div>
-                                                        <label class="card-radio-label">
+                                                        <label class="card-radio-label"
+                                                            onclick="codValidation('<%= totalCartPrice %>')">
                                                             <input type="radio" name="paymentMethod" value="cod"
-                                                                class="card-radio-input" checked="" />
+                                                                class="card-radio-input" id="codInput" disabled />
                                                             <span class="card-radio py-3 text-center text-truncate">
                                                                 <i class="bx bx-money d-block h2 mb-3"></i>
                                                                 Cash on Delivery
                                                             </span>
+                                                            <small id="codError">Cashon delivary only avialable for
+                                                                Above $100 </small>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -276,6 +279,28 @@
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
+        function codValidation(amount) {
+            // alert('cc')
+            let n = parseInt(amount);
+            // alert(n)
+            let input = document.getElementById('codInput')
+            let err = document.getElementById('codError');
+            if (n > 99) {
+                err.innerText = '';
+                err.classList = 'd-none';
+                input.disabled = false
+                return
+            }
+            err.style.color = 'red';
+            err.innerText = 'Cashon delivary only avialable for Above $100'
+            Swal.fire({
+                icon: "info",
+                title: "info",
+                text: " Minium $100 is required for Cash on delevery.",
+            });
+            return;
+
+        }
         async function check() {
             const selectedAddress = document.querySelector('input[name="address"]:checked');
             const paymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
@@ -284,6 +309,14 @@
                     icon: "error",
                     title: "Error",
                     text: "Please select an address before proceeding.",
+                });
+                return;
+            }
+            if (!paymentMethod) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Error",
+                    text: "Please select an payment method before proceeding.",
                 });
                 return;
             }
@@ -322,21 +355,63 @@
                     order_id: data.order_id, // This is the order_id created in the backend
                     handler: function (response) {
                         console.log(response)
+                        // Check if payment was successful
+
                         Swal.fire({
                             title: "Payment success!",
-                            text: `payment id ${response.razorpay_payment_id}`,
+                            text: `Payment ID: ${response.razorpay_payment_id}`,
                             icon: "success"
                         });
-                        // Add logic here to handle the payment success, e.g., redirect to success page 
-                        axios.post('/checkOut', { onlinePayment: true, address: selectedAddress.value }).then((res) => {
-                            console.log('online payment done')
-                            console.log(res)
+
+                        // Update order status to 'Paid' in the backend
+                        axios.post('/checkout', {
+                            paymentStatus: 'Paid',
+                            paymentId: response.razorpay_payment_id,
+                            orderId: data.order_id,
+                            address: selectedAddress.value,
+                            onlinePayment: true,
+                        }).then((res) => {
                             let orderId = res.data.orderId;
-                            location.href = `/orderSuccess?id=${orderId}`
-                            console.log('redireceted')
-                        })
+                            location.href = `/orderSuccess?id=${orderId}`;
+                        }).catch(err => {
+                            console.error('Failed to update payment status', err);
+                        });
+
+
+
 
                     },
+
+                    'modal': {
+                        'ondismiss': function () {
+                            // alert(response)
+                            // Swal.fire({
+                            //     title: "Payment failed!",
+                            //     text: "Something went wrong with the payment. Your order will be marked as 'Payment Pending'.",
+                            //     icon: "info"
+                            // });
+
+                            // Update order status to 'Payment Pending' in the backend
+                            axios.post('/checkout', {
+                                paymentStatus: 'Pending',
+                                orderId: data.order_id,
+                                // address: selectedAddress.value,
+                                // paymentId: response.razorpay_payment_id,
+                            }).then((res) => {
+                                // let orderId = res.data.orderId;
+                                // location.href = `/orderSuccess?id=${orderId}`;
+                                // Handle payment failure case
+                                Swal.fire({
+                                    title: "Payment failed!",
+                                    text: "Something went wrong with the payment. Your order will be marked as 'Payment Pending'.",
+                                    icon: "info"
+                                });
+                            }).catch(err => {
+                                console.error('Failed to update payment status', err);
+                            });
+                        }
+                    },
+
                     prefill: {
                         name: 'Customer Name',
                         email: 'customer.email@example.com',

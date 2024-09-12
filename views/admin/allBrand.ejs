@@ -1,0 +1,108 @@
+<%- include('./partials/header'); %>
+    <!-- Recent Sales Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light text-center rounded p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h6 class="mb-0">All Brands</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table text-start align-middle table-bordered table-hover mb-0">
+                    <thead>
+                        <tr class="text-dark">
+                            <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                            <th scope="col">Title</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">description</th>
+                            <th scope="col">Offer Price</th>
+                            <th scope="col" colspan="3">Options</th>
+                        </tr>
+                    </thead>
+                    <% if (brands.length> 0) { %>
+
+                        <% for (let i=0; i < brands.length; i++) { %>
+
+                            <tbody>
+                                <tr>
+                                    <td><input class="form-check-input" type="checkbox"></td>
+                                    <td>
+                                        <%= brands[i].name %>
+                                    </td>
+                                    <td><img class="rounded" style="width: 50px; height: 60px;"
+                                            src="/admin/assets/images/catagory/<%= brands[i].image %>" alt="image">
+                                    </td>
+                                    <td>
+                                        <%= brands[i].discription %>
+                                    </td>
+                                    <td>
+                                        <%= brands[i]?.offer.status==true?brands[i]?.offer.amount:'No Offer' %>
+                                    </td>
+                                    <td><a class="btn btn-sm btn-primary"
+                                            href="/admin/editBrand?id=<%= brands[i]._id %>">Edit</a>
+                                        <a class="btn btn-sm btn-danger"
+                                            href="/admin/deleteBrand?id=<%= brands[i]._id %>">Delete</a>
+                                        <button type="button" class="btn btn-sm btn-primary" id="addOffer"
+                                            onclick="addOffer('<%=brands[i]._id%>','brand')">
+                                            <%if(brands[i]?.offer.status==true){%>
+                                                Update Offer
+                                                <%}else{%>
+                                                    Add Offer
+                                                    <%}%>
+
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% } %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="7">No Brands Found <a href="/admin/addBrand">add one</a>
+                                            </td>
+
+                                        </tr>
+                                        <% } %>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Recent Sales End -->
+
+    <%- include('./partials/pageCon'); %>
+        <%- include('./partials/footer'); %>
+            <%- include('../user-views/partials/alertMessages'); %>
+
+                <script>
+                    function addOffer(id, type) {
+
+                        Swal.fire({
+                            title: "Enter Offer Amount",
+                            input: "number",
+                            showCancelButton: true,
+                            confirmButtonText: "Add Offer",
+                            showLoaderOnConfirm: true,
+                            preConfirm: async (input) => {
+                                try {
+                                    if (input.length < 1) {
+                                        // alert(input.length)
+                                        Swal.showValidationMessage(`Enter Amaunt`);
+                                    }
+                                    const url = `/admin/api/addOffer`;
+                                    const { data } = await axios.post(url, { input, type, id }, {
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        }
+                                    })
+                                } catch (error) {
+                                    Swal.showValidationMessage(` Request failed: ${error}`);
+                                }
+                            },
+                            allowOutsideClick: () => !Swal.isLoading()
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Swal.fire({
+                                    title: `Success`,
+                                    icon: 'success',
+                                });
+                                location.reload()
+                            }
+                        });
+                    }
+                </script>

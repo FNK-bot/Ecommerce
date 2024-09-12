@@ -1,17 +1,18 @@
 const Catogary = require('../../models/catagory')
+
 const getAllCatagory = async (req, res) => {
     try {
-
-        res.status(200)
-        const getAllCatogary = await Catogary.find();
+        const getAllCatogary = await Catogary.find({ isDeleted: false });
+        console.log(getAllCatogary)
         const itemsperpage = 3;
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
         const totalpages = Math.ceil(getAllCatogary.length / 3);
         const currentproduct = getAllCatogary.slice(startindex, endindex);
-
-        res.render('admin/catagorys', { catogary: currentproduct, totalpages, currentpage, })
+        let alertMessage = req.session.alertMessage
+        req.session.alertMessage = null;
+        res.render('admin/catagorys', { catogary: currentproduct, totalpages, currentpage, alertMessage })
 
     } catch (error) {
         console.log('error in Catagorys')
@@ -23,8 +24,8 @@ const getAllCatagory = async (req, res) => {
 const getAddCatagory = async (req, res) => {
     try {
         let alertMessage = req.session.alertMessage
-        res.render('admin/addCatagory', { alertMessage })
         req.session.alertMessage = null;
+        res.render('admin/addCatagory', { alertMessage })
     } catch (error) {
         console.log('error in addCatagorys', error)
     }
@@ -32,8 +33,16 @@ const getAddCatagory = async (req, res) => {
 const postAddCatagory = async (req, res) => {
     try {
         const { name, discription } = req.body;
+        let image = req?.file;
         console.log(req.body)
         console.log('file', req.file)
+        if (name == undefined || image == undefined || discription == undefined) {
+            req.session.alertMessage = {
+                type: 'error', // Can be 'success', 'error', 'warning', or 'info'
+                message: 'All Field is Required '
+            };
+            res.redirect('/admin/addCatagory')
+        }
 
         if (!discription) {
             req.session.alertMessage = {
@@ -57,14 +66,17 @@ const postAddCatagory = async (req, res) => {
                 image = req.file.filename;
             }
             const newCatogary = new Catogary({
-                name: name,
+                name: name.toUpperCase(),
                 discription,
                 image,
             });
 
             await newCatogary.save();
-
-            res.redirect('/admin/Catagorys')
+            req.session.alertMessage = {
+                type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+                message: 'New Catagory Added'
+            };
+            res.redirect('/admin/addCatagory')
             console.log('newCatogary:', newCatogary);
         }
 
@@ -78,17 +90,11 @@ const postAddCatagory = async (req, res) => {
 
 const getEditCatagory = async (req, res) => {
     try {
-
         const id = req.query.id;
-
-        const user = await Catogary.findById(id)
-
-        if (user) {
-            res.render('admin/editCatagory', { user: user })
-        } else {
-            res.redirect('/admin/catogarys')
-
-        }
+        const catagory = await Catogary.findById(id)
+        let alertMessage = req.session.alertMessage
+        req.session.alertMessage = null
+        res.render('admin/editCatagory', { alertMessage, catagory })
     } catch (error) {
         console.log('error in Catagorys')
     }
@@ -101,18 +107,21 @@ const postEditCatagory = async (req, res) => {
         const img = req.file ? req.file.filename : null; // Check if req.file is defined
         if (img) {
             await Catogary.findByIdAndUpdate(id, {
-                name: req.body.name,
+                name: req.body.name.toUpperCase(),
                 discription: req.body.discription,
                 image: req.file.filename
             }, { new: true })
         } else {
             await Catogary.findByIdAndUpdate(id, {
-                name: req.body.name,
+                name: req.body.name.toUpperCase(),
                 discription: req.body.discription,
 
             }, { new: true })
         }
-
+        req.session.alertMessage = {
+            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+            message: 'Catagory Updated'
+        };
         res.redirect('/admin/Catagorys')
     } catch (error) {
         console.log('error in post Catagorys')
@@ -124,10 +133,18 @@ const deleteCatagory = async (req, res) => {
     try {
         console.log(req.query.id)
         const id = req.query.id;
-        const deletedCatogary = await Catogary.findByIdAndDelete(id);
-        console.log('Deleted catogary:', deletedCatogary);
+        await Catogary.findOneAndUpdate({ _id: id }, {
+            $set: {
+                isDeleted: true
+            }
+        }).then(() => {
+            req.session.alertMessage = {
+                type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+                message: 'catagory deleted'
+            };
 
-        res.redirect('/admin/Catagorys');
+            res.redirect('/admin/Catagorys')
+        })
     }
     catch (err) {
         console.log('error in delete catagory', err)

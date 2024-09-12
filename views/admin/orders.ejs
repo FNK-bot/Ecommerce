@@ -14,7 +14,7 @@
                             <th scope="col">Payment method</th>
                             <th scope="col">Date of Order Placed</th>
                             <th scope="col">status</th>
-                            <th scope="col">Action</th>
+                            <th scope="col" colspan="2">Action</th>
 
                         </tr>
                     </thead>
@@ -37,13 +37,18 @@
                                         <%= orders[i].status %>
                                     </td>
                                     <td>
-                                        <% if(orders[i].status=='Not-Shipped' ) {%>
+                                        <% if(orders[i].status=='Placed' ) {%>
                                             <a class="btn btn-sm btn-success"
-                                                href="/admin/shippOrder?id=<%=orders[i]._id%>">Shipp order</a>
+                                                href="/admin/shippOrder?id=<%=orders[i]._id%>">Mark as Delevered</a>
                                             <% }else{ %>
                                                 <a class="btn btn-sm btn-warning"
-                                                    href="/admin/unShippOrder?id=<%=orders[i]._id%>">Unshipp order</a>
+                                                    href="/admin/unShippOrder?id=<%=orders[i]._id%>">Mark as Placed</a>
                                                 <% } %>
+                                                    <!-- <% if(orders[i].status=='canceled' ) {%>
+                                                        <a class="btn btn-sm btn-success" href="#">Re Order</a>
+                                                        <% }else{ %>
+                                                            <a class="btn btn-sm btn-danger" href="#">cancel order</a>
+                                                            <% } %> -->
                                     </td>
                                     <td><a class="btn btn-sm btn-danger"
                                             href="/admin/deleteOrder?id=<%=orders[i]._id%>">Delete</a></td>
@@ -64,3 +69,4 @@
     <%- include('./partials/pageCon'); %>
 
         <%- include('./partials/footer'); %>
+            <%- include('../user-views/partials/alertMessages'); %>

@@ -1,32 +1,39 @@
-const mongoose = require('mongoose'); 
+const mongoose = require('mongoose');
 
 
 // Declare the Schema of the Mongo model
-var catogarySchema = new mongoose.Schema({
-    image:{
-        type:String,
-        required:true,
-        
+const catogarySchema = new mongoose.Schema({
+    image: {
+        type: String,
+        required: true,
+
     },
-    name:{
-        type:String,
-        required:true,
-        
+    name: {
+        type: String,
+        required: true,
+
     },
-    discription:{
-        type:String,
-        required:true,
-       
+    discription: {
+        type: String,
+        required: true,
+
     },
-    verified:{
-        type:Boolean,
-       default:false
+    offer: {
+        status: {
+            type: Boolean,
+            default: false
+        },
+        amount: {
+            type: Number,
+            default: 0,
+
+        }
     },
-    status:{
-        type:Boolean,
-        default:false
+    isDeleted: {
+        type: Boolean,
+        default: false
     }
-    
+
 });
 
 

@@ -8,6 +8,8 @@ const { getAllCatagory, getAddCatagory, getEditCatagory, postAddCatagory, postEd
 const { getlogIn, postLogin, logout } = require('../controller/admin/login_out');
 const isLogged = require('../middleware/authAdmin.js');
 const { getOrders, shippOrder, unShippOrder, deleteOrder } = require('../controller/admin/ordersCntrl.js');
+const { getBrands, getEditBrand, postEditBrand, getAddBrand, postAddBrand, deleteBrand } = require('../controller/admin/brandCtrl.js');
+const manageOffers = require('../controller/admin/offerCtrl.js');
 //login
 router.get('/login', getlogIn);
 router.post('/login', postLogin);
@@ -36,6 +38,15 @@ router.get('/editCatagory', isLogged, getEditCatagory);//get add catagory
 router.post('/editCatagory', upload.single('images'), postEditCatagory);//post add catagory    
 router.get('/deleteCatagory', deleteCatagory)
 
+//Brand
+router.get('/brands', isLogged, getBrands);//get all Brand
+router.get('/addBrand', isLogged, getAddBrand);//get add Brand
+router.post('/addBrand', upload.single('images'), isLogged, postAddBrand);//post add Brand
+router.get('/editBrand', isLogged, getEditBrand);//get add Brand    
+router.post('/editBrand', upload.single('images'), postEditBrand);//post add Brand    
+router.get('/deleteBrand', deleteBrand) //delete brand
+
+
 // orders
 router.get('/orders', isLogged, getOrders)
 router.get('/shippOrder', isLogged, shippOrder)
@@ -45,4 +56,7 @@ router.get('/deleteOrder', isLogged, deleteOrder)
 // sales report
 router.get('/salesReport', isLogged, getSalesReportPage)
 router.get('/api/sales-report', isLogged, getSalesReportApi)
+
+//offer
+router.post('/api/addOffer', isLogged, manageOffers)
 module.exports = router;

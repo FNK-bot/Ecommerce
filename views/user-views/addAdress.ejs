@@ -1,144 +1,204 @@
 <%- include('./partials/alertMessages'); %>
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add Address</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .error-message {
-            color: red;
-            font-size: 0.9em;
-            display: none;
-        }
-    </style>
-</head>
-<body>
-    <div class="container mt-5">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Add New Address</h5>
-                <form id="addressForm" action="/add-new-address" method="post" >
-                    <div class="form-group">
-                        <label for="addressType">Address Type</label>
-                        <select class="form-select" name="addressType" id="addressType" required>
-                            <option value="">Select</option>
-                            <option value="home">Home</option>
-                            <option value="office">Office</option>
-                            <option value="other">Other</option>
-                        </select>
-                        <div class="error-message" id="addressTypeError">Please select an address type.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="addressLine1">Address Line</label>
-                        <input type="text" class="form-control" name="addressLine1" id="addressLine1" placeholder="Enter address line" required minlength="1">
-                        <div class="error-message" id="addressLine1Error">Address Line is required.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="name">Name</label>
-                        <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name" required minlength="1">
-                        <div class="error-message" id="nameError">Name is required.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone</label>
-                        <input type="tel" class="form-control" name="phone" id="phone" placeholder="Enter phone" required pattern="^\d{10}$" title="Please enter a 10-digit phone number">
-                        <div class="error-message" id="phoneError">Please enter a valid 10-digit phone number.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="city">City</label>
-                        <input type="text" class="form-control" name="city" id="city" placeholder="Enter city" required minlength="1">
-                        <div class="error-message" id="cityError">City is required.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="areaStreet">Area or Street</label>
-                        <input type="text" class="form-control" name="areaStreet" id="areaStreet" placeholder="Enter Area or Street">
-                    </div>
-                    <div class="form-group">
-                        <label for="district">District</label>
-                        <input type="text" class="form-control" name="district" id="district" placeholder="Enter District" required minlength="1">
-                        <div class="error-message" id="districtError">District is required.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="landmark">Landmark</label>
-                        <input type="text" class="form-control" name="landmark" id="landmark" placeholder="Enter landmark" required minlength="1">
-                        <div class="error-message" id="landmarkError">Landmark is required.</div>
-                    </div>
-                    <div class="form-group">
-                        <label for="pin">Pin Code</label>
-                        <input type="number" class="form-control" name="pin" id="pin" placeholder="Enter Pin code" required pattern="^\d{6}$" title="Please enter a 6-digit pin code">
-                        <div class="error-message" id="pinError">Please enter a valid 6-digit pin code.</div>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Add Address</button>
-             
-                    <a href="/profile" class="btn btn-danger">Cancel</a>
-                </form>
+    <!DOCTYPE html>
+    <html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Add Address</title>
+        <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+        <style>
+            .error-message {
+                color: red;
+                font-size: 0.9em;
+                display: none;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="container mt-5">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Add New Address</h5>
+                    <form id="addressForm" action="/add-new-address" method="post">
+                        <div class="form-group">
+                            <label for="addressType">Address Type</label>
+                            <select class="form-control" name="addressType" id="addressType" required>
+                                <option value="">Select</option>
+                                <option value="home">Home</option>
+                                <option value="office">Office</option>
+                                <option value="other">Other</option>
+                            </select>
+                            <div class="error-message" id="addressTypeError">Please select an address type.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="addressLine1">Address Line</label>
+                            <input type="text" class="form-control" name="addressLine1" id="addressLine1"
+                                placeholder="Enter address line" required minlength="1">
+                            <div class="error-message" id="addressLine1Error">Address Line is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Name</label>
+                            <input type="text" class="form-control" name="name" id="name" placeholder="Enter Name"
+                                required minlength="1">
+                            <div class="error-message" id="nameError">Name is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" class="form-control" name="phone" id="phone" placeholder="Enter phone"
+                                required pattern="^\d{10}$" title="Please enter a 10-digit phone number">
+                            <div class="error-message" id="phoneError">Please enter a valid 10-digit phone number.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="district">District</label>
+                            <!-- <input type="text" class="form-control" name="district" id="district"
+                                placeholder="Enter District" required minlength="1"> -->
+
+                            <select class="form-control" name="district" id="district">
+                                <option selected disabled>Select District</option>
+                                <option value="Alappuzha">Alappuzha</option>
+                                <option value="Ernakulam">Ernakulam</option>
+                                <option value="Idukki">Idukki</option>
+                                <option value="Kannur">Kannur</option>
+                                <option value="Kasaragod">Kasaragod</option>
+                                <option value="Kollam">Kollam</option>
+                                <option value="Kottayam">Kottayam</option>
+                                <option value="Kozhikode">Kozhikode</option>
+                                <option value="Malappuram">Malappuram</option>
+                                <option value="Palakkad">Palakkad</option>
+                                <option value="Pathanamthitta">Pathanamthitta</option>
+                                <option value="Thiruvananthapuram">Thiruvananthapuram</option>
+                                <option value="Thrissur">Thrissur</option>
+                                <option value="Wayanad">Wayanad</option>
+                            </select>
+
+                            <div class="error-message" id="districtError">District is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="city">City</label>
+                            <!-- <input type="text" class="form-control" name="city" id="city" placeholder="Enter city"
+                                required minlength="1"> -->
+                            <select class="form-control" name="city" id="city">
+                                <option selected disabled>Select District First</option>
+                            </select>
+                            <div class="error-message" id="cityError">City is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="areaStreet">Area or Street</label>
+                            <input type="text" class="form-control" name="areaStreet" id="areaStreet"
+                                placeholder="Enter Area or Street">
+                        </div>
+                        <div class="form-group">
+                            <label for="landmark">Landmark</label>
+                            <input type="text" class="form-control" name="landmark" id="landmark"
+                                placeholder="Enter landmark" required minlength="1">
+                            <div class="error-message" id="landmarkError">Landmark is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="pin">Pin Code</label>
+                            <input type="number" class="form-control" name="pin" id="pin" placeholder="Enter Pin code"
+                                required pattern="^\d{6}$" title="Please enter a 6-digit pin code">
+                            <div class="error-message" id="pinError">Please enter a valid 6-digit pin code.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Add Address</button>
+
+                        <a href="/profile" class="btn btn-danger">Cancel</a>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
-    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        document.getElementById('addressForm').addEventListener('submit', function(event) {
-            let valid = true;
+        <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+        <script>
+            document.getElementById('addressForm').addEventListener('submit', function (event) {
+                let valid = true;
 
-            // Clear previous error messages
-            document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
+                // Clear previous error messages
+                document.querySelectorAll('.error-message').forEach(el => el.style.display = 'none');
 
-            // Validate Address Type
-            if (document.getElementById('addressType').value === '') {
-                document.getElementById('addressTypeError').style.display = 'block';
-                valid = false;
+                // Validate Address Type
+                if (document.getElementById('addressType').value === '') {
+                    document.getElementById('addressTypeError').style.display = 'block';
+                    valid = false;
+                }
+
+                // Validate Address Line
+                if (document.getElementById('addressLine1').value.trim() === '') {
+                    document.getElementById('addressLine1Error').style.display = 'block';
+                    valid = false;
+                }
+
+                // Validate Name
+                if (document.getElementById('name').value.trim() === '') {
+                    document.getElementById('nameError').style.display = 'block';
+                    valid = false;
+                }
+
+                // Validate Phone
+                if (!document.getElementById('phone').value.match(/^\d{10}$/)) {
+                    document.getElementById('phoneError').style.display = 'block';
+                    valid = false;
+                }
+
+                // Validate City
+                if (document.getElementById('city').value.trim() === '') {
+                    document.getElementById('cityError').style.display = 'block';
+                    valid = false;
+                }
+
+                // Validate District
+                if (document.getElementById('district').value.trim() === '') {
+                    document.getElementById('districtError').style.display = 'block';
+                    valid = false;
+                }
+
+                // Validate Landmark
+                if (document.getElementById('landmark').value.trim() === '') {
+                    document.getElementById('landmarkError').style.display = 'block';
+                    valid = false;
+                }
+
+                // Validate Pin Code
+                if (!document.getElementById('pin').value.match(/^\d{6}$/)) {
+                    document.getElementById('pinError').style.display = 'block';
+                    valid = false;
+                }
+
+                if (!valid) {
+                    event.preventDefault();
+                }
+            });
+
+            let citys = {
+                Alappuzha: ["Alappuzha", "Cherthala", "Haripad", "Kayamkulam", "Mavelikkara"],
+                Ernakulam: ["Kochi", "Aluva", "Perumbavoor", "Muvattupuzha", "Angamaly"],
+                Idukki: ["Thodupuzha", "Munnar", "Kattappana", "Devikulam", "Nedumkandam"],
+                Kannur: ["Kannur", "Taliparamba", "Thalassery", "Payyannur", "Mattannur"],
+                Kasaragod: ["Kasaragod", "Kanhangad", "Nileshwaram", "Manjeshwar", "Uppala"],
+                Kollam: ["Kollam", "Karunagappally", "Punalur", "Paravur", "Kottarakkara"],
+                Kottayam: ["Kottayam", "Pala", "Changanassery", "Ettumanoor", "Vaikom"],
+                Kozhikode: ["Kozhikode", "Vadakara", "Koyilandy", "Balussery", "Mukkam"],
+                Malappuram: ["Malappuram", "Manjeri", "Perinthalmanna", "Tirur", "Ponnani"],
+                Palakkad: ["Palakkad", "Ottapalam", "Shoranur", "Chittur", "Mannarkkad"],
+                Pathanamthitta: ["Pathanamthitta", "Thiruvalla", "Adoor", "Ranni", "Pandalam"],
+                Thiruvananthapuram: ["Thiruvananthapuram", "Neyyattinkara", "Attingal", "Varkala", "Kattakada"],
+                Thrissur: ["Thrissur", "Guruvayur", "Chalakudy", "Irinjalakuda", "Kodungallur"],
+                Wayanad: ["Kalpetta", "Mananthavady", "Sultan Bathery", "Meenangadi", "Vythiri"]
             }
+            let district = document.getElementById('district')
+            district.addEventListener('change', () => {
+                let key = district.value;
+                let cityArray = citys[key];
+                let options = '';
+                cityArray.forEach((cityname) => {
+                    options += `<option value='${cityname}'>${cityname}</option>`
+                })
+                document.getElementById('city').innerHTML = options;
+            })
+        </script>
+    </body>
 
-            // Validate Address Line
-            if (document.getElementById('addressLine1').value.trim() === '') {
-                document.getElementById('addressLine1Error').style.display = 'block';
-                valid = false;
-            }
-
-            // Validate Name
-            if (document.getElementById('name').value.trim() === '') {
-                document.getElementById('nameError').style.display = 'block';
-                valid = false;
-            }
-
-            // Validate Phone
-            if (!document.getElementById('phone').value.match(/^\d{10}$/)) {
-                document.getElementById('phoneError').style.display = 'block';
-                valid = false;
-            }
-
-            // Validate City
-            if (document.getElementById('city').value.trim() === '') {
-                document.getElementById('cityError').style.display = 'block';
-                valid = false;
-            }
-
-            // Validate District
-            if (document.getElementById('district').value.trim() === '') {
-                document.getElementById('districtError').style.display = 'block';
-                valid = false;
-            }
-
-            // Validate Landmark
-            if (document.getElementById('landmark').value.trim() === '') {
-                document.getElementById('landmarkError').style.display = 'block';
-                valid = false;
-            }
-
-            // Validate Pin Code
-            if (!document.getElementById('pin').value.match(/^\d{6}$/)) {
-                document.getElementById('pinError').style.display = 'block';
-                valid = false;
-            }
-
-            if (!valid) {
-                event.preventDefault();
-            }
-        });
-    </script>
-</body>
-</html>
+    </html>

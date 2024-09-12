@@ -19,8 +19,19 @@ const generateHashedPassword = async (password) => {
 const getProfile = async (req, res) => {
 
     let user = await User.findById({ _id: req.session.user_id })
-    const orders = await Order.find({ userId: req.session.user_id });
-    console.log('orders', orders);
+    // const orders = await Order.find({ userId: req.session.user_id, isDeleted: false });
+    const orders = await Order.aggregate([
+        {
+            $match: {
+                userId: req.session.user_id,
+                isDeleted: false
+            }
+        },
+        {
+            $sort: { createdOn: -1 }
+        }
+    ])
+    // console.log('orders', orders);
     try {
         let alertMessage;
         if (!req.session.alertMessage) {
@@ -36,7 +47,7 @@ const getProfile = async (req, res) => {
         req.session.alertMessage = null;
         req.session.mType = ' ';
         req.session.mContent = " ";
-        console.log(`User profile User Data : ${user}`)
+        // console.log(`User profile User Data : ${user}`)
 
 
         res.render('user-views/profile', { user, alertMessage, orders })
@@ -294,6 +305,7 @@ const getChangePassword = async (req, res) => {
 const postChangePassword = async (req, res) => {
     try {
         let currentPassword = req.body.currentPassword ? req.body.currentPassword : false;
+        console.log('curr', currentPassword)
         let { newPassword, confirmPassword } = req.body;
         let user = await User.findById({ _id: req.session.user_id })
         if (currentPassword) {
@@ -319,13 +331,9 @@ const postChangePassword = async (req, res) => {
             }
         }
         else {
-            console.log('creating new password matched');
-            let hashed = await generateHashedPassword(confirmPassword);
-            user.password = hashed;
-            await user.save()
-            req.session.mType = 'success';
-            req.session.mContent = "New Password Added";
-            res.redirect('/profile')
+            req.session.mType = 'error';
+            req.session.mContent = "Enter the Fieds ";
+            res.redirect('/changepass');
         }
 
     } catch (error) {
@@ -349,16 +357,44 @@ const returnOrder = async (req, res) => {
         req.session.mType = 'success'
         req.session.mContent = `$${order.totalPrice} is added to youre wallet please check balence`;
         user.wallet = user.wallet + order.totalPrice,
-            await order.save();
+            user.transactionHistory.push({
+                amount: order.totalPrice
+            })
+        await order.save();
         await user.save();
+
         res.redirect('/profile')
     } catch (error) {
         console.log(`error in return oder err`, error)
     }
 }
 
+const cancelOrder = async (req, res) => {
+    try {
+        let user = await User.findById({ _id: req.session.user_id });
+        const order_id = req.query.id;
+        const order = await Order.findById(order_id);
+        console.log('cancelled order', order)
+        order.status = 'cancelled'
+        order.totalPrice = 0;
+        req.session.mType = 'success'
+        req.session.mContent = `$${order.totalPrice} is added to youre wallet please check balence`;
+        user.wallet = user.wallet + order.totalPrice,
+            user.transactionHistory.push({
+                amount: order.totalPrice
+            })
+        await order.save();
+        await user.save();
+
+        res.redirect('/profile')
+
+    } catch (error) {
+        console.log('Error in cancel order', error)
+    }
+}
+
 module.exports = {
     getProfile, getEditAdress, getEditProfile, getAddAdress,
     postAddAddress, getDeleteAddress, postEditProfile, postEditAdress
-    , getChangePassword, postChangePassword, returnOrder
+    , getChangePassword, postChangePassword, returnOrder, cancelOrder
 }

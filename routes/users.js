@@ -7,7 +7,7 @@ const isLogged = require('../middleware/authUser')
 const passport = require('passport');
 const upload = require('../multer/multer')
 
-const getLanding = require('../controller/user controller/landing_page')
+const { getLanding, search } = require('../controller/user controller/landing_page')
 
 const getShoping = require('../controller/user controller/shop_controller')
 
@@ -21,14 +21,17 @@ const { getProfile, getEditAdress, getEditProfile, getAddAdress, postAddAddress,
      getDeleteAddress, postEditProfile, postEditAdress,
      getChangePassword,
      postChangePassword,
-     returnOrder } = require('../controller/user controller/profileCtrl');
+     returnOrder,
+     cancelOrder } = require('../controller/user controller/profileCtrl');
 
 const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem,
      getCheckOut, postChekOut, deleteOrder,
      getOrderSuccess,
      getCoupens,
      applyCoupen,
-     cancelCoupen } = require('../controller/user controller/cartCtrl');
+     cancelCoupen,
+     invoice,
+     payOnOderPage } = require('../controller/user controller/cartCtrl');
 
 const { getWishlist, addToWishlist, deleteWishlist } = require('../controller/user controller/wishlistCtrl');
 
@@ -87,6 +90,8 @@ router.post('/checkOut', isLogged, postChekOut)
 router.get('/orderSuccess', isLogged, getOrderSuccess)
 router.get('/deleteOrder', isLogged, deleteOrder)
 router.get('/returnOrder', isLogged, returnOrder)
+router.post('/failedPayment', isLogged, payOnOderPage)
+router.get('/cancelOrder', isLogged, cancelOrder);
 
 //coupens
 router.get('/mycoupens', isLogged, getCoupens)
@@ -97,4 +102,10 @@ router.put('/cancel-coupen', isLogged, cancelCoupen);
 router.get('/wishlist', isLogged, getWishlist)
 router.get('/addToWishlist', isLogged, addToWishlist)
 router.get('/deleteFromWishlist', isLogged, deleteWishlist)
+
+//search 
+router.get('/search', search)
+
+//invoice api
+router.get('/downloadInvoice', isLogged, invoice)
 module.exports = router;

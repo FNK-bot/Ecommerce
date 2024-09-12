@@ -1,13 +1,51 @@
 const Order = require('../../models/order');
+const Product = require('../../models/product')
+const Category = require('../../models/catagory');
+const Brand = require('../../models/brand');
 const PDFDocument = require('pdfkit');
 const fs = require('fs');
 const path = require('path');
 const ExcelJS = require('exceljs');
 
+
 // Get Dashboard Page
 const getDashboard = async (req, res) => {
     try {
-        res.status(200).render('admin/dashboard');
+        //get top 10 products
+        let orders = await Order.find()
+        let obj = {};
+        let product_ids = orders.map((order) => order.productId.flat());
+        product_ids = product_ids.flat()
+        console.log('pid', product_ids);
+        product_ids.forEach((productId) => {
+            if (obj[productId] === undefined) {
+                obj[productId] = 1;
+            }
+            else {
+                obj[productId]++
+            }
+        })
+        // console.log(obj)
+        console.log(Object.keys(obj).length)
+        let limit = Object.keys(obj).length < 10 ? Object.keys(obj).length : 10;
+        // Sort the keys based on their corresponding values in descending order and limit to top 10
+        const top10Products = Object.keys(obj)
+            .sort((a, b) => obj[b] - obj[a]) // Sort by values (largest first)
+            .slice(0, limit); // Limit to top 10
+
+        // console.log(top10Products); isdedd
+        let findProducts = await Product.find({ _id: { $in: top10Products } });
+        console.log(findProducts)
+        let products = findProducts.map((val) => val.name);
+        let category_id = findProducts.map((val) => val.categary);
+        let categaryList = await Category.find({ _id: { $in: category_id } });
+        let brand_ids = findProducts.map((val) => val.brand);
+        let brandList = await Brand.find({ _id: { $in: brand_ids } });
+        res.status(200).render('admin/dashboard', {
+            product: products, limit,
+            brand: brandList,
+            catagory: categaryList,
+        });
     } catch (error) {
         console.log('Error rendering dashboard:', error);
         res.status(500).render('error');
@@ -17,7 +55,44 @@ const getDashboard = async (req, res) => {
 // API for Sales Data
 const getSalesReportApi = async (req, res) => {
     try {
-        res.status(200).send('Sales data API');
+        // res.status(200).send('Sales data API');
+        console.log('api')
+        const monthlySales = await Order.aggregate([
+            {
+                $group: {
+                    _id: {
+                        $month: '$createdOn',
+                    },
+                    count: { $sum: 1 },
+                },
+            },
+            {
+                $sort: {
+                    '_id': 1,
+                },
+            },
+        ]);
+        const monthlySalesArray = Array.from({ length: 12 }, (_, index) => {
+            const monthData = monthlySales.find((item) => item._id === index + 1);
+            return monthData ? monthData.count : 0;
+        });
+        console.log('ms', monthlySalesArray)
+
+        //-------------------this is for the sales graph -end ----
+        ///----------this is for the product data------
+        const productsPerMonth = Array(12).fill(0);
+
+        // Iterate through each product
+        const products = await Product.find();
+        products.forEach(product => {
+            // Extract month from the createdAt timestamp
+            const creationMonth = product.createdAt.getMonth(); // JavaScript months are 0-indexed
+
+            // Increment the count for the corresponding month
+            productsPerMonth[creationMonth]++;
+        });
+        console.log('produc per month', productsPerMonth)
+        res.json({ productsPerMonth, monthlySalesArray })
         console.log('Get sales data API');
     } catch (error) {
         console.log('Error fetching sales data:', error);
@@ -58,17 +133,51 @@ const generatePDF = (orders, totalRevenue, totalDiscount, totalSale) => {
     fs.mkdirSync(dirPath, { recursive: true });
 
     const filePath = path.join(dirPath, 'salesReport.pdf');
-    const doc = new PDFDocument();
+    const doc = new PDFDocument({ margin: 30 });
     doc.pipe(fs.createWriteStream(filePath));
 
-    doc.text(`Total Sales: ${totalSale}`);
-    doc.text(`Total Revenue: $${totalRevenue}`);
-    doc.text(`Total Discount: $${totalDiscount}`);
+    // Add Title
+    doc.fontSize(20).text('Sales Report', { align: 'center' });
 
+    doc.moveDown();
+
+    // // Summary Section
+    // doc.fontSize(12);
+    // doc.text(`Total Sales: ${totalSale}`, { continued: true }).moveDown();
+    // doc.text(`Total Revenue: $${totalRevenue}`, { continued: true }).moveDown();
+    // doc.text(`Total Discount: $${totalDiscount}`, { continued: true }).moveDown();
+
+    doc.moveDown(1.5);
+
+    // Table Header
+    doc.fontSize(10).font('Helvetica-Bold');
+    const tableTop = doc.y;
+    const col1 = 30, col2 = 120, col3 = 210, col4 = 300, col5 = 390;
+
+    doc.text('Order ID', col1, tableTop);
+    doc.text('Amount', col2, tableTop);
+    doc.text('Discount', col3, tableTop);
+    doc.text('Method', col4, tableTop);
+    doc.text('Status', col5, tableTop);
+
+    doc.moveTo(30, doc.y + 5).lineTo(570, doc.y + 5).stroke();
+    doc.moveDown()
+    // Table Rows
+    doc.font('Helvetica').moveDown(0.5);
     orders.forEach(order => {
-        doc.text(`Order ID: ${order.orderID} | Amount: $${order.totalPrice} | Discount: $${order.discount}`);
+        const rowTop = doc.y;
+
+        doc.text(order.orderID, col1, rowTop, { width: 90, align: 'left' });
+        doc.text(`$${order.totalPrice}`, col2, rowTop, { width: 90, align: 'left' });
+        doc.text(`$${order.discount}`, col3, rowTop, { width: 90, align: 'left' });
+        doc.text(order.method, col4, rowTop, { width: 90, align: 'left' });
+        doc.text(order.status, col5, rowTop, { width: 90, align: 'left' });
+
+        doc.moveTo(30, doc.y + 5).lineTo(570, doc.y + 5).stroke();
+        doc.moveDown();
     });
 
+    // Finalize PDF
     doc.end();
     console.log('PDF created at', filePath);
     return filePath;
@@ -118,6 +227,9 @@ const getSalesReportPage = async (req, res) => {
         const totalRevenue = orders.reduce((acc, item) => acc + item.totalPrice, 0);
         const totalDiscount = orders.reduce((acc, item) => acc + item.discount, 0);
         const totalSale = orders.length;
+        // Assuming you're using Mongoose
+        const availableDates = await Order.distinct('createdOn');
+        const dates = availableDates.map(date => date.toISOString().split('T')[0]);
 
         if (req.query.download === 'pdf') {
             const filePath = generatePDF(orders, totalRevenue, totalDiscount, totalSale);
@@ -140,7 +252,10 @@ const getSalesReportPage = async (req, res) => {
                 }
             });
         } else {
-            res.render('admin/salesReport', { orders, totalRevenue, totalSale, totalDiscount });
+            res.render('admin/salesReport', {
+                orders, totalRevenue, totalSale, totalDiscount,
+                dates,
+            });
         }
     } catch (error) {
         console.log('Error in sales report page', error);

@@ -10,7 +10,18 @@ const getWishlist = async (req, res) => {
         console.log('User wuishList ', wishList);
         const wishlistProducts = await Product.find({ _id: { $in: wishList } });
         console.log('whislist products list', wishlistProducts)
-        res.render('user-views/wishlist', { user, wishList: wishlistProducts })
+
+        //page contrl
+        let totalList = wishlistProducts.length;
+        const itemsperpage = totalList > 3 ? 3 : totalList;
+        console.log('item per page' + itemsperpage)
+        const currentpage = parseInt(req.query.page) || 1;
+        const startindex = (currentpage - 1) * itemsperpage;
+        const endindex = startindex + itemsperpage;
+        const totalpages = Math.ceil(totalList / 3);
+        let currentlist = wishlistProducts.slice(startindex, endindex);
+
+        res.render('user-views/wishlist', { user, wishList: currentlist, totalpages, currentpage })
     } catch (error) {
         console.log('Error in get whishList Error', error)
     }

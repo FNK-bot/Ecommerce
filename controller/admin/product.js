@@ -1,24 +1,23 @@
 const Catagory = require('../../models/catagory');
 const Product = require('../../models/product')
-const sharp = require('sharp');
-const path = require('path');
-const fs = require('fs');
+const Brand = require('../../models/brand')
+
+//get all Producsts 
 const getAllProduct = async (req, res) => {
     try {
-        const allProducts = await Product.find()
-        // console.log('All products',allProducts)
+        const allProducts = await Product.find({ isDeleted: false })
         const itemsperpage = 6;
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
         const totalpages = Math.ceil(allProducts.length / 5);
         const currentproduct = allProducts.slice(startindex, endindex);
-        console.log('Product id =', allProducts._id)
-        console.log('current products', currentproduct);
-        res.render('admin/products', { product: currentproduct, totalpages, currentpage, message: '' })
-
-        // res.status(200)
-        // res.render('admin/products')
+        let alertMessage = req.session.alertMessage
+        req.session.alertMessage = null;
+        res.render('admin/products', {
+            product: currentproduct, totalpages, currentpage,
+            message: '', alertMessage
+        })
     } catch (error) {
         console.log('error in products ', error)
     }
@@ -28,11 +27,12 @@ const getAllProduct = async (req, res) => {
 
 const getAddProduct = async (req, res) => {
     try {
-        res.status(200)
-        console.log('')
-        const allProducts = await Product.find();
-        const getAllCatagory = await Catagory.find();
-        res.render('admin/addProduct', { product: allProducts, category: getAllCatagory, message: '' })
+        const allProducts = await Product.find({ isDeleted: false });
+        const getAllCatagory = await Catagory.find({ isDeleted: false });
+        const brands = await Brand.find({ isDeleted: false });
+        let alertMessage = req.session.alertMessage
+        req.session.alertMessage = null;
+        res.render('admin/addProduct', { product: allProducts, category: getAllCatagory, message: '', alertMessage, brands })
     } catch (error) {
         console.log('error in add products ' + error)
     }
@@ -49,27 +49,18 @@ const postAddProduct = async (req, res) => {
         console.log('check product exist', checkProductExist);
 
         if (checkProductExist) {
-            message = 'Product already exists';
-            console.log(message);
-            return res.redirect('/admin/products');
+            req.session.alertMessage = {
+                type: 'error', // Can be 'success', 'error', 'warning', or 'info'
+                message: 'Product already Exist with Name'
+            };
+            return res.redirect('/admin/addProduct');
         } else {
-            const processedImages = [];
+            const images = [];
 
             if (req.files && req.files.length > 0) {
                 for (let i = 0; i < req.files.length; i++) {
-                    const file = req.files[i];
-                    const originalPath = file.path;
-                    const processedFilename = `product-${Date.now()}-${file.originalname}`;
-                    const processedPath = path.join('public/admin/assets/images/catagory', processedFilename);
-
-                    await sharp(originalPath)
-                        .resize(500, 500) // Set desired width and height
-                        .toFile(processedPath);
-
-                    // Optionally delete the original uploaded file
-                    fs.unlinkSync(originalPath);
-
-                    processedImages.push(processedFilename);
+                    images.push(req.files[i].filename);
+                    console.log(req.files[i].filename)
                 }
             }
 
@@ -79,23 +70,36 @@ const postAddProduct = async (req, res) => {
                 brand: req.body.brand,
                 offerPrice: req.body.offerPrice,
                 price: req.body.price,
-                categary: req.body.categary,
+                categary: req.body.category,
                 quantity: req.body.quantity,
                 size: req.body.size,
                 color: req.body.color,
-                images: processedImages,
+                images: images,
             });
 
             if (await newProduct.save()) {
                 console.log('Product added successfully');
-                return res.redirect('/admin/products');
+                req.session.alertMessage = {
+                    type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+                    message: 'Product added'
+                };
+                return res.redirect('/admin/addProduct');
             } else {
+                req.session.alertMessage = {
+                    type: 'error', // Can be 'success', 'error', 'warning', or 'info'
+                    message: 'Check all fields'
+                };
                 console.log('Error while saving the product');
             }
         }
 
     } catch (error) {
         console.log('Error in postAddProduct: ', error);
+        req.session.alertMessage = {
+            type: 'error', // Can be 'success', 'error', 'warning', or 'info'
+            message: 'Check all fields'
+        };
+        res.redirect('/admin/addProduct');
     }
 };
 
@@ -107,38 +111,29 @@ const getEditProduct = async (req, res) => {
         res.status(200)
         console.log('Get edit product control')
         const id = req.params.id;
-        editProduct = await Product.findById(id);
-        const getAllCatagory = await Catagory.find();
-        let message = ''
-        res.render('admin/editProduct', { product: editProduct, category: getAllCatagory })
+        let editProduct = await Product.findById(id);
+        const getAllCatagory = await Catagory.find({ isDeleted: false });
+        const brands = await Brand.find({ isDeleted: false })
+        let alertMessage = req.session.alertMessage
+        req.session.alertMessage = null;
+        res.render('admin/editProduct', { product: editProduct, category: getAllCatagory, alertMessage, brands })
     } catch (error) {
-        console.log('error in products')
+        console.log('error in edit products', error)
     }
 }
 
 
 const postEditProduct = async (req, res) => {
     try {
-        console.log('Post edit product control');
+        console.log('Post edit product control', req.body);
         const id = req.params.id;
         let images = [];
         let editProduct;
 
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
-                const file = req.files[i];
-                const originalPath = file.path;
-                const processedFilename = `product-${Date.now()}-${file.originalname}`;
-                const processedPath = path.join('public/admin/assets/images/catagory', processedFilename);
-
-                await sharp(originalPath)
-                    .resize(255, 348, { fit: 'cover', position: 'top' }) // Set desired width and height
-                    .toFile(processedPath);
-
-                // Optionally delete the original uploaded file
-                fs.unlinkSync(originalPath);
-
-                images.push(processedFilename);
+                images.push(req.files[i].filename);
+                console.log(req.files[i].filename)
             }
         } else {
             images = null;
@@ -161,9 +156,10 @@ const postEditProduct = async (req, res) => {
         }
 
         editProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
-
-        const message = `${editProduct.name} product edited successfully`;
-        console.log(message);
+        req.session.alertMessage = {
+            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+            message: 'Product Updated'
+        };
         res.redirect('/admin/products');
     } catch (error) {
         console.log('Error in editing products: ' + error);
@@ -176,12 +172,19 @@ const postEditProduct = async (req, res) => {
 const deleteProduct = async (req, res) => {
     try {
         console.log('delete product control')
-        console.log(req.params.id)
         const id = req.params.id;
-        const deletedProduct = await Product.findByIdAndDelete(id);
-        console.log('Deleted product:', deletedProduct);
-        messege = `${deletedProduct.name} product is deleted succesfully`
-        res.redirect('/admin/products');
+        await Product.findOneAndUpdate({ _id: id }, {
+            $set: {
+                isDeleted: true
+            }
+        }).then(() => {
+            req.session.alertMessage = {
+                type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+                message: 'Product deleted'
+            };
+
+            res.redirect('/admin/products');
+        })
     }
     catch (err) {
         console.log('error in delete product', err)

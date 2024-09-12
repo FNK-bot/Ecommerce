@@ -10,6 +10,7 @@
         .wishlist-container {
             max-width: 900px;
             margin: 50px auto;
+            margin-bottom: 5px;
             padding: 20px;
             background-color: #fff;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
@@ -87,7 +88,7 @@
     <body>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-        <div class="pp" style="padding-top:50px ;">
+        <div style="padding-top:50px ;">
             <div class="wishlist-container">
                 <div class="back">
                     <i class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" onclick="return history.back()"></i>
@@ -155,7 +156,30 @@
 
                         <%}%>
             </div>
+            <div class="pageCo">
+                <% if (totalpages) { %>
+                    <div class="pagination  justify-content-center">
+                        <% if (currentpage> 1) { %>
+                            <button class="btn btn-sm  "><a href="?page=<%= currentpage - 1 %>">Previous</a></button>
+                            <% } %>
+
+                                <% for (let i=1; i <=totalpages; i++) { %>
+                                    <!-- Change the loop to start from 1 and go up to totalpages -->
+                                    <button class="btn btn-sm "><a href="?page=<%= i %>"
+                                            class="<%= i === currentpage ? 'active' : '' %>">
+                                            <%= i %>
+                                        </a></button>
+                                    <% } %>
+
+                                        <% if (currentpage < totalpages) { %>
+                                            <button class="btn btn-sm "><a
+                                                    href="?page=<%= currentpage + 1 %>">Next</a></button>
+                                            <% } %>
+                    </div>
+                    <% } %>
+            </div>
         </div>
+
         <script>
 
 

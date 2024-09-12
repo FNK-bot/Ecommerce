@@ -12,8 +12,11 @@
     </div>
   </div>
   <!-- ##### Breadcumb Area End ##### -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
   <!-- ##### Shop Grid Area Start ##### -->
   <section class="shop_grid_area section-padding-80">
     <div class="container">
@@ -28,11 +31,12 @@
               <!--  Catagories  -->
               <div class="catagories-menu">
                 <ul id="menu-content2" class="menu-content collapse show">
+                  <li><a href="/shop">All items</a></li>
                   <% if (catagory.length> 0) { %> <% for (let i=0; i < catagory.length; i++) { %>
                       <!-- Single Item -->
                       <li data-toggle="collapse" data-target="#<%= catagory[i].name %>">
                         <ul class="sub-menu collapse show">
-                          <li><a href="/shop">
+                          <li><a href="/shop?id=<%=catagory[i]._id%>">
                               <%= catagory[i].name %>
                             </a></li>
                         </ul>
@@ -116,211 +120,131 @@
                         <%=totalProducts%>
                       </span> products found</p>
                   </div>
+
                   <!-- Sorting -->
                   <div class="product-sorting d-flex">
                     <p>Sort by:</p>
-                    <!-- <form action="#" method="get"> -->
-
-                    <div class="btn-group btn-group-toggle" data-toggle="buttons">
-                      <button class="btn btn-outline-info" id="priceLH" type="button"
-                        onclick="priceHL('<%= JSON.stringify(product)%>')">
-                        $ H-L
-                      </button>
-                      <button class="btn btn-outline-info" id="priceHL" type="button"
-                        onclick="priceLH('<%= JSON.stringify(product)%>')">
-                        $ L-H
-                      </button>
-                      <button class="btn btn-outline-info" id="nameAZ" type="button"
-                        onclick="nameAZ('<%= JSON.stringify(product)%>')">
-                        Aa - Zz
-                      </button>
-                      <button class="btn btn-outline-info" id="nameZA" type="button"
-                        onclick="nameZA('<%= JSON.stringify(product)%>')">
-                        Zz - Aa
-                      </button>
-                    </div>
-
-                    <!-- <input type="submit" class="d-none" value=""> -->
-                    <!-- </form> -->
+                    <select id="sortByselect">
+                      <option value="selected" disabled selected>Select</option>
+                      <option value="price-asc">Price: Low to High</option>
+                      <option value="price-desc">Price: High to Low</option>
+                      <option value="name-asc">Name: A to Z</option>
+                      <option value="name-desc">Name: Z to A</option>
+                    </select>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
 
-            <div class="row" id="products-container">
-              <% if (product.length> 0) { %> <% for (let i=0; i < product.length; i++) { %>
-                  <!-- Single Product -->
-                  <div class="col-12 col-sm-6 col-lg-4" id="products-sec">
-                    <div class="single-product-wrapper">
-                      <!-- Product Image -->
-                      <div class="product-img">
-                        <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="" />
-                        <!-- Hover Thumb -->
-                        <img class="hover-img" src="/admin/assets/images/catagory/<%= product[i].images[1] %>" alt="" />
+          <div class="row" id="products-container">
+            <% if (product.length> 0) { %> <% for (let i=0; i < product.length; i++) { %>
+                <!-- Single Product -->
+                <div class="col-12 col-sm-6 col-lg-4" id="products-sec">
+                  <div class="single-product-wrapper">
+                    <!-- Product Image -->
+                    <div class="product-img">
+                      <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="" />
+                      <!-- Hover Thumb -->
+                      <img class="hover-img" src="/admin/assets/images/catagory/<%= product[i].images[1] %>" alt="" />
 
-                        <!-- Product Badge -->
-                        <div class="product-badge new-badge">
-                          <span>New</span>
+                      <!-- Product Badge -->
+                      <!-- <div class="product-badge new-badge">
+                        <span>New</span>
+                      </div> -->
+
+                      <%if(product[i].offer.status==true){%>
+                        <div class="product-badge offer-badge">
+                          <span>
+                            <%= '$' + product[i].offer.amount%> Off
+                          </span>
                         </div>
-                        <!-- Favourite -->
-                        <div class="product-favourite" id="favorite-<%= product[i]._id %>"
-                          onclick="addToFav('<%= product[i]._id %>')">
-                          <a class="favme fa fa-heart"></a>
-                        </div>
-                      </div>
-
-                      <!-- Product Description -->
-                      <div class="product-description">
-                        <span>
-                          <%= product[i].brand %>
-                        </span>
-                        <a href="/product?product=<%= product[i]._id %>">
-                          <h6>
-                            <%= product[i].name %>
-                          </h6>
-                        </a>
-                        <p class="product-price">
-                          <span class="old-price">$75.00</span>$<%= product[i].price %>
-                        </p>
-
-                        <!-- Hover Content -->
-                        <div class="hover-content">
-                          <!-- Add to Cart -->
-                          <div class="add-to-cart-btn" onclick="addTOCart('<%= product[i]._id %>')">
-                            <a class="btn essence-btn">Add to Cart</a>
+                        <%}%>
+                          <!-- Favourite -->
+                          <div class="product-favourite" id="favorite-<%= product[i]._id %>"
+                            onclick="addToFav('<%= product[i]._id %>')">
+                            <a class="favme fa fa-heart"></a>
                           </div>
+                    </div>
+
+                    <!-- Product Description -->
+                    <div class="product-description">
+                      <span>
+                        <%= brand[i]?.name %>
+                      </span>
+                      <a href="/product?product=<%= product[i]._id %>">
+                        <h6>
+                          <%= product[i].name %>
+                        </h6>
+                      </a>
+                      <p class="product-price">
+                        <span class="old-price">
+                          <%=product[i].offer.status==true ?'$' + product[i].offer.amount:'$'+product[i].price%>
+                        </span>$<%= product[i].price %>
+                      </p>
+
+                      <!-- Hover Content -->
+                      <div class="hover-content">
+                        <!-- Add to Cart -->
+                        <div class="add-to-cart-btn" onclick="addTOCart('<%= product[i]._id %>')">
+                          <a class="btn essence-btn">Add to Cart</a>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <% } %>
-                    <% } else { %>
-
-                      <div class="not-found">
-                        <p>No Product Found</p>
-                      </div>
-                      <% } %>
-            </div>
-          </div>
-          <!-- Pagination -->
-          <nav aria-label="navigation">
-            <ul class="pagination mt-50 mb-70">
-              <% if (totalpages) { %>
-                <div class="pagination justify-content-center">
-                  <% if (currentpage> 1) { %>
-                    <li class="page-item">
-                      <a class="page-link" href="?page=<%= currentpage - 1 %>"><i class="fa fa-angle-left"></i></a>
-                    </li>
-                    <% } %>
-                      <% for (let i=1; i <=totalpages; i++) { %>
-                        <!-- Change the loop to start from 1 and go up to totalpages -->
-                        <li class="page-item">
-                          <a class="page-link <%= i === currentpage ? 'active' : '' %>" href="?page=<%= i %>">
-                            <%= i %>
-                          </a>
-                        </li>
-                        <% } %>
-                          <% if (currentpage < totalpages) { %>
-                            <li class="page-item">
-                              <a class="page-link" href="?page=<%= currentpage + 1 %>"><i
-                                  class="fa fa-angle-right"></i></a>
-                            </li>
-                            <% } %>
                 </div>
                 <% } %>
-            </ul>
-          </nav>
+                  <% } else { %>
+
+                    <div class="not-found">
+                      <p>No Product Found</p>
+                    </div>
+                    <% } %>
+          </div>
         </div>
+        <!-- Pagination -->
+        <nav aria-label="navigation">
+          <ul class="pagination mt-50 mb-70">
+            <% if (totalpages) { %>
+              <div class="pagination justify-content-center">
+                <% if (currentpage> 1) { %>
+                  <li class="page-item">
+                    <a class="page-link" href="?page=<%= currentpage - 1 %>"><i class="fa fa-angle-left"></i></a>
+                  </li>
+                  <% } %>
+                    <% for (let i=1; i <=totalpages; i++) { %>
+                      <!-- Change the loop to start from 1 and go up to totalpages -->
+                      <li class="page-item">
+                        <a class="page-link <%= i === currentpage ? 'active' : '' %>" href="?page=<%= i %>">
+                          <%= i %>
+                        </a>
+                      </li>
+                      <% } %>
+                        <% if (currentpage < totalpages) { %>
+                          <li class="page-item">
+                            <a class="page-link" href="?page=<%= currentpage + 1 %>"><i
+                                class="fa fa-angle-right"></i></a>
+                          </li>
+                          <% } %>
+              </div>
+              <% } %>
+          </ul>
+        </nav>
       </div>
+    </div>
     </div>
   </section>
 
   <script>
-    // Your code here
 
-    let productsCotainer = document.getElementById("products-container");
-    let priceLHBtn = document.getElementById("priceLH");
-    let priceHLBtn = document.getElementById("priceHL");
-    let nameAZBtn = document.getElementById("nameAZ");
-    let nameZABtn = document.getElementById("nameZA");
+    // sorting 
+    $(document).ready(function () {
+      $('#sortByselect').change(function () {
+        let value = $(this).val();
+        location.href = `/shop?sort=${value}`;
+      });
+    });
 
-    function updateProducts(products) {
-      let html = "";
-      for (let i = 0; i < products.length; i++) {
-        html += `<div class="col-12 col-sm-6 col-lg-4" id="products-sec">
-            <div class="single-product-wrapper">
-                <!-- Product Image -->
-                <div class="product-img">
-                    <img src="/admin/assets/images/catagory/${products[i].images[0]}" alt="" />
-                    <!-- Hover Thumb -->
-                    <img class="hover-img" src="/admin/assets/images/catagory/${products[i].images[1]}" alt="" />
-
-                    <!-- Product Badge -->
-                    <div class="product-badge new-badge">
-                        <span>New</span>
-                    </div>
-                    <!-- Favourite -->
-                    <div class="product-favourite" onclick='addToFav(${products[i]._id})'>
-                        <a href="#" class="favme fa fa-heart"></a>
-                    </div>
-                </div>
-
-                <!-- Product Description -->
-                <div class="product-description">
-                    <span>${products[i].brand}</span>
-                    <a href="/product?product=${products[i]._id}">
-                        <h6>${products[i].name}</h6>
-                    </a>
-                    <p class="product-price">
-                        <span class="old-price">$75.00</span>$${products[i].price}
-                    </p>
-
-                    <!-- Hover Content -->
-                    <div class="hover-content">
-                        <div class="add-to-cart-btn">
-                            <a href="#" class="btn essence-btn">Add to Cart</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>`;
-      }
-      console.log("html changed ");
-      productsCotainer.innerHTML = html;
-    }
-
-    function priceLH(products) {
-      console.log("priceLH", products);
-      let productsArr = JSON.parse(products);
-      productsArr.sort((a, b) => a.price - b.price);
-      updateProducts(productsArr);
-      priceLHBtn.style.backgroundColor = "white";
-      priceLHBtn.style.color = "black ";
-    }
-    function priceHL(products) {
-      console.log("priceHL", products);
-      let productsArr = JSON.parse(products);
-      productsArr.sort((a, b) => b.price - a.price);
-      updateProducts(productsArr);
-      priceHLBtn.style.backgroundColor = "white";
-      priceHLBtn.style.color = "black ";
-    }
-    function nameAZ(products) {
-      console.log("nameA-Z", products);
-      let productsArr = JSON.parse(products);
-      productsArr.sort((a, b) => a.name.localeCompare(b.name));
-      updateProducts(productsArr);
-      nameAZBtn.style.backgroundColor = "white";
-      nameAZBtn.style.color = "black ";
-    }
-    function nameZA(products) {
-      console.log("nameZ-A", products);
-      let productsArr = JSON.parse(products);
-      productsArr.sort((a, b) => b.name.localeCompare(a.name));
-      updateProducts(productsArr);
-      nameZABtn.style.backgroundColor = "white";
-      nameZABtn.style.color = "black ";
-    }
 
 
     // add to favarate
@@ -368,5 +292,6 @@
           });
         });
     }
+
   </script>
   <%- include('./partials/footer'); %>

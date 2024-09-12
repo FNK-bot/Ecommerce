@@ -19,7 +19,18 @@
     <link rel="stylesheet" href="/style.css">
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
 
+    <style>
+        .suggestions-list {
+            border-radius: 4px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            /* display: none; */
+        }
 
+        .suggestion-item:hover {
+            background-color: #f0f0f0;
+        }
+    </style>
 
 </head>
 
@@ -52,9 +63,14 @@
             <div class="header-meta d-flex clearfix justify-content-end">
                 <!-- Search Area -->
                 <div class="search-area">
-                    <form action="#" method="post">
-                        <input type="search" name="search" id="headerSearch" placeholder="Type for search">
-                        <button type="submit"><i class="fa fa-search" aria-hidden="true"></i></button>
+                    <form>
+                        <button type="button"><i class="fa fa-search" aria-hidden="true"></i></button>
+                        <input type="search" name="search" id="headerSearch" placeholder="Type for search"
+                            list="products" autocomplete="off">
+                        <div id="suggestions" class="suggestions-list"
+                            style="position: absolute; background-color: white; border: 1px solid #ccc; max-height: 200px; overflow-y: auto;">
+
+                        </div>
                     </form>
                 </div>
                 <!-- Favourite Area -->
@@ -93,3 +109,35 @@
     <!-- ##### Right Side Cart Area ##### -->
 
     <!-- ##### Right Side Cart End ##### -->
+
+    <script>
+        document.getElementById('headerSearch').addEventListener('input', function () {
+            const query = this.value;
+
+            if (query.length > 1) { // Start searching after 3 characters
+                fetch(`/search?query=${query}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // alert(res.data)
+                        // console.log('ss')
+                        console.log(data)
+                        let suggestions = '';
+                        let products = data;
+                        if (products.length > 0) {
+                            products.forEach(product => {
+                                suggestions += `<div class="suggestion-item" style="padding: 8px; cursor: pointer;" onclick="window.location.href='/product?product=${product._id}'">${product.name}</div>`;
+                            });
+                        } else {
+                            suggestions = `<div class="suggestion-item" style="padding: 8px;">No results found</div>`;
+                        }
+
+                        document.getElementById('suggestions').innerHTML = suggestions;
+                        document.getElementById('suggestions').style.display = 'block';
+                    });
+            } else {
+
+                document.getElementById('suggestions').style.display = 'none';
+            }
+        });
+
+    </script>

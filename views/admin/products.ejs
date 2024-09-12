@@ -1,49 +1,116 @@
- 
 <%- include('./partials/header'); %>
-<!-- Recent Sales Start -->
-<div class="container-fluid pt-4 px-4">
-   <div class="bg-light text-center rounded p-4">
-       <div class="d-flex align-items-center justify-content-between mb-4">
-           <h6 class="mb-0">All Products</h6>
-       </div>
-       <div class="table-responsive">
-           <table class="table text-start align-middle table-bordered table-hover mb-0">
-               <thead>
-                   <tr class="text-dark">
-                       <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                       <th scope="col">Name</th>
-                       <th scope="col">Image</th>   
-                       <th scope="col">Price</th>
-                       <th scope="col">status</th>
-                       <th scope="col">Action</th>
-                       
-                    </tr>
-               </thead>
-              
-               <tbody>
-                <% if (product.length > 0) { %>
-                    <% for (let i = 0; i < product.length; i++) { %>
-                   <tr>
-                       <td><input class="form-check-input" type="checkbox"></td>
-                       <td><%= product[i].name %></td>
-                       <td><img class="rounded"  style="width: 80%; height: 50px;" src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="image"></td>
-                       <td>$<%= product[i].price %></td>
-                       <td><%= product[i].status %></td>
-                       <td><a class="btn btn-sm btn-primary" href="/admin/editProduct/<%=product[i]._id%>">Edit</a></td>
-                       <td><a class="btn btn-sm btn-danger" href="/admin/deleteProduct/<%=product[i]._id%>">Delete</a></td>
-                    </tr>
-                    <% } %>
-                             <% } else { %>
-                                    <tr>
-                                        <td colspan="7">No Products Available  <a class="badge badge-primary"  href="/admin/addProduct">Click here to add product</a> </td>
-                                    </tr>
-                                    <% } %>
+    <!-- Recent Sales Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light text-center rounded p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h6 class="mb-0">All Products</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table text-start align-middle table-bordered table-hover mb-0">
+                    <thead>
+                        <tr class="text-dark">
+                            <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Image</th>
+                            <th scope="col">Price</th>
+                            <th scope="col">Offer Price</th>
+                            <th scope="col">status</th>
+                            <th scope="col" colspan="3">Action</th>
 
-           </table>
-       </div>
-   </div>
-</div>
-<!-- Recent Sales End -->
-<%- include('./partials/pageCon'); %>
+                        </tr>
+                    </thead>
 
-<%- include('./partials/footer'); %>
+                    <tbody>
+                        <% if (product.length> 0) { %>
+                            <% for (let i=0; i < product.length; i++) { %>
+                                <tr>
+                                    <td><input class="form-check-input" type="checkbox"></td>
+                                    <td>
+                                        <%= product[i].name %>
+                                    </td>
+                                    <td><img class="rounded" style="width: 80%; height: 50px;"
+                                            src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="image">
+                                    </td>
+                                    <td>$<%= product[i].price %>
+                                    </td>
+                                    <td>
+                                        <%= product[i]?.offer.status==true?product[i]?.offer.amount:'No Offer' %>
+                                    </td>
+                                    <td>
+                                        <%= product[i].status %>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-sm btn-primary"
+                                            href="/admin/editProduct/<%=product[i]._id%>">Edit</a>
+                                        <a class="btn btn-sm btn-danger"
+                                            href="/admin/deleteProduct/<%=product[i]._id%>">Delete</a>
+
+                                        <button type="button" class="btn btn-sm btn-primary" id="addOffer"
+                                            onclick="addOffer('<%=product[i]._id%>','product')">
+                                            <%if(product[i]?.offer.status==true){%>
+                                                Update Offer
+                                                <%}else{%>
+                                                    Add Offer
+                                                    <%}%>
+
+                                        </button>
+                                    </td>
+                                </tr>
+                                <% } %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="7">No Products Available <a class="badge badge-primary"
+                                                    href="/admin/addProduct">Click here to add product</a> </td>
+                                        </tr>
+                                        <% } %>
+
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+
+    <!-- Recent Sales End -->
+    <%- include('./partials/pageCon'); %>
+
+        <%- include('./partials/footer'); %>
+            <%- include('../user-views/partials/alertMessages'); %>
+
+                <script>
+                    function addOffer(id, type) {
+
+                        Swal.fire({
+                            title: "Enter Offer Amount",
+                            input: "number",
+                            showCancelButton: true,
+                            confirmButtonText: "Add Offer",
+                            showLoaderOnConfirm: true,
+                            preConfirm: async (input) => {
+                                try {
+                                    if (input.length < 1) {
+                                        // alert(input.length)
+                                        Swal.showValidationMessage(`Enter Amaunt`);
+                                    }
+                                    const url = `/admin/api/addOffer`;
+                                    const { data } = await axios.post(url, { input, type, id }, {
+                                        headers: {
+                                            'Content-Type': 'application/json'
+                                        }
+                                    })
+                                } catch (error) {
+                                    Swal.showValidationMessage(` Request failed: ${error}`);
+                                }
+                            },
+                            allowOutsideClick: () => !Swal.isLoading()
+                        }).then((result) => {
+                            if (result.isConfirmed) {
+                                Swal.fire({
+                                    title: `Success`,
+                                    icon: 'success',
+                                });
+                                location.reload()
+                            }
+                        });
+                    }
+                </script>

@@ -1,58 +1,136 @@
 <%- include('./partials/header'); %>
-
-<div class="container-fluid pt-4 px-4">
-<div class="bg-light text-center rounded p-4">
-<form action="/admin/editCatagory?id=<%=user._id%>"" method="POST"  >
-    <!-- Add your form action and method attributes above -->
-    <div class="row">
-        <div class="col-6">
-            <div class="content-header">
-                <h2 class="content-title">Edit Catagory</h2>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-lg-6">
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <h6>General info</h6>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="mb-4">
-                                <label class="form-label">Title</label>
-                                <input type="text" name="title" placeholder="<%=user.name%>" class="form-control">
-                            </div>
-                            <div class="mb-4">
-                                <label class="form-label">Description</label>
-                                <textarea placeholder="<%=user.discription %>" name="discription" class="form-control" rows="4"></textarea>
-                            </div>
-                            
-                        </div> <!-- col.// -->
-                    </div> <!-- row.// -->
-
-                    <hr class="mb-4 mt-0">
-                    <div class="row">
-                        <div class="col-md-3">
-                            <h6>Media</h6>
-                        </div>
-                        <div class="col-md-9">
-                            <div class="mb-4">
-                                <label class="form-label">Images</label>
-                               
-                                <input class="form-control" type="file" accept="image/*" name="images" >
-                            </div>
-                        </div> <!-- col.// -->
-                    </div> <!-- .row end// -->
-
-                    <button type="submit" class="btn btn-primary btn-lg btn-block">Update Catagory</button>
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded p-4">
+            <form action="/admin/editCatagory?id=<%=catagory._id %>" method="POST" enctype="multipart/form-data"
+                class="container" id='form'>
+                <h2 class="mb-4">Edit Category</h2>
+                <!-- General info -->
+                <div class="form-group">
+                    <label for="categoryName">Category Name</label>
+                    <input type="text" name="name" placeholder="<%=catagory.name %>" class="form-control"
+                        value="<%=catagory.name %>" id="categoryName">
                 </div>
-            </div>
+                <div class="form-group">
+                    <label for="categoryDescription">Description</label>
+                    <textarea placeholder="<%=catagory.discription %>" value="<%=catagory.discription %>"
+                        name="discription" class="form-control" rows="4" id="categoryDescription"></textarea>
+                </div>
+
+                <!-- Media -->
+                <div class="form-group">
+                    <label for="categoryImage">Images</label>
+                    <input class="form-control" type="file" accept="image/*" name="images" id="categoryImage">
+                </div>
+
+                <div class="form-group" id="upimage">
+
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Update Category</button>
+            </form>
         </div>
+
+
+
     </div>
-   
-</form>
-</div>
-</div>
-<%- include('./partials/footer'); %>
+
+    <%- include('./partials/footer'); %>
+        <%- include('../user-views/partials/alertMessages'); %>
+
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.css">
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+            <script>
+                const input = document.getElementById('categoryImage')
+                const imagePreviewContainer = document.getElementById('upimage')
+
+                input.addEventListener('change', (e) => {
+                    const files = e.target.files;
+                    console.log(files)
+                    if (files && files.length > 0) {
+                        const reader = new FileReader();
+                        reader.onload = function (e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.style.maxWidth = '200px';
+                            img.style.marginRight = '10px';
+                            img.classList.add('img-thumbnail');
+
+                            const cropContainer = document.createElement('div');
+                            cropContainer.classList.add('crop-container');
+                            cropContainer.style.position = 'relative';
+                            cropContainer.style.display = 'inline-block';
+
+                            const cropButton = document.createElement('button');
+                            cropButton.type = 'button'
+                            cropButton.textContent = 'Crop';
+                            cropButton.id = 'CropBtn';
+                            cropButton.classList.add('btn', 'btn-sm', 'btn-info', 'crop-btn');
+                            cropButton.style.position = 'absolute';
+                            cropButton.style.bottom = '5px';
+                            cropButton.style.left = '50%';
+                            cropButton.style.transform = 'translateX(-50%)';
+
+                            cropContainer.appendChild(img);
+                            cropContainer.appendChild(cropButton);
+                            imagePreviewContainer.appendChild(cropContainer);
+
+                            const cropper = new Cropper(img, {
+                                aspectRatio: 350 / 240,
+                                autoCropArea: 1,
+                                viewMode: 1,
+                                scalable: false,
+                                zoomable: false,
+                                movable: false,
+                            });
+
+                            cropButton.addEventListener('click', () => {
+                                cropButton.innerText = 'cropped'
+                                const canvas = cropper.getCroppedCanvas({
+                                    width: 350,
+                                    height: 240
+                                });
+
+                                if (canvas) {
+                                    canvas.toBlob(blob => {
+                                        const newImg = document.createElement('img');
+                                        newImg.src = URL.createObjectURL(blob);
+                                        newImg.classList.add('img-thumbnail');
+                                        newImg.style.maxWidth = '200px';
+                                        cropContainer.innerHTML = '';
+                                        cropContainer.appendChild(newImg);
+
+                                        // Replace the original file with the cropped one
+                                        const dataTransfer = new DataTransfer();
+                                        const croppedFile = new File([blob], files[0].name, { type: 'image/jpeg', lastModified: new Date() });
+                                        dataTransfer.items.add(croppedFile);
+                                        input.files = dataTransfer.files;
+                                    });
+                                } else {
+                                    console.error('Canvas is undefined, possibly due to incorrect cropper initialization.');
+                                }
+                            });
+                        };
+                        reader.readAsDataURL(files[0]);
+                    }
+                })
+
+
+                document.getElementById('form').addEventListener('submit', function (event) {
+                    let cropBtnList = document.querySelectorAll('#CropBtn');
+                    if (cropBtnList.length !== 0) {
+                        Swal.fire({
+                            title: "Field Error",
+                            text: 'Crop image before upload',
+                            icon: 'info',
+
+                        });
+                        event.preventDefault(); // Prevent form submission if validation fails
+                    }
+                    else {
+                        form.submit()
+                    }
+                });
+
+            </script>

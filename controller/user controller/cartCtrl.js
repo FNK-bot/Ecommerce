@@ -7,12 +7,10 @@ const Razorpay = require('razorpay');
 const Coupens = require('../../models/coupen')
 const dotenv = require('dotenv');
 dotenv.config();
+const PDFDocument = require('pdfkit');
+const fs = require('fs');
+const path = require('path');
 
-//razorpay instance
-let instance = new Razorpay({
-    key_id: process.env.razorpay_id,
-    key_secret: process.env.razorpay_secret,
-});
 
 //coupen generator function
 function coupenGenerator() {
@@ -52,10 +50,19 @@ const getCart = async (req, res) => {
         console.log('pr list', products)
         console.log('cart Items', user.cart.cartItems);
 
-        let total = user.cart.total;
-        let subTotal = user.cart.subtotal;
-        console.log('subTotal ', subTotal)
+        let total_ = 0;
+        let subTotal = 0;
+        user.cart.cartItems.forEach((val) => {
+            total_ += val.total;
+            subTotal += val.total;
+        })
         let discount = user.cart.discount;
+        let total = total_ - discount
+
+        // let total = user.cart.total;
+        // let subTotal = user.cart.subtotal;
+        // console.log('subTotal ', subTotal)
+        // let discount = user.cart.discount;
         let coupen = user.cart.coupen;
         console.log('coupen get cart', coupen)
         res.render('user-views/cart', { cart: user.cart.cartItems, product: products, total, subTotal, discount, coupen })
@@ -126,9 +133,10 @@ const putIncrementQnt = async (req, res) => {
                     },
                     { new: true }
                 );
-
                 let UpdatedUser = await User.findById(req.session.user_id)
                 console.log('updated cart', UpdatedUser.cart)
+                // UpdatedUser.cart.total += product.price;
+                // UpdatedUser.save();
                 let singleTotal = (cart.quantity + 1) * product.price;
                 let cartQnt = cart.quantity + 1;
                 let total = 0;
@@ -202,6 +210,8 @@ const putDecrementQnt = async (req, res) => {
                 let subTotal = 0;
 
                 let UpdatedUser = await User.findById(req.session.user_id)
+                // UpdatedUser.cart.total -= product.price;
+                // UpdatedUser.save();
                 console.log('updated cart', UpdatedUser.cart.cartItems)
                 UpdatedUser.cart.cartItems.forEach((val) => {
                     total += val.total;
@@ -264,25 +274,29 @@ const deleteCartItem = async (req, res) => {
 const getCheckOut = async (req, res) => {
     try {
         let user = await User.findById(req.session.user_id)
-        console.log('check out user', user)
-
         const product_ids = user.cart.cartItems.map((item) => {
             return item.ProductId
         })
-        console.log('pr id list', product_ids)
         let products = await Product.find({ _id: { $in: product_ids } })
         products = product_ids.map(id => products.find(product => product._id.toString() === id.toString()));
-        console.log('pr list', products)
 
         let cart = user.cart.cartItems;
         let address = user.address;
-        let total = user.cart.total;
-        let subTotal = user.cart.subtotal;
-        let discount = user.cart.discount;
+        // let total = user.cart.total;
+        // let subTotal = user.cart.subtotal;
+        // let discount = user.cart.discount;
         // cart.forEach((val) => {
         //     total += val.total;
         //     subTotal += val.subTotal;
         // })
+        let total_ = 0;
+        let subTotal = 0;
+        user.cart.cartItems.forEach((val) => {
+            total_ += val.total;
+            subTotal += val.total;
+        })
+        let discount = user.cart.discount;
+        let total = total_ - discount
 
         res.render('user-views/checkout', {
             user, cart, address, product: products,
@@ -293,7 +307,7 @@ const getCheckOut = async (req, res) => {
     }
 }
 
-//checkout post
+// post check Out page
 const postChekOut = async (req, res) => {
     try {
         console.log(`data recieved on order`, req.body)
@@ -302,53 +316,97 @@ const postChekOut = async (req, res) => {
         const product_ids = user.cart.cartItems.map((item) => {
             return item.ProductId
         })
-        let total = user.cart.total
+        const products_details = user.cart.cartItems;
+        let total_ = 0;
+        let subTotal = 0;
+        user.cart.cartItems.forEach((val) => {
+            total_ += val.total;
+            subTotal += val.total;
+        })
+        let discount = user.cart.discount;
+        let total = total_ - discount
+        // let total = user.cart.total
 
         console.log(req.body.paymentMethod + 'Pay mode')
 
-        if (req.body.onlinePayment == true) {
+        if (req.body.paymentMethod === 'Razorpay') {
+            let instance = new Razorpay({
+                key_id: process.env.razorpay_id,
+                key_secret: process.env.razorpay_secret,
+            });
+            const razorpayOrder = await instance.orders.create({
+                amount: total * 100,
+                currency: "INR",
+                receipt: `receipt_${Date.now()}`,
+                payment_capture: 1
+            });
+
             let orderId = generateOderId();
             let addressId = req.body.address
             let address = user.address.find((item) => {
                 return item._id.toString() === addressId.toString()
             })
+
             let newOrder = new Order({
                 orderID: orderId,
-                totalPrice: total,
-                date: Date.now(),
+                totalPrice: 0,
+                date: Date.now(),//
                 productId: product_ids,
                 userId: user._id,
                 method: 'razorpay',
-                status: 'Placed',
+                status: 'Payment Pending',
                 address: address,
                 discount: user.cart.discount,
-                userName: user.username,
+                userName: user.username,//
+                productDetails: products_details,
+                onlinePayment: {
+                    status: 'initial',
+                    isOnlinePayment: true,
+                    orderId: razorpayOrder.id
+                },
             })
             await newOrder.save()
-            console.log('new oder saved using razorpay', newOrder);
-            res.json({ orderId: orderId })
-        }
-
-        if (req.body.paymentMethod === 'Razorpay') {
-            const razorpayOrder = await instance.orders.create({
-                amount: total * 100, // Razorpay accepts amount in paise, hence multiply by 100
-                currency: "INR",
-                receipt: `receipt_${Date.now()}`,
-            });
 
             res.json({
                 message: 'Razorpay gateway',
                 order_id: razorpayOrder.id,
                 amount: total * 100,
                 currency: "INR",
-                userName: user.userName,
+                userName: user?.userName,
                 userEmail: user.email,
                 userMobile: user.mobile
             });
 
-            console.log('paymethod razorpay')
+            console.log('paymethod razorpay selected', newOrder)
 
         }
+
+        if (req.body.paymentStatus === 'Paid') {
+
+
+            let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.orderId })
+            console.log('pending paymnet set to paid', findOrder);
+            findOrder.onlinePayment.paymentId = req.body.paymentId;
+            findOrder.onlinePayment.status = 'Paid';
+            findOrder.status = 'Placed';
+            findOrder.totalPrice = total
+            findOrder.save();
+            console.log('pending paymnet set to paid', findOrder);
+            res.json({ orderId: findOrder.orderID })
+        }
+
+        if (req.body.paymentStatus === 'Pending') {
+
+            console.log('oid', req.body.orderId)
+            let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.orderId })
+            findOrder.onlinePayment.status = 'Pending';
+            findOrder.save();
+            console.log('pending paymnet set to paid', findOrder);
+            res.json({ orderId: findOrder.orderID })
+
+        }
+
+
         if (req.body.paymentMethod === 'cod') {
 
             let orderId = generateOderId();
@@ -360,14 +418,15 @@ const postChekOut = async (req, res) => {
             let newOrder = new Order({
                 orderID: orderId,
                 totalPrice: total,
-                date: Date.now(),
+                date: Date.now(),//
                 productId: product_ids,
                 userId: user._id,
                 method: 'cod',
                 status: 'Placed',
                 address: address,
                 discount: user.cart.discount,
-                userName: user.username,
+                userName: user.username,//
+                productDetails: products_details,
             })
             await newOrder.save()
 
@@ -383,17 +442,159 @@ const postChekOut = async (req, res) => {
     }
 }
 
+
 // get delete order
 const deleteOrder = async (req, res) => {
     try {
-        let id = req.qury.id;
-        let deleteOrder = await Order.findByIdAndDelete(id);
+        let id = req.query.id;
+        let deleteOrder = await Order.findOneAndUpdate({ _id: id }, {
+            $set: { isDeleted: true }
+        });
+        const alertMessage = {
+            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+            message: 'Order Deleted'
+        };
+        req.session.alertMessage = alertMessage;
         console.log('deleted', deleteOrder);
         res.redirect('/profile')
     } catch (error) {
         console.log(`ERROR IN DELETING ORDER, ERROR:${error}`)
     }
 }
+
+//pay on order page for failed  payment
+const payOnOderPage = async (req, res) => {
+    try {
+        console.log(req.body)
+        const orderId = req.body.orderId || false;
+        console.log(orderId)
+        const user = await User.findById(req.session.user_id);
+
+        let total_ = 0;
+        let subTotal = 0;
+        user.cart.cartItems.forEach((val) => {
+            total_ += val.total;
+            subTotal += val.total;
+        })
+        let discount = user.cart.discount;
+        let total = total_ - discount
+
+        if (orderId) {
+            const order = await Order.findById(orderId);
+            console.log(order)
+            res.json({
+                message: 'Razorpay gateway',
+                order_id: order.onlinePayment.orderId,
+                amount: total * 100,
+                currency: "INR",
+                userName: user?.userName,
+                userEmail: user.email,
+                userMobile: user?.mobile,
+                isInetiated: true,
+            });
+        }
+        if (req.body.paymentStatus === 'Paid') {
+            console.log('here')
+            let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.payment_orderId })
+            console.log('pending paymnet set to paid', findOrder);
+            findOrder.onlinePayment.paymentId = req.body.paymentId;
+            findOrder.onlinePayment.status = 'Paid';
+            findOrder.status = 'Placed';
+            findOrder.totalPrice = total
+            findOrder.save();
+            console.log('pending paymnet set to paid', findOrder);
+            res.json({ orderId: findOrder.orderID })
+        }
+
+    } catch (error) {
+        console.log('Error in Pay on order page ', error)
+    }
+}
+
+
+//Generate Invoice
+const generateInvoicePDF = async (orderDetails) => {
+    try {
+        // Get list of Product IDs from order details
+        const list = orderDetails.productDetails.map((item) => item.ProductId);
+
+        // Fetch product names based on the IDs
+        const products = await Product.find({ _id: { $in: list } });
+
+        const dirPath = path.join(__dirname, '../../public/admin/assets/invoice');
+        fs.mkdirSync(dirPath, { recursive: true });
+
+        const filePath = path.join(dirPath, `invoice_${orderDetails.orderID}.pdf`);
+        const doc = new PDFDocument({ margin: 30 });
+        doc.pipe(fs.createWriteStream(filePath));
+
+        // Header Section
+        doc.fontSize(20).text('INVOICE', { align: 'center' });
+        doc.moveDown();
+
+        // Order Details
+        doc.fontSize(12).text(`Order ID: ${orderDetails.orderID}`);
+        doc.text(`Date: ${new Date(orderDetails.createdOn).toLocaleDateString()}`);
+        doc.text(`Customer: ${orderDetails.userName}`);
+        doc.text(`Payment Method: ${orderDetails.method}`);
+        doc.text(`Status: ${orderDetails.status}`);
+        doc.moveDown();
+
+        // Product Details
+        doc.fontSize(14).text('Products:');
+        doc.moveDown(0.5);
+
+        // Table Header
+        const tableTop = doc.y;
+        const col1 = 30, col2 = 250, col3 = 350, col4 = 450;
+
+        doc.fontSize(10).font('Helvetica-Bold');
+        doc.text('Product Name', col1, tableTop);
+        doc.text('Quantity', col2, tableTop);
+        doc.text('Price', col3, tableTop);
+        doc.text('Total', col4, tableTop);
+        doc.moveTo(30, doc.y + 10).lineTo(570, doc.y + 10).stroke();
+        doc.moveDown();
+
+        // Table Rows
+        doc.font('Helvetica');
+        orderDetails.productDetails.forEach((product, index) => {
+            const rowTop = doc.y;
+
+            doc.moveTo(30, doc.y + 10).lineTo(570, doc.y + 10).stroke();
+            doc.moveDown();
+            doc.text(products[index].name, col1, rowTop, { width: 200, align: 'left' });
+            doc.text(product.quantity, col2, rowTop, { width: 100, align: 'left' });
+            doc.text(`$${product.total}`, col3, rowTop, { width: 100, align: 'left' });
+            doc.text(`$${product.total}`, col4, rowTop, { width: 100, align: 'left' });
+        });
+
+        doc.moveDown();
+        doc.moveDown();
+
+        // Summary Section
+        doc.fontSize(12);
+        doc.text(`Total Price: $${orderDetails.totalPrice}`);
+        doc.text(`Discount: $${orderDetails.discount}`);
+        doc.text(`Shipping Charge: $${orderDetails.shippingCharge}`);
+        doc.text(`Grand Total: $${orderDetails.totalPrice - orderDetails.discount + orderDetails.shippingCharge}`);
+
+        doc.moveDown();
+        doc.text('Thank you for your purchase!', { align: 'center' });
+
+        // Finalize PDF
+        doc.end();
+        console.log('PDF created at', filePath);
+
+        return filePath;
+
+    } catch (error) {
+        console.error('Error generating invoice PDF', error);
+        throw error;
+    }
+};
+
+
 
 // get Order success Page 
 const getOrderSuccess = async (req, res) => {
@@ -422,6 +623,37 @@ const getOrderSuccess = async (req, res) => {
 
     } catch (error) {
         console.log(`ERROR IN GET ORDER SUCCRSS PAGE, ERROR:${error}`)
+    }
+}
+
+//invoice api cntrl
+const invoice = async (req, res) => {
+    try {
+        let orderId = req.query.id;
+        const order = await Order.find({ orderID: orderId });
+        if (order.length > 0) {
+            console.log('order found');
+            console.log(order)
+            let filePath = await generateInvoicePDF(order[0]);
+            setTimeout(() => {
+                res.download(filePath, 'invoice.pdf', (err) => {
+                    if (err) {
+                        console.log('Error downloading file', err);
+                        res.status(500).send("Error downloading file");
+                    } else {
+                        fs.unlinkSync(filePath);
+                    }
+                });
+            }, 1000);  // 1 second delay
+
+        }
+        else {
+            console.log('no order found');
+            res.status(500).json({ error: 'oops error' })
+        }
+    } catch (error) {
+        res.status(500).json({ error: 'oops error in code' })
+        console.log('eroor in invoice api cntrl err', error)
     }
 }
 
@@ -513,5 +745,5 @@ const cancelCoupen = async (req, res) => {
 module.exports = {
     getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem,
     getCheckOut, getOrderSuccess, postChekOut, deleteOrder, getCoupens, applyCoupen,
-    cancelCoupen
+    cancelCoupen, invoice, payOnOderPage,
 };

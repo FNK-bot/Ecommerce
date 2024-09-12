@@ -1,80 +1,89 @@
-const mongoose = require('mongoose'); 
+const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-   
-    name:{
-        type:String,
-        required:true,
-       trim:true
-      
+
+    name: {
+        type: String,
+        required: true,
+        trim: true
+
     },
-    discription:{
-        type:String,
-        required:true,
-       
+    discription: {
+        type: String,
+        required: true,
+
     },
-    brand:{
-        type:String,
-       required:true
+    brand: {
+        type: String,
+        required: true
     },
-    offerPrice:{
-        type:Number,
+    offer: {
+        status: {
+            type: Boolean,
+            default: false
+        },
+        amount: {
+            type: Number,
+            default: 0,
+        }
     },
-    price:{
-        type:Number,
-        required:true,
+    price: {
+        type: Number,
+        required: true,
     },
-    categary:{
-        type:String,
-       required:true,
+    categary: {
+        type: String,
+        required: true,
     },
-    quantity:{
-        type:Number,     
-        default:0
+    quantity: {
+        type: Number,
+        default: 0
     },
-    sold:{
-        type:Number,
-        default:0,
-        select:false
+
+    saleStatus: {
+        type: String,
     },
-    saleStatus:{
-        type:String,
+    savedPrice: {
+        type: Number,
     },
-    savedPrice:{
-        type:Number,
+    size: {
+        type: String,
+        default: "M"
     },
-    size:{
-        type:String,
-        default:"M"       
+
+    images: {
+        type: Array,
     },
-   
-    images:{
-        type:Array,
-    },
-    color:{
-        type:String,
-       required:true
+    color: {
+        type: String,
+        required: true
     },
     rating: {
-        type:Object,
+        type: Object,
         average: {
-            type:Number,
-        }, 
+            type: Number,
+        },
         totalRatings: {
-            type:Number
+            type: Number
         },
         default: {
-            average: 0,       
-            totalRatings: 0,  
+            average: 0,
+            totalRatings: 0,
+        },
+
     },
-},
-    status:{
-        type:Boolean,
-        default:true
+    status: {
+        type: Boolean,
+        default: true
     },
-   
-    
-},{timestamps:true});
+    isDeleted: {
+        type: Boolean,
+        default: false
+    }
+
+
+
+}, { timestamps: true });
 
 
 

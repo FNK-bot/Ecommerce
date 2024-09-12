@@ -75,3 +75,74 @@ Report download (Pdf, Excel)
 
 
 ///https://www.bootdey.com/snippets/view/bs4-account-tickets
+
+
+week 10 Pendings
+Use validations on the focus event -x
+Image cropping - from UI -x
+Make city, district as dropdown -X
+Soft delete orders -x
+Search , category filtering -X
+Implement pagination in wishlist -x
+Transaction history in wallet -x
+Date validation in sales report  -x
+Format PDF Sales report to tabular format -x
+Offer module(Product offer, Category offer, Referral offer).
+Change order status(cancel,return etc.)
+
+Task
+User side :
+Invoice download (Pdf) -x
+Order above Rs 1000 should not be allowed for COD -x
+Delivery charge can be applied according to location / fixed charges (optional)
+Handle error for failed payments (update status as payment pending), -x
+Should be able to continue payment from my order page in case of failed payment -x
+Admin side :
+Admin Dashboard - Chart with filter(yearly,monthly etc.) -X
+Best selling product (top 10) -x
+Best selling category (top 10) -x
+Best selling brands (top 10) -x
+Generate ledger book (optional)
+
+//delever order only return else cancel
+//order iisue
+***save product brand as name
+*** select size
+***sales reepooo total
+** rezorpay color 
+** crop imag in edit profile
+** yearly monthly Dashboard
+** middle ware to calculate offer catagory
+*** add to car issue respones returned
+pay with wallet
+chatbot
+Delivery charge
+sortOrderdate
+buyNow
+login pass  **
+https://docs.google.com/spreadsheets/d/12upB23MbwnO_qvSVVDGrr65hBwtnxnr0/edit?usp=drivesdk&ouid=105268949847984972497&rtpof=true&sd=true
+
+weekback 11
+Pending Topics:
+
+Use validations on the focus event
+Image cropping - from UI 
+Change order status(cancel,return etc.)
+Offer module(Product offer, Category offer, Referral offer).
+        
+
+User side :
+Delivery charge can be applied according to location / fixed charges (optional)
+Handle error for failed payments (update status as payment pending), 
+Should be able to continue payment from my order page in case of failed payment
+Admin side :
+Admin Dashboard - Chart with filter(yearly,monthly etc.)
+Best selling product (top 10) 
+Best selling category (top 10) 
+Best selling brands (top 10) 
+Generate ledger book (optional)
+
+
+Code: 
+Do not store username in order collection use aggregate to get user dataDefine what product details array is containing in order collection 
+Do not store Store total, subtotal in cart collection calculate dynamic

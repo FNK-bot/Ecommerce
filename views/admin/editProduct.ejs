@@ -1,95 +1,271 @@
 <%- include('./partials/header'); %>
-<div class="container-fluid pt-4 px-4">
-    <div class="bg-light  rounded p-4">
-    <form action="/admin/editProduct/<%=product._id%>" method="POST" class="container" enctype="multipart/form-data">
-        <h2 class="mb-4">Edit Product </h2>
-        <!-- General info -->
-        <div class="form-group">
-            <label for="productTitle">Product Name</label>
-            <input type="text" name="name" value="<%=product.name%>" class="form-control" id="productTitle">
-        </div>
-        <div class="form-group">
-            <label for="productDescription">Description</label>
-            <textarea value="<%=product.discription%>" name="discription" class="form-control" rows="4" id="productDescription"></textarea>
-        </div>
-        <div class="form-group">
-            <label for="productBrand">Brand name</label>
-            <input type="text" name="brand" value="<%=product.brand%>" class="form-control" id="productBrand">
-        </div>
 
-        <!-- Pricing -->
-        <div class="form-group">
-            <label for="productPrice">Cost in USD</label>
-            <input type="text" name="price" value="<%=product.price%>" class="form-control" id="productPrice">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded p-4">
+            <form action="/admin/editProduct/<%=product._id%>" method="POST" enctype="multipart/form-data" id="formMain"
+                class="container ">
+                <h2 class="mb-4">Edit Product</h2>
+
+                <!-- General info -->
+                <div class="form-group">
+                    <label for="productTitle">Product Name</label>
+                    <input type="text" name="name" value='<%=product.name%>' class="form-control" id="productTitle">
+                    <small id="nameError" class="form-text text-danger"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="productDescription">Description</label>
+                    <textarea value='<%=product.discription%>' placeholder="<%=product.discription%>" name="discription"
+                        class="form-control" rows="4" id="productDescription"></textarea>
+                    <small id="descriptionError" class="form-text text-danger"></small>
+                </div>
+
+                <div class="form-group">
+                    <label for="productBrand">Brand name</label>
+                    <select class="form-select" name="brand" id="productBrand" value='<%=product.brand%>'>
+                        <option value="" disabled selected>Select a Brand</option>
+                        <% if (brands.length> 0) { %>
+                            <% for (let i=0; i < brands.length; i++) { %>
+                                <option value="<%= brands[i]._id %>">
+                                    <%= brands[i].name %>
+                                </option>
+                                <% } %>
+                                    <% } else { %>
+                                        <option value="" disabled>No Brand found Add on first</option>
+                                        <% } %>
+                    </select>
+                    <small id="brandError" class="form-text text-danger"></small>
+                </div>
+
+                <!-- Pricing -->
+                <div class="form-group">
+                    <label for="productPrice">Cost in USD</label>
+                    <input type="text" name="price" value='<%=product.price%>' class="form-control" id="productPrice">
+                    <small id="priceError" class="form-text text-danger"></small>
+                </div>
+
+                <!-- Color -->
+                <div class="form-group">
+                    <label for="productColor">Color</label>
+                    <select class="form-select" name="color" id="productColor" value='<%=product.color%>'>
+                        <option value="" disabled selected>Select Color</option>
+                        <option value="Black">Black</option>
+                        <option value="White">White</option>
+                        <option value="Red">Red</option>
+                        <option value="Orange">Orange</option>
+                        <option value="Yellow">Yellow</option>
+                        <option value="Green">Green</option>
+                        <option value="Blue">Blue</option>
+                        <option value="Purple">Purple</option>
+                        <option value="Pink">Pink</option>
+                        <option value="Brown">Brown</option>
+                        <option value="Gray">Gray</option>
+                        <option value="Silver">Silver</option>
+                        <option value="Gold">Gold</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                    <small id="colorError" class="form-text text-danger"></small>
+                </div>
+
+                <!-- Quantity -->
+                <div class="form-group">
+                    <label for="productQuantity">Quantity</label>
+                    <input type="text" name="quantity" value='<%=product.quantity%>' class="form-control"
+                        id="productQuantity">
+                    <small id="quantityError" class="form-text text-danger"></small>
+                </div>
+
+                <!-- Size -->
+                <div class="form-group">
+                    <label for="productSize">Size</label>
+                    <select class="form-select" name="size" id="productSize" value='<%=product.size%>'>
+                        <option value="" disabled selected>Select Size</option>
+                        <option value="xs">XS</option>
+                        <option value="s">S</option>
+                        <option value="m">M</option>
+                        <option value="l">L</option>
+                        <option value="xl">XL</option>
+                        <option value="xxl">XXL</option>
+                        <!-- Add more options as needed -->
+                    </select>
+                    <small id="sizeError" class="form-text text-danger"></small>
+                </div>
+
+                <!-- Category -->
+                <div class="form-group">
+                    <label for="productCategory">Category</label>
+                    <select class="form-select" name="category" id="productCategory" value='<%=product.category%>'>
+                        <option value="" disabled selected>Select Category</option>
+                        <% if (category.length> 0) { %>
+                            <% for (let i=0; i < category.length; i++) { %>
+                                <option value="<%= category[i]._id %>">
+                                    <%= category[i].name %>
+                                </option>
+                                <% } %>
+                                    <% } else { %>
+                                        <option value="" disabled>No categories found</option>
+                                        <% } %>
+                    </select>
+                    <small id="categoryError" class="form-text text-danger"></small>
+                </div>
+
+                <!-- Media -->
+                <div class="form-group">
+                    <label for="productImages">Images</label>
+                    <input class="form-control" type="file" accept="image/*" name="images" multiple id="productImages">
+                    <div id="imagePreviewContainer" class="mt-2"></div>
+                    <small id="imagesError" class="form-text text-danger">Crop all images before upload</small>
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Update Product</button>
+                <a href="/admin/products" class="btn btn-danger btn-lg btn-block mt-2">Cancel</a>
+            </form>
         </div>
+    </div>
 
-        <!-- Color -->
-        <div class="form-group">
-            <label for="productColor">Color</label>
-            <select class="form-select" name="color" id="productColor">
-                <option value="Black">Black</option>
-                <option value="White">White</option>
-                <option value="Red">Red</option>
-                <option value="Orange">Orange</option>
-                <option value="Yellow">Yellow</option>
-                <option value="Green">Green</option>
-                <option value="Blue">Blue</option>
-                <option value="Purple">Purple</option>
-                <option value="Pink">Pink</option>
-                <option value="Brown">Brown</option>
-                <option value="Gray">Gray</option>
-                <option value="Silver">Silver</option>
-                <option value="Gold">Gold</option>
-            </select>
-        </div>
 
-        <!-- Quantity -->
-        <div class="form-group">
-            <label for="productQuantity">Quantity</label>
-            <input type="text" name="quantity" value="<%=product.quantity%>" class="form-control" id="productQuantity">
-        </div>
 
-        <!-- Size -->
-        <div class="form-group">
-            <label for="productSize">Size</label>
-            <select class="form-select" name="size" id="productSize">
-                <option selected>Select Size</option>
-                <option value="xs">XS</option>
-                <option value="s">S</option>
-                <option value="m">M</option>
-                <option value="l">L</option>
-                <option value="xl">XL</option>
-                <option value="xxl">XXL</option>
-            </select>
-        </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const form = document.getElementById('formMain')
+            const productPrice = document.getElementById('productPrice');
+            const productQuantity = document.getElementById('productQuantity');
+            const input = document.getElementById('productImages');
+            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
 
-        <!-- Category -->
-        <div class="form-group">
-            <label for="productCategory">Categories</label>
-            <select class="form-select" name="categary" id="productCategory">
-                <option selected>Select Category</option>
-                <% if(category.length >0){ %>
-                <% for(let i=0;i< category.length;i++) {%>
-                <option value="<%=[i]%>" ><%=category[i].name%></option>
-                <%}%>
-                <% } else {%>
-                    <option value="disable" class="disable">No catagorys found</option>
-                <%}%>
-            </select> 
-        </div>
+            // Validate if input is a number
+            function validateNumberField(field, errorFieldId, fieldName) {
+                const value = field.value.trim();
+                const errorField = document.getElementById(errorFieldId);
+                if (isNaN(value) || value === '') {
+                    errorField.textContent = `${fieldName} must be a number.`;
+                    return false;
+                } else {
+                    errorField.textContent = '';
+                    return true;
+                }
+            }
 
-        <!-- Media -->
-        <div class="form-group">
-            <label for="productImages">Images</label>
-            <input class="form-control" type="file" accept="image/*" name="images" multiple id="productImages">
-        </div>
+            //validate image is cropped
+            function isCropped() {
+                let cropBtnList = document.querySelectorAll('#CropBtn');
+                let state = false;
+                const errorField = document.getElementById('imagesError');
 
-        <!-- Submit button -->
-        <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Add Product</button>
-        <a href="/admin/products" class="btn btn-danger btn-lg btn-block mt-2" >Cancel</a>
-    </form>
+                if (cropBtnList.length == 0) state = true;
+                if (state) errorField.innerText = `All fine`;
+                console.log('state ', state);
+                return state; // Corrected here
+            }
 
-    
-</div>
-</div>
-<%- include('./partials/footer'); %>
+
+
+            // Add focus validation for price
+            productPrice.addEventListener('blur', function () {
+                validateNumberField(productPrice, 'priceError', 'Price');
+            });
+
+            // Add focus validation for quantity
+            productQuantity.addEventListener('blur', function () {
+                validateNumberField(productQuantity, 'quantityError', 'Quantity');
+            });
+
+            // Image upload and cropping
+            input.addEventListener('change', () => {
+                imagePreviewContainer.innerHTML = ''; // Clear previous images
+
+                Array.from(input.files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function (e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.style.maxWidth = '200px';
+                        img.style.marginRight = '10px';
+                        img.classList.add('img-thumbnail');
+
+                        const cropContainer = document.createElement('div');
+                        cropContainer.classList.add('crop-container');
+                        cropContainer.style.position = 'relative';
+                        cropContainer.style.display = 'inline-block';
+
+                        const cropButton = document.createElement('button');
+                        cropButton.type = 'button'
+                        cropButton.textContent = 'Crop';
+                        cropButton.id = 'CropBtn';
+                        cropButton.classList.add('btn', 'btn-sm', 'btn-info', 'crop-btn');
+                        cropButton.style.position = 'absolute';
+                        cropButton.style.bottom = '5px';
+                        cropButton.style.left = '50%';
+                        cropButton.style.transform = 'translateX(-50%)';
+
+                        cropContainer.appendChild(img);
+                        cropContainer.appendChild(cropButton);
+                        imagePreviewContainer.appendChild(cropContainer);
+
+                        const cropper = new Cropper(img, {
+                            aspectRatio: 235 / 345,
+                            autoCropArea: 1,
+                            viewMode: 1,
+                            scalable: false,
+                            zoomable: false,
+                            movable: false,
+                        });
+
+                        cropButton.addEventListener('click', () => {
+                            cropButton.innerText = 'cropped'
+                            const canvas = cropper.getCroppedCanvas({
+                                width: 235,
+                                height: 345
+                            });
+
+                            if (canvas) {
+                                canvas.toBlob(blob => {
+                                    const newImg = document.createElement('img');
+                                    newImg.src = URL.createObjectURL(blob);
+                                    newImg.classList.add('img-thumbnail');
+                                    newImg.style.maxWidth = '200px';
+                                    cropContainer.innerHTML = '';
+                                    cropContainer.appendChild(newImg);
+
+                                    // Replace the original file with the cropped one
+                                    const dataTransfer = new DataTransfer();
+                                    const croppedFile = new File([blob], file.name, { type: 'image/jpeg', lastModified: new Date() });
+                                    dataTransfer.items.add(croppedFile);
+                                    input.files = dataTransfer.files;
+                                });
+                            } else {
+                                console.error('Canvas is undefined, possibly due to incorrect cropper initialization.');
+                            }
+                        });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            // Final form submission validation
+            form.addEventListener('submit', function (event) {
+                const isPriceValid = validateNumberField(productPrice, 'priceError', 'Price');
+                const isQuantityValid = validateNumberField(productQuantity, 'quantityError', 'Quantity');
+                const isCroppedVar = isCropped()
+
+                if (!isPriceValid || !isQuantityValid || !isCroppedVar) {
+                    Swal.fire({
+                        title: "Field Error",
+                        text: 'Please Check All Fields',
+                        icon: 'info',
+
+                    });
+                    event.preventDefault(); // Prevent form submission if validation fails
+                }
+                else {
+                    form.submit()
+                }
+            });
+        });
+    </script>
+    <%- include('./partials/footer'); %>
+        <%- include('../user-views/partials/alertMessages'); %>

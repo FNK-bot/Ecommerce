@@ -42,121 +42,143 @@
     </div>
     <!-- Sale & Revenue End -->
     <%if(orders.length>0){%>
-        <<!-- Filter Section Start -->
-            <div class="container-fluid pt-4">
-                <form action="/admin/salesReport" method="GET" class="d-flex   align-items-end ">
-                    <div class="form-group me-3" style="padding-left: 15px;">
-                        <label for="filter" class="form-label">Filter By:</label>
-                        <select name="filter" id="filter" class="form-select">
-                            <option value="daily">Daily</option>
-                            <option value="weekly">Weekly</option>
-                            <option value="monthly">Monthly</option>
-                            <option value="yearly">Yearly</option>
-                            <option value="custom">Custom</option>
-                        </select>
+        <!-- Filter Section Start -->
+        <div class="container-fluid pt-4">
+            <form action="/admin/salesReport" method="GET" class="d-flex   align-items-end ">
+                <div class="form-group me-3" style="padding-left: 15px;">
+                    <label for="filter" class="form-label">Filter By:</label>
+                    <select name="filter" id="filter" class="form-select">
+                        <option value="daily">Daily</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="monthly">Monthly</option>
+                        <option value="yearly">Yearly</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group me-3 ">
+                    <label for="startDate" class="form-label">Start Date:</label>
+                    <input type="date" name="startDate" id="startDate" class="form-control" disabled>
+                </div>
+                <div class="form-group me-3 ">
+                    <label for="endDate" class="form-label">End Date:</label>
+                    <input type="date" name="endDate" id="endDate" class="form-control" disabled>
+                </div>
+                <div class="form-group ">
+                    <button type="submit" class="btn btn-primary">Filter</button>
+                </div>
+            </form>
+        </div>
+        <!-- Filter Section End -->
+
+
+        <!-- Sales Report Start -->
+        <div class="container-fluid pt-4 px-4">
+
+            <div class="bg-light text-center rounded p-4">
+                <div class="d-flex align-items-center justify-content-between mb-4">
+
+                    <h6 class="mb-0">Sales Report</h6>
+                    <div>
+                        <a href="/admin/salesReport?download=pdf" class="btn btn-danger">Download PDF</a>
+                        <a href="/admin/salesReport?download=excel" class="btn btn-success">Download Excel</a>
                     </div>
-                    <div class="form-group me-3 ">
-                        <label for="startDate" class="form-label">Start Date:</label>
-                        <input type="date" name="startDate" id="startDate" class="form-control" disabled>
-                    </div>
-                    <div class="form-group me-3 ">
-                        <label for="endDate" class="form-label">End Date:</label>
-                        <input type="date" name="endDate" id="endDate" class="form-control" disabled>
-                    </div>
-                    <div class="form-group ">
-                        <button type="submit" class="btn btn-primary">Filter</button>
-                    </div>
-                </form>
+                </div>
+                <div class="table-responsive">
+
+                    <table class="table text-start align-middle table-bordered table-hover mb-0">
+                        <thead>
+                            <tr class="text-dark">
+                                <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                                <th scope="col">Date</th>
+                                <th scope="col">Order ID</th>
+                                <th scope="col">Customer</th>
+                                <th scope="col">Discount</th>
+                                <th scope="col">Amount</th>
+                                <th scope="col">Method</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <% for (let order of orders) { %>
+                                <tr>
+                                    <td><input class="form-check-input" type="checkbox"></td>
+                                    <td>
+                                        <%= order.createdOn.toLocaleDateString() %>
+                                    </td>
+                                    <td>
+                                        <%= order.orderID %>
+                                    </td>
+                                    <td>
+                                        <%= order.userName %>
+                                    </td>
+                                    <td>$<%= order.discount %>
+                                    </td>
+                                    <td>$<%= order.totalPrice %>
+                                    </td>
+                                    <td>
+                                        <%= order.method %>
+                                    </td>
+                                    <td>
+                                        <%= order.status %>
+                                    </td>
+                                </tr>
+                                <% } %>
+                        </tbody>
+                    </table>
+
+                </div>
             </div>
-            <!-- Filter Section End -->
-
-
-            <!-- Sales Report Start -->
+        </div>
+        <!-- Sales Report End -->
+        <% } else {%>
             <div class="container-fluid pt-4 px-4">
 
                 <div class="bg-light text-center rounded p-4">
-                    <div class="d-flex align-items-center justify-content-between mb-4">
-
-                        <h6 class="mb-0">Sales Report</h6>
-                        <div>
-                            <a href="/admin/salesReport?download=pdf" class="btn btn-danger">Download PDF</a>
-                            <a href="/admin/salesReport?download=excel" class="btn btn-success">Download Excel</a>
-                        </div>
-                    </div>
-                    <div class="table-responsive">
-
-                        <table class="table text-start align-middle table-bordered table-hover mb-0">
-                            <thead>
-                                <tr class="text-dark">
-                                    <th scope="col"><input class="form-check-input" type="checkbox"></th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Order ID</th>
-                                    <th scope="col">Customer</th>
-                                    <th scope="col">Discount</th>
-                                    <th scope="col">Amount</th>
-                                    <th scope="col">Method</th>
-                                    <th scope="col">Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <% for (let order of orders) { %>
-                                    <tr>
-                                        <td><input class="form-check-input" type="checkbox"></td>
-                                        <td>
-                                            <%= order.createdOn.toLocaleDateString() %>
-                                        </td>
-                                        <td>
-                                            <%= order.orderID %>
-                                        </td>
-                                        <td>
-                                            <%= order.userName %>
-                                        </td>
-                                        <td>$<%= order.discount %>
-                                        </td>
-                                        <td>$<%= order.totalPrice %>
-                                        </td>
-                                        <td>
-                                            <%= order.method %>
-                                        </td>
-                                        <td>
-                                            <%= order.status %>
-                                        </td>
-                                    </tr>
-                                    <% } %>
-                            </tbody>
-                        </table>
-
+                    <div class="notFound text-center ">
+                        <h5>No Orders yet !</h5>
                     </div>
                 </div>
             </div>
-            <!-- Sales Report End -->
-            <% } else {%>
-                <div class="container-fluid pt-4 px-4">
+            <% } %>
+                <%- include('./partials/footer'); %>
 
-                    <div class="bg-light text-center rounded p-4">
-                        <div class="notFound text-center ">
-                            <h5>No Orders yet !</h5>
-                        </div>
-                    </div>
-                </div>
-                <% } %>
-                    <%- include('./partials/footer'); %>
+                    <script>
+                        const availableDates = '<%= JSON.stringify(dates) %>';
+                        const startDateInput = document.getElementById('startDate');
+                        const endDateInput = document.getElementById('endDate');
 
-                        <script>
-                            // Enable or disable date inputs based on the filter selected
-                            document.getElementById('filter').addEventListener('change', function () {
-                                const filter = this.value;
-                                const startDateInput = document.getElementById('startDate');
-                                const endDateInput = document.getElementById('endDate');
+                        // Function to check if a date is available
+                        function isDateAvailable(date) {
+                            return availableDates.includes(date);
+                        }
 
-                                if (filter === 'custom') {
-                                    startDateInput.disabled = false;
-                                    endDateInput.disabled = false;
-                                } else {
-                                    startDateInput.disabled = true;
-                                    endDateInput.disabled = true;
-                                    startDateInput.value = '';
-                                    endDateInput.value = '';
-                                }
-                            });
-                        </script>
+                        // Restrict date selection to available dates
+                        startDateInput.addEventListener('focusout', function () {
+                            if (!isDateAvailable(this.value)) {
+                                alert('Selected start date is not available.');
+                                this.value = ''; // Reset the input value
+                            }
+                        });
+
+                        endDateInput.addEventListener('focusout', function () {
+                            if (!isDateAvailable(this.value)) {
+                                alert('Selected end date is not available.');
+                                this.value = ''; // Reset the input value
+                            }
+                        });
+
+                        // Enable or disable date inputs based on the filter selected
+                        document.getElementById('filter').addEventListener('change', function () {
+                            const filter = this.value;
+
+                            if (filter === 'custom') {
+                                startDateInput.disabled = false;
+                                endDateInput.disabled = false;
+                            } else {
+                                startDateInput.disabled = true;
+                                endDateInput.disabled = true;
+                                startDateInput.value = '';
+                                endDateInput.value = '';
+                            }
+                        });
+                    </script>

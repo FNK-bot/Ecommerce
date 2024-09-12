@@ -19,11 +19,11 @@ let oderSchema = new mongoose.Schema({
     createdOn: {
         required: true,
         type: Date,
-        default: Date.now
+        default: Date.now()
     },
     date: {
         required: true,
-        type: String,
+        type: String,//formated date
 
     },
     productId: {
@@ -55,11 +55,7 @@ let oderSchema = new mongoose.Schema({
         type: Number,
         default: 0,
     },
-    userName: {
-        type: String,
-        required: true,
 
-    },
     isReturned: {
         status: {
             type: Boolean,
@@ -74,6 +70,26 @@ let oderSchema = new mongoose.Schema({
             default: 0,
         }
     },
+    productDetails: [],//define -- user cart
+    shippingCharge: {
+        type: Number,
+        default: 0,
+    },
+    onlinePayment: {
+        paymentId: {
+            type: String,
+        },
+        status: {
+            type: String,
+        },
+        isOnlinePayment: {
+            type: Boolean,
+            default: false,
+        },
+        orderId: {
+            type: String,
+        }
+    }
 
 });
 

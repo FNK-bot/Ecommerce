@@ -118,7 +118,7 @@
 
               <dt class="col-3">Brand</dt>
               <dd class="col-9">
-                <%= product.brand %>
+                <%= brand.name %>
               </dd>
             </div>
 
@@ -127,12 +127,13 @@
               <div class="row">
                 <div class="col-md-4 col-6">
                   <label class="mb-2">Size</label>
-                  <select class="form-select border border-secondary" style="height: 35px;">
-                    <option disabled>Select size</option>
-                    <option>
+                  <select class="form-select border border-secondary" style="height: 35px;" disabled>
+                    <option selected>
                       <%= product.size %>
                     </option>
+
                   </select>
+                  <!-- <%= product.size %> -->
                 </div>
 
                 <!-- col.// -->
@@ -195,26 +196,33 @@
                         <!-- Hover Thumb -->
                         <img class="hover-img" src="/admin/assets/images/catagory/<%= sProduct[i].images[1] %>" alt="">
                         <!-- Product Badge -->
-                        <div class="product-badge ">
-                          <span>Latest</span>
-                        </div>
+                        <%if(sProduct[i].offer.status==true){%>
+                          <div class="product-badge offer-badge">
+                            <span>
+                              <%= '$' + sProduct[i].offer.amount%> Off
+                            </span>
+                          </div>
+                          <%}%>
 
-                        <!-- Favourite -->
-                        <div class="product-favourite">
-                          <a href="#" class="favme fa fa-heart"></a>
-                        </div>
+                            <!-- Favourite -->
+                            <div class="product-favourite">
+                              <a href="#" class="favme fa fa-heart"></a>
+                            </div>
                       </div>
                       <!-- Product Description -->
                       <div class="product-description">
                         <span>
-                          <%= sProduct[i].brand %>
+                          <%= sbrand[i].name %>
                         </span>
                         <a href="/product?product=<%= sProduct[i]._id %>">
                           <h6>
                             <%= sProduct[i].name %>
                           </h6>
                         </a>
-                        <p class="product-price">$<%= sProduct[i].price %>
+                        <p class="product-price">
+                          <span class="old-price">
+                            <%=sProduct[i].offer.status==true ?'$' + sProduct[i].offer.amount:'$'+sProduct[i].price%>
+                          </span>$<%= sProduct[i].price %>
                         </p>
 
 
