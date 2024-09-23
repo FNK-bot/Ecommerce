@@ -43,8 +43,8 @@
 
                 <!-- Pricing -->
                 <div class="form-group">
-                    <label for="productPrice">Cost in USD</label>
-                    <input type="text" name="price" placeholder="$00.0" class="form-control" id="productPrice" required>
+                    <label for="productPrice">Cost </label>
+                    <input type="text" name="price" placeholder="₹00.0" class="form-control" id="productPrice" required>
                     <small id="priceError" class="form-text text-danger"></small>
                 </div>
 
@@ -116,10 +116,21 @@
                 <!-- Media -->
                 <div class="form-group">
                     <label for="productImages">Images</label>
-                    <input class="form-control" type="file" accept="image/*" name="images" multiple id="productImages"
-                        required>
-                    <div id="imagePreviewContainer" class="mt-2"></div>
                     <small id="imagesError" class="form-text text-danger">Crop all images before upload</small>
+                </div>
+                <div class="input-box-container row">
+                    <div class="inputBox text-center col-6"
+                        style="height: 345px;width: 230px;background-color:aliceblue;" id="inputBox">
+                        <img src="/images/uploadImage.png" alt="" srcset="" id="boxImage"
+                            style="object-fit: fill;height: 300px;width: 200px">
+                    </div>
+                    <div class="inputBox text-center col-6"
+                        style="height: 345px;width: 230px;background-color:aliceblue;" id="inputBox2">
+                        <img src="/images/uploadImage.png" alt="" srcset="" id="boxImage"
+                            style="object-fit: fill;height: 300px;width: 200px">
+                    </div>
+                    <input type="file" class="inputImage1" name="images" id="inputImage1" accept="image/*" hidden>
+                    <input type="file" class="inputImage1" name="images" id="inputImage2" accept="image/*" hidden>
                 </div>
 
                 <!-- Submit button -->
@@ -129,6 +140,219 @@
         </div>
     </div>
 
+
+
+    <script>
+        let inputBox2 = document.getElementById('inputBox2');
+        let imageInput2 = document.getElementById('inputImage2');
+        // let inputBoxText2 = document.getElementById('inputBox-text');
+        let dataTransfer2 = new DataTransfer();
+
+        inputBox2.addEventListener('click', () => {
+            if (!imageInput2.files.length > 0) {
+                imageInput2.click();
+            }
+        });
+
+        imageInput2.addEventListener('change', (event) => {
+            let file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '200px';
+                    img.style.marginRight = '10px';
+                    img.classList.add('img-thumbnail');
+
+                    const cropContainer = document.createElement('div');
+                    cropContainer.classList.add('crop-container');
+                    cropContainer.style.position = 'relative';
+                    cropContainer.style.display = 'inline-block';
+
+                    const cropButton = document.createElement('button');
+                    cropButton.type = 'button';
+                    cropButton.textContent = 'Crop';
+                    cropButton.id = 'CropBtn';
+                    cropButton.classList.add('btn', 'btn-sm', 'btn-info', 'crop-btn');
+                    cropButton.style.position = 'absolute';
+                    cropButton.style.bottom = '5px';
+                    cropButton.style.left = '50%';
+                    cropButton.style.transform = 'translateX(-50%)';
+
+                    cropContainer.appendChild(img);
+                    cropContainer.appendChild(cropButton);
+                    inputBox2.innerHTML = '';  // Clear previous content
+                    inputBox2.appendChild(cropContainer);
+
+                    const cropper = new Cropper(img, {
+                        aspectRatio: 235 / 345,
+                        autoCropArea: 1,
+                        viewMode: 1,
+                        scalable: false,
+                        zoomable: false,
+                        movable: false,
+                    });
+
+                    cropButton.addEventListener('click', () => {
+                        cropButton.innerText = 'Cropped';
+                        const canvas = cropper.getCroppedCanvas({
+                            width: 235,
+                            height: 345
+                        });
+
+                        if (canvas) {
+                            canvas.toBlob(blob => {
+                                const newImg = document.createElement('img');
+                                newImg.src = URL.createObjectURL(blob);
+                                newImg.classList.add('img-thumbnail');
+                                newImg.style.maxWidth = '200px';
+                                cropContainer.innerHTML = ''; // Clear previous content
+
+                                inputBox2.appendChild(newImg);
+
+                                // Create and append the delete button
+                                const deleteButton = document.createElement('button');
+                                deleteButton.type = 'button';
+                                deleteButton.textContent = 'Delete Image';
+                                deleteButton.classList.add('btn', 'btn-sm', 'btn-danger');
+
+                                deleteButton.style.zIndex = 1;
+                                inputBox2.appendChild(deleteButton);
+
+
+
+                                // Add the cropped file to the DataTransfer object
+                                const croppedFile = new File([blob], file.name, { type: 'image/jpeg', lastModified: new Date() });
+                                dataTransfer2.items.add(croppedFile);
+
+                                // Update input.files with the cropped file
+                                imageInput2.files = dataTransfer2.files;
+
+                                // Event listener for the delete button
+                                deleteButton.addEventListener('click', (e) => {
+                                    inputBox2.innerHTML = `<img src="/images/uploadImage.png" alt="" srcset="" id="boxImage"
+                        style="object-fit: fill;height: 300px;width: 200px">`;
+                                    imageInput2.value = '';  // Clear file input
+                                    dataTransfer2 = new DataTransfer();  // Reset the DataTransfer object
+                                    e.stopPropagation()
+                                });
+                            });
+                        } else {
+                            console.error('Canvas is undefined, possibly due to incorrect cropper initialization.');
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
+
+    <script>
+        let inputBox = document.getElementById('inputBox');
+        let imageInput1 = document.getElementById('inputImage1');
+        let inputBoxText = document.getElementById('inputBox-text');
+        let dataTransfer = new DataTransfer();
+
+        inputBox.addEventListener('click', () => {
+            if (!imageInput1.files.length > 0) {
+                imageInput1.click();
+            }
+        });
+
+        imageInput1.addEventListener('change', (event) => {
+            let file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.style.maxWidth = '200px';
+                    img.style.marginRight = '10px';
+                    img.classList.add('img-thumbnail');
+
+                    const cropContainer = document.createElement('div');
+                    cropContainer.classList.add('crop-container');
+                    cropContainer.style.position = 'relative';
+                    cropContainer.style.display = 'inline-block';
+
+                    const cropButton = document.createElement('button');
+                    cropButton.type = 'button';
+                    cropButton.textContent = 'Crop';
+                    cropButton.id = 'CropBtn';
+                    cropButton.classList.add('btn', 'btn-sm', 'btn-info', 'crop-btn');
+                    cropButton.style.position = 'absolute';
+                    cropButton.style.bottom = '5px';
+                    cropButton.style.left = '50%';
+                    cropButton.style.transform = 'translateX(-50%)';
+
+                    cropContainer.appendChild(img);
+                    cropContainer.appendChild(cropButton);
+                    inputBox.innerHTML = '';  // Clear previous content
+                    inputBox.appendChild(cropContainer);
+
+                    const cropper = new Cropper(img, {
+                        aspectRatio: 235 / 345,
+                        autoCropArea: 1,
+                        viewMode: 1,
+                        scalable: false,
+                        zoomable: false,
+                        movable: false,
+                    });
+
+                    cropButton.addEventListener('click', () => {
+                        cropButton.innerText = 'Cropped';
+                        const canvas = cropper.getCroppedCanvas({
+                            width: 235,
+                            height: 345
+                        });
+
+                        if (canvas) {
+                            canvas.toBlob(blob => {
+                                const newImg = document.createElement('img');
+                                newImg.src = URL.createObjectURL(blob);
+                                newImg.classList.add('img-thumbnail');
+                                newImg.style.maxWidth = '200px';
+                                cropContainer.innerHTML = ''; // Clear previous content
+
+                                inputBox.appendChild(newImg);
+
+                                // Create and append the delete button
+                                const deleteButton = document.createElement('button');
+                                deleteButton.type = 'button';
+                                deleteButton.textContent = 'Delete Image';
+                                deleteButton.classList.add('btn', 'btn-sm', 'btn-danger');
+
+                                deleteButton.style.zIndex = 1;
+                                inputBox.appendChild(deleteButton);
+
+
+
+                                // Add the cropped file to the DataTransfer object
+                                const croppedFile = new File([blob], file.name, { type: 'image/jpeg', lastModified: new Date() });
+                                dataTransfer.items.add(croppedFile);
+
+                                // Update input.files with the cropped file
+                                imageInput1.files = dataTransfer.files;
+
+                                // Event listener for the delete button
+                                deleteButton.addEventListener('click', (e) => {
+                                    inputBox.innerHTML = `<img src="/images/uploadImage.png" alt="" srcset="" id="boxImage"
+                        style="object-fit: fill;height: 300px;width: 200px">`;
+                                    imageInput1.value = '';  // Clear file input
+                                    dataTransfer = new DataTransfer();  // Reset the DataTransfer object
+                                    e.stopPropagation()
+                                });
+                            });
+                        } else {
+                            console.error('Canvas is undefined, possibly due to incorrect cropper initialization.');
+                        }
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    </script>
 
 
     <script>
@@ -155,15 +379,33 @@
             //validate image is cropped
             function isCropped() {
                 let cropBtnList = document.querySelectorAll('#CropBtn');
-                let state = false;
                 const errorField = document.getElementById('imagesError');
+                let state = false;
 
-                if (cropBtnList.length == 0) state = true;
-                if (state) errorField.innerText = `All Cropped`;
+                if (cropBtnList.length == 0) {
+                    state = true;
+                }
+                if (state == true) {
+                    errorField.innerText = 'All Cropped';
+                    console.log('cropped')
+                } else {
+                    console.log(' not cropped')
+                    errorField.innerText = 'Crop all Before Upload ';
+                }
                 console.log('state ', state);
                 return state; // Corrected here
             }
 
+
+            function areImagesUploaded() {
+                const errorField = document.getElementById('imagesError');
+                if (!imageInput1.files.length || !imageInput2.files.length) {
+                    errorField.textContent = "Please upload two images Its Needed.";
+                    return false;
+                }
+
+                return true;
+            }
 
 
             // Add focus validation for price
@@ -176,79 +418,7 @@
                 validateNumberField(productQuantity, 'quantityError', 'Quantity');
             });
 
-            input.addEventListener('change', () => {
-                imagePreviewContainer.innerHTML = ''; // Clear previous images
 
-                const dataTransfer = new DataTransfer(); // Initialize DataTransfer to keep track of all cropped files
-
-                Array.from(input.files).forEach(file => {
-                    const reader = new FileReader();
-                    reader.onload = function (e) {
-                        const img = document.createElement('img');
-                        img.src = e.target.result;
-                        img.style.maxWidth = '200px';
-                        img.style.marginRight = '10px';
-                        img.classList.add('img-thumbnail');
-
-                        const cropContainer = document.createElement('div');
-                        cropContainer.classList.add('crop-container');
-                        cropContainer.style.position = 'relative';
-                        cropContainer.style.display = 'inline-block';
-
-                        const cropButton = document.createElement('button');
-                        cropButton.type = 'button'
-                        cropButton.textContent = 'Crop';
-                        cropButton.id = 'CropBtn';
-                        cropButton.classList.add('btn', 'btn-sm', 'btn-info', 'crop-btn');
-                        cropButton.style.position = 'absolute';
-                        cropButton.style.bottom = '5px';
-                        cropButton.style.left = '50%';
-                        cropButton.style.transform = 'translateX(-50%)';
-
-                        cropContainer.appendChild(img);
-                        cropContainer.appendChild(cropButton);
-                        imagePreviewContainer.appendChild(cropContainer);
-
-                        const cropper = new Cropper(img, {
-                            aspectRatio: 235 / 345,
-                            autoCropArea: 1,
-                            viewMode: 1,
-                            scalable: false,
-                            zoomable: false,
-                            movable: false,
-                        });
-
-                        cropButton.addEventListener('click', () => {
-                            cropButton.innerText = 'cropped';
-                            const canvas = cropper.getCroppedCanvas({
-                                width: 235,
-                                height: 345
-                            });
-
-                            if (canvas) {
-                                canvas.toBlob(blob => {
-                                    const newImg = document.createElement('img');
-                                    newImg.src = URL.createObjectURL(blob);
-                                    newImg.classList.add('img-thumbnail');
-                                    newImg.style.maxWidth = '200px';
-                                    cropContainer.innerHTML = '';
-                                    cropContainer.appendChild(newImg);
-
-                                    // Add the cropped file to the DataTransfer object
-                                    const croppedFile = new File([blob], file.name, { type: 'image/jpeg', lastModified: new Date() });
-                                    dataTransfer.items.add(croppedFile);
-
-                                    // Update input.files with all cropped files
-                                    input.files = dataTransfer.files;
-                                });
-                            } else {
-                                console.error('Canvas is undefined, possibly due to incorrect cropper initialization.');
-                            }
-                        });
-                    };
-                    reader.readAsDataURL(file);
-                });
-            });
 
 
             // Final form submission validation
@@ -256,8 +426,9 @@
                 const isPriceValid = validateNumberField(productPrice, 'priceError', 'Price');
                 const isQuantityValid = validateNumberField(productQuantity, 'quantityError', 'Quantity');
                 const isCroppedVar = isCropped()
+                const areImagesUploadedVar = areImagesUploaded()
 
-                if (!isPriceValid || !isQuantityValid || !isCroppedVar) {
+                if (!isPriceValid || !isQuantityValid || !isCroppedVar || !areImagesUploadedVar) {
                     Swal.fire({
                         title: "Field Error",
                         text: 'Please Check All Fields',

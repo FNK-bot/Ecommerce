@@ -143,6 +143,38 @@ Best selling brands (top 10)
 Generate ledger book (optional)
 
 
+
 Code: 
 Do not store username in order collection use aggregate to get user dataDefine what product details array is containing in order collection 
 Do not store Store total, subtotal in cart collection calculate dynamic
+
+
+weekback
+ 
+ 	
+Pending Topics:
+
+size, category & color are not pre populating in edit product form -x
+preview existing images in edit product with delete option -x
+cart quantity validation is incorrect 
+stock/ inventory management -x
+use consistent currency -x
+order details page - user side-x
+order details page - admin side-x
+give option for product wise cancel/ return-x
+wallet transaction is incoorect when cancelling a product -x
+unable to add offers -x
+Referral offer is pending -x
+app crashed multiple times during the review  
+
+one product qnt err
+actual price erro in product
+
+https://waterrmalann.notion.site/A-simple-guide-to-hosting-a-Node-js-app-on-AWS-EC2-6e05ee8c5689452f94a2c550f66aeecd//imp
+
+Irshad P
+5:28 PM
+https://github.com/Irshadudheen/eCommerce-Website/tree/master/views/client
+Irshad P
+5:38 PM
+https://waterrmalann.notion.site/A-simple-guide-to-hosting-a-Node-js-app-on-AWS-EC2-6e05ee8c5689452f94a2c550f66aeecd

@@ -158,7 +158,7 @@
                                                                 Cash on Delivery
                                                             </span>
                                                             <small id="codError">Cashon delivary only avialable for
-                                                                Above $100 </small>
+                                                                Above ₹100 </small>
                                                         </label>
                                                     </div>
                                                 </div>
@@ -231,10 +231,10 @@
                                                         <i class="bx bxs-star-half text-warning"></i>
                                                     </p>
                                                     <p class="text-muted mb-0 mt-1">
-                                                        $ <%= product[i].price %> x <%= cart[i].quantity %>
+                                                        ₹ <%= product[i].price %> x <%= cart[i].quantity %>
                                                     </p>
                                                 </td>
-                                                <td>$<%= cart[i].total %>
+                                                <td>₹<%= cart[i].total %>
                                                 </td>
                                             </tr>
                                             <% } %>
@@ -243,27 +243,27 @@
                                                     <td colspan="2">
                                                         <h5 class="font-size-14 m-0">Sub Total :</h5>
                                                     </td>
-                                                    <td>$<%= subTotal %>
+                                                    <td>₹<%= subTotal %>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="2">
                                                         <h5 class="font-size-14 m-0">Discount :</h5>
                                                     </td>
-                                                    <td>- $<%=discount%>
+                                                    <td>- ₹<%=discount%>
                                                     </td>
                                                 </tr>
                                                 <tr>
                                                     <td colspan="2">
                                                         <h5 class="font-size-14 m-0">Shipping Charge :</h5>
                                                     </td>
-                                                    <td>$00</td>
+                                                    <td>₹00</td>
                                                 </tr>
                                                 <tr class="bg-light">
                                                     <td colspan="2">
                                                         <h5 class="font-size-14 m-0">Total :</h5>
                                                     </td>
-                                                    <td id="totalAmount">$<%= totalCartPrice %>
+                                                    <td id="totalAmount">₹<%= totalCartPrice %>
                                                     </td>
                                                 </tr>
                                     </tbody>
@@ -292,11 +292,11 @@
                 return
             }
             err.style.color = 'red';
-            err.innerText = 'Cashon delivary only avialable for Above $100'
+            err.innerText = 'Cashon delivary only avialable for Above ₹100'
             Swal.fire({
                 icon: "info",
                 title: "info",
-                text: " Minium $100 is required for Cash on delevery.",
+                text: " Minium ₹100 is required for Cash on delevery.",
             });
             return;
 

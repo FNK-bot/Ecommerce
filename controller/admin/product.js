@@ -1,12 +1,12 @@
 const Catagory = require('../../models/catagory');
 const Product = require('../../models/product')
 const Brand = require('../../models/brand')
-
+const mongoose = require('mongoose')
 //get all Producsts 
 const getAllProduct = async (req, res) => {
     try {
         const allProducts = await Product.find({ isDeleted: false })
-        const itemsperpage = 6;
+        const itemsperpage = 5;
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
@@ -64,11 +64,11 @@ const postAddProduct = async (req, res) => {
                 }
             }
 
-            const newProduct = new Product({
+            let newProduct = new Product({
                 name: req.body.name,
                 discription: req.body.discription,
                 brand: req.body.brand,
-                offerPrice: req.body.offerPrice,
+                // offerPrice: req.body.offerPrice,
                 price: req.body.price,
                 categary: req.body.category,
                 quantity: req.body.quantity,
@@ -76,6 +76,9 @@ const postAddProduct = async (req, res) => {
                 color: req.body.color,
                 images: images,
             });
+            //offer manage
+            newProduct.actualPrice.set = true
+            newProduct.actualPrice.amount = req.body.price;
 
             if (await newProduct.save()) {
                 console.log('Product added successfully');
@@ -110,13 +113,25 @@ const getEditProduct = async (req, res) => {
     try {
         res.status(200)
         console.log('Get edit product control')
-        const id = req.params.id;
-        let editProduct = await Product.findById(id);
+        const id = req.query.id;
+        console.log(id)
+        // Check if the provided id is a valid MongoDB ObjectId
+        // if (!mongoose.Types.ObjectId.isValid(id)) {
+        //     throw new Error("Invalid product ID");
+        // }
+
+        let editProduct = await Product.findById(id).populate('categary', 'name').populate('brand', 'name');
+        console.log(editProduct)
+        if (!editProduct) {
+            throw new Error("Product not found");
+        }
+        // let editProduct = await Product.findById(id);
         const getAllCatagory = await Catagory.find({ isDeleted: false });
         const brands = await Brand.find({ isDeleted: false })
         let alertMessage = req.session.alertMessage
         req.session.alertMessage = null;
         res.render('admin/editProduct', { product: editProduct, category: getAllCatagory, alertMessage, brands })
+        console.log('ends')
     } catch (error) {
         console.log('error in edit products', error)
     }
@@ -125,27 +140,40 @@ const getEditProduct = async (req, res) => {
 
 const postEditProduct = async (req, res) => {
     try {
-        console.log('Post edit product control', req.body);
+        console.log('Post edit product control', req.body, req.files);
         const id = req.params.id;
-        let images = [];
+        let postedImages = [];
         let editProduct;
+        let images = [];
 
         if (req.files && req.files.length > 0) {
             for (let i = 0; i < req.files.length; i++) {
-                images.push(req.files[i].filename);
+                postedImages.push(req.files[i].filename);
                 console.log(req.files[i].filename)
             }
         } else {
             images = null;
         }
+        let findOldData = await Product.findById(id);
+        let oldImage = findOldData.images;
+        let { exImage1, exImage2 } = req.body;
+        if (exImage1 == 'true' && exImage2 != 'true') {
+            images = [postedImages[0], oldImage[1]]
+        }
+        if (exImage2 == 'true' && exImage1 != 'true') {
+            images = [oldImage[0], postedImages[0]]
+        }
+        if (exImage2 == 'true' && exImage1 == 'true') {
+            images = [postedImages[0], postedImages[1]]
+        }
+
 
         const updateData = {
             name: req.body.name,
             discription: req.body.discription,
             brand: req.body.brand,
-            offerPrice: req.body.offerPrice,
             price: req.body.price,
-            categary: req.body.categary,
+            categary: req.body.category,
             quantity: req.body.quantity,
             size: req.body.size,
             color: req.body.color,
@@ -154,6 +182,13 @@ const postEditProduct = async (req, res) => {
         if (images) {
             updateData.images = images;
         }
+
+        //offer manage
+        let product = await Product.findById(id)
+        product.actualPrice.set = true
+        product.actualPrice.amount = req.body.price;
+        product.offer.status = false;
+        product.save()
 
         editProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
         req.session.alertMessage = {

@@ -23,10 +23,9 @@ const catogarySchema = new mongoose.Schema({
             type: Boolean,
             default: false
         },
-        amount: {
+        percentage: {
             type: Number,
             default: 0,
-
         }
     },
     isDeleted: {

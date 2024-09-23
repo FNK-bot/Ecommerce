@@ -100,6 +100,8 @@ const postAddtoCart = async (req, res) => {
                 return res.status(200).json({ message: `${findProduct.name} is added to cart`, messageType: 'success' });
             }
 
+        } else {
+            return res.status(200).json({ message: `Out of Stock`, messageType: 'info' });
         }
     } catch (error) {
         console.log(`Error in adding to cart Error:${error}`)
@@ -274,34 +276,35 @@ const deleteCartItem = async (req, res) => {
 const getCheckOut = async (req, res) => {
     try {
         let user = await User.findById(req.session.user_id)
-        const product_ids = user.cart.cartItems.map((item) => {
-            return item.ProductId
-        })
-        let products = await Product.find({ _id: { $in: product_ids } })
-        products = product_ids.map(id => products.find(product => product._id.toString() === id.toString()));
 
-        let cart = user.cart.cartItems;
-        let address = user.address;
-        // let total = user.cart.total;
-        // let subTotal = user.cart.subtotal;
-        // let discount = user.cart.discount;
-        // cart.forEach((val) => {
-        //     total += val.total;
-        //     subTotal += val.subTotal;
-        // })
-        let total_ = 0;
-        let subTotal = 0;
-        user.cart.cartItems.forEach((val) => {
-            total_ += val.total;
-            subTotal += val.total;
-        })
-        let discount = user.cart.discount;
-        let total = total_ - discount
+        //check user cart is empty
+        if (user.cart.cartItems.length <= 0) {
+            console.log('cart is empty ')
+            res.redirect('cart')
+        } else {
 
-        res.render('user-views/checkout', {
-            user, cart, address, product: products,
-            totalCartPrice: total, subTotal, discount
-        })
+            const product_ids = user.cart.cartItems.map((item) => {
+                return item.ProductId
+            })
+            let products = await Product.find({ _id: { $in: product_ids } })
+            products = product_ids.map(id => products.find(product => product._id.toString() === id.toString()));
+
+            let cart = user.cart.cartItems;
+            let address = user.address;
+            let total_ = 0;
+            let subTotal = 0;
+            user.cart.cartItems.forEach((val) => {
+                total_ += val.total;
+                subTotal += val.total;
+            })
+            let discount = user.cart.discount;
+            let total = total_ - discount
+
+            res.render('user-views/checkout', {
+                user, cart, address, product: products,
+                totalCartPrice: total, subTotal, discount
+            })
+        }
     } catch (error) {
         console.log(`ERROR IN GET CHECKOUT ERROR:${error}`)
     }
@@ -317,6 +320,7 @@ const postChekOut = async (req, res) => {
             return item.ProductId
         })
         const products_details = user.cart.cartItems;
+        console.log(products_details)
         let total_ = 0;
         let subTotal = 0;
         user.cart.cartItems.forEach((val) => {
@@ -325,8 +329,6 @@ const postChekOut = async (req, res) => {
         })
         let discount = user.cart.discount;
         let total = total_ - discount
-        // let total = user.cart.total
-
         console.log(req.body.paymentMethod + 'Pay mode')
 
         if (req.body.paymentMethod === 'Razorpay') {
@@ -391,6 +393,17 @@ const postChekOut = async (req, res) => {
             findOrder.status = 'Placed';
             findOrder.totalPrice = total
             findOrder.save();
+
+            //manage the stock
+            for (let item of findOrder.productDetails) {
+                await Product.updateOne(
+                    { _id: item.ProductId }, // Find the product by its ProductId
+                    { $inc: { quantity: -item.quantity } } // Decrease the quantity using $inc
+                );
+            }
+            //clear cart
+            user.cart = {};
+            user.save()
             console.log('pending paymnet set to paid', findOrder);
             res.json({ orderId: findOrder.orderID })
         }
@@ -415,6 +428,16 @@ const postChekOut = async (req, res) => {
                 return item._id.toString() === addressId.toString()
             })
             console.log('address finded ', address)
+
+            //manage the stock
+            for (let item of products_details) {
+                await Product.updateOne(
+                    { _id: item.ProductId }, // Find the product by its ProductId
+                    { $inc: { quantity: -item.quantity } } // Decrease the quantity using $inc
+                );
+
+            }
+
             let newOrder = new Order({
                 orderID: orderId,
                 totalPrice: total,
@@ -430,6 +453,9 @@ const postChekOut = async (req, res) => {
             })
             await newOrder.save()
 
+            //clear cart
+            user.cart = {};
+            user.save()
             res.json({ orderId: orderId, paymentCod: true })
             console.log('new oder saved usnig cod ', newOrder);
 
@@ -503,6 +529,17 @@ const payOnOderPage = async (req, res) => {
             findOrder.totalPrice = total
             findOrder.save();
             console.log('pending paymnet set to paid', findOrder);
+
+            //manage the stock
+            for (let item of findOrder.productDetails) {
+                await Product.updateOne(
+                    { _id: item.ProductId }, // Find the product by its ProductId
+                    { $inc: { quantity: -item.quantity } } // Decrease the quantity using $inc
+                );
+            }
+            //clear cart
+            user.cart = {};
+            user.save()
             res.json({ orderId: findOrder.orderID })
         }
 

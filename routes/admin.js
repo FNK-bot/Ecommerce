@@ -7,9 +7,9 @@ const { getAllProduct, getAddProduct, postAddProduct, getEditProduct, postEditPr
 const { getAllCatagory, getAddCatagory, getEditCatagory, postAddCatagory, postEditCatagory, deleteCatagory } = require('../controller/admin/catagory');
 const { getlogIn, postLogin, logout } = require('../controller/admin/login_out');
 const isLogged = require('../middleware/authAdmin.js');
-const { getOrders, shippOrder, unShippOrder, deleteOrder } = require('../controller/admin/ordersCntrl.js');
+const { getOrders, shippOrder, unShippOrder, deleteOrder, getOrderDetails, deleverOneItem } = require('../controller/admin/ordersCntrl.js');
 const { getBrands, getEditBrand, postEditBrand, getAddBrand, postAddBrand, deleteBrand } = require('../controller/admin/brandCtrl.js');
-const manageOffers = require('../controller/admin/offerCtrl.js');
+const { manageOffers, deleteOffer } = require('../controller/admin/offerCtrl.js');
 //login
 router.get('/login', getlogIn);
 router.post('/login', postLogin);
@@ -27,7 +27,7 @@ router.get('/users/unblock/:id', isLogged, unBlockUser); // Unblock user
 router.get('/products', isLogged, getAllProduct)
 router.get('/addProduct', isLogged, getAddProduct)
 router.post('/addProduct', upload.array('images', 12), isLogged, postAddProduct)
-router.get('/editProduct/:id', isLogged, getEditProduct)
+router.get('/editProduct', isLogged, getEditProduct)
 router.post('/editProduct/:id', upload.array('images', 12), isLogged, postEditProduct); //edit product
 router.get('/deleteProduct/:id', isLogged, deleteProduct)
 //catagory
@@ -52,6 +52,9 @@ router.get('/orders', isLogged, getOrders)
 router.get('/shippOrder', isLogged, shippOrder)
 router.get('/unShippOrder', isLogged, unShippOrder)
 router.get('/deleteOrder', isLogged, deleteOrder)
+//order Details
+router.get('/orderDetails', isLogged, getOrderDetails)
+router.get('/deleverOneItem', isLogged, deleverOneItem)
 
 // sales report
 router.get('/salesReport', isLogged, getSalesReportPage)
@@ -59,4 +62,5 @@ router.get('/api/sales-report', isLogged, getSalesReportApi)
 
 //offer
 router.post('/api/addOffer', isLogged, manageOffers)
+router.get('/deleteOffer', isLogged, deleteOffer)
 module.exports = router;

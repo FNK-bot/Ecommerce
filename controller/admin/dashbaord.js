@@ -222,7 +222,7 @@ const getSalesReportPage = async (req, res) => {
         const orders = await Order.find({
             createdOn: { $gte: startDate, $lte: endDate },
             isDeleted: false
-        });
+        }).populate('userId')
 
         const totalRevenue = orders.reduce((acc, item) => acc + item.totalPrice, 0);
         const totalDiscount = orders.reduce((acc, item) => acc + item.discount, 0);

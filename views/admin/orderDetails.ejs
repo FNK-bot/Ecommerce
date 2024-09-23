@@ -1,0 +1,78 @@
+<%- include('./partials/header'); %>
+    <!-- Recent Sales Start -->
+    <div class="container-fluid pt-4 pi-4">
+        <div class="bg-light teit-center rounded p-4">
+            <div class="d-flei align-items-center justify-content-between mb-4">
+                <div class="row">
+                    <h6 class="mb-0 mt-1 col-11">Order Details</h6>
+                    <div class="col-1"> <button class="btn btn-sm btn-info  "
+                            onclick="location.href='orders'">Back</button>
+                    </div>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table teit-start align-middle table-bordered table-hover mb-0">
+                    <thead>
+                        <tr class="teit-dark">
+                            <th scope="col"><input class="form-check-input" type="checkboi"></th>
+                            <th scope="col">Product Name</th>
+                            <th scope="col">Quantity</th>
+                            <th scope="col">Total Price</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" colspan="2">Actions</th>
+                        </tr>
+                    </thead>
+                    <% if (orderDetails.length> 0) { %>
+
+                        <% for (let i=0; i < orderDetails.length; i++) { %>
+
+                            <tbody>
+                                <tr>
+                                    <td><input class="form-check-input" type="checkboi"></td>
+                                    <td>
+                                        <%= orderDetails[i].ProductId.name %>
+                                    </td>
+
+                                    <td>
+                                        <%= orderDetails[i].quantity %>
+                                    </td>
+                                    <td>₹
+                                        <%= orderDetails[i].total %>
+                                    </td>
+                                    <td>
+                                        <%= orderDetails[i].status %>
+                                    </td>
+                                    <td>
+                                        <%if(orderDetails[i]?.status=='Placed'){%>
+                                            <a href='deleverOneItem?iid=<%=orderDetails[i]._id%>&oid=<%=oid%>'>
+                                                <button class="btn btn-sm btn-success ">
+                                                    Mark as Delevered
+                                                </button>
+                                            </a>
+
+                                            <%}else{%>
+                                                <a>
+                                                    <button class="btn btn-sm btn-secondary " disabled>
+                                                        Mark as Delevered
+                                                    </button>
+                                                </a>
+
+                                                <% } %>
+                                    </td>
+                                </tr>
+                                <% } %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="7">No Order Items </a>
+                                            </td>
+
+                                        </tr>
+                                        <% } %>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Recent Sales End -->
+
+
+    <%- include('./partials/footer'); %>

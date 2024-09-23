@@ -20,18 +20,17 @@ const getProfile = async (req, res) => {
 
     let user = await User.findById({ _id: req.session.user_id })
     // const orders = await Order.find({ userId: req.session.user_id, isDeleted: false });
-    const orders = await Order.aggregate([
-        {
-            $match: {
-                userId: req.session.user_id,
-                isDeleted: false
-            }
-        },
-        {
-            $sort: { createdOn: -1 }
-        }
-    ])
-    // console.log('orders', orders);
+    const orders = await Order.find({
+        userId: req.session.user_id,
+        isDeleted: false
+    })
+        .sort({ createdOn: -1 })
+        .populate({
+            path: 'productDetails.ProductId', // Path to the ProductId field
+            select: 'name' // Select only the product name field from the Product model
+        });
+
+    console.log('orders', orders);
     try {
         let alertMessage;
         if (!req.session.alertMessage) {
@@ -49,6 +48,7 @@ const getProfile = async (req, res) => {
         req.session.mContent = " ";
         // console.log(`User profile User Data : ${user}`)
 
+        // console.log('order.productDetails', orders[0].productDetails[0].ProductId.name)
 
         res.render('user-views/profile', { user, alertMessage, orders })
 
@@ -348,18 +348,26 @@ const returnOrder = async (req, res) => {
         const order_id = req.query.id;
         const order = await Order.findById(order_id);
         console.log('returned order', order)
-        order.status = 'returned'
         order.isReturned.status = true;
         order.isReturned.isRefunded = true;
         order.isReturned.refundAmount = order.totalPrice;
         order.status = 'returned';
         // order.totalPrice = 0;
         req.session.mType = 'success'
-        req.session.mContent = `$${order.totalPrice} is added to youre wallet please check balence`;
+        req.session.mContent = `₹${order.totalPrice} is added to youre wallet please check balence`;
         user.wallet = user.wallet + order.totalPrice,
             user.transactionHistory.push({
                 amount: order.totalPrice
             })
+
+        //manage stock
+        for (let item of order.productDetails) {
+            await Product.updateOne(
+                { _id: item.ProductId }, // Find the product by its ProductId
+                { $inc: { quantity: item.quantity } } // Decrease the quantity using $inc
+            );
+        }
+
         await order.save();
         await user.save();
 
@@ -376,15 +384,22 @@ const cancelOrder = async (req, res) => {
         const order = await Order.findById(order_id);
         console.log('cancelled order', order)
         order.status = 'cancelled'
-        order.totalPrice = 0;
+        // order.totalPrice = 0;
         req.session.mType = 'success'
-        req.session.mContent = `$${order.totalPrice} is added to youre wallet please check balence`;
+        req.session.mContent = `₹${order.totalPrice} is added to youre wallet please check balence`;
         user.wallet = user.wallet + order.totalPrice,
             user.transactionHistory.push({
                 amount: order.totalPrice
             })
         await order.save();
         await user.save();
+        //manage stock
+        for (let item of order.productDetails) {
+            await Product.updateOne(
+                { _id: item.ProductId }, // Find the product by its ProductId
+                { $inc: { quantity: item.quantity } } // Decrease the quantity using $inc
+            );
+        }
 
         res.redirect('/profile')
 
@@ -393,8 +408,99 @@ const cancelOrder = async (req, res) => {
     }
 }
 
+
+// Cancel One item From order details
+const cancelOneItem = async (req, res) => {
+    try {
+        console.log(req.query)
+        const { oid, iid } = req.query;
+
+        const findOrder = await Order.findById(oid);
+        console.log('some')
+        let user = await User.findById({ _id: req.session.user_id });
+
+        const order = await Order.updateOne(
+            { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
+            {
+                $set: { "productDetails.$.status": "Cancelled" } // Use the positional operator $ to update the product's status
+            }
+        );
+        const item = findOrder.productDetails.id(iid)
+        console.log(item)
+        const refundAmaunt = item.total
+        // console.log(refundAmaunt)
+
+        user.wallet += parseInt(refundAmaunt);
+        user.transactionHistory.push({
+            amount: refundAmaunt
+        })
+        user.save();
+
+        console.log(item.quantity)
+        //manage stock
+        await Product.findOneAndUpdate({ _id: item.ProductId }, {
+            $inc: { quantity: item.quantity },
+        });
+
+        const alertMessage = {
+            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+            message: `Order Item cancelled ₹${refundAmaunt} is Added to Youre Wallet`
+        };
+        req.session.alertMessage = alertMessage;
+
+        res.redirect('/profile')
+    } catch (error) {
+        console.log('Error in Cancel One item ', error)
+    }
+}
+
+// Cancel One item From order details
+const returnOneItem = async (req, res) => {
+    try {
+        console.log(req.query)
+        const { oid, iid } = req.query;
+
+        const findOrder = await Order.findById(oid);
+        console.log('some', findOrder)
+        let user = await User.findById({ _id: req.session.user_id });
+
+        const order = await Order.updateOne(
+            { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
+            {
+                $set: { "productDetails.$.status": "Returned" } // Use the positional operator $ to update the product's status
+            }
+        );
+
+        const item = findOrder.productDetails.id(iid)
+        const refundAmaunt = item.total
+        console.log(refundAmaunt)
+
+        user.wallet += parseInt(refundAmaunt);
+        user.transactionHistory.push({
+            amount: refundAmaunt
+        })
+        user.save();
+        // console.log(user)
+
+        //manage stock
+        Product.findOneAndUpdate({ _id: item.ProductId }, {
+            $inc: { quantity: item.quantity }
+        });
+
+        const alertMessage = {
+            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
+            message: `Order Item Refunded ₹${refundAmaunt} is Added to Youre Wallet`
+        };
+        req.session.alertMessage = alertMessage;
+
+        res.redirect('/profile')
+    } catch (error) {
+        console.log('Error in Return One item ', error)
+    }
+}
 module.exports = {
     getProfile, getEditAdress, getEditProfile, getAddAdress,
     postAddAddress, getDeleteAddress, postEditProfile, postEditAdress
-    , getChangePassword, postChangePassword, returnOrder, cancelOrder
+    , getChangePassword, postChangePassword, returnOrder, cancelOrder,
+    cancelOneItem, returnOneItem
 }

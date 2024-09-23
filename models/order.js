@@ -31,8 +31,9 @@ let oderSchema = new mongoose.Schema({
         type: Array
     },
     userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
         required: true,
-        type: String
 
     },
     method: {
@@ -70,7 +71,28 @@ let oderSchema = new mongoose.Schema({
             default: 0,
         }
     },
-    productDetails: [],//define -- user cart
+    productDetails: [{
+        ProductId: {
+            type: mongoose.Schema.Types.ObjectId,
+
+            ref: "Product"
+        },
+        quantity: {
+            type: Number,
+
+        },
+        size: {
+            type: String,
+        },
+        total: {
+            type: Number,
+
+        },
+        status: {
+            type: String,
+            default: 'Placed'
+        },
+    }],
     shippingCharge: {
         type: Number,
         default: 0,

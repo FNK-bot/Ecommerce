@@ -14,7 +14,7 @@
                             <th scope="col">Image</th>
                             <th scope="col">Price</th>
                             <th scope="col">Offer Price</th>
-                            <th scope="col">status</th>
+                            <th scope="col">Stock</th>
                             <th scope="col" colspan="3">Action</th>
 
                         </tr>
@@ -31,22 +31,22 @@
                                     <td><img class="rounded" style="width: 80%; height: 50px;"
                                             src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="image">
                                     </td>
-                                    <td>$<%= product[i].price %>
+                                    <td>₹<%= product[i].price %>
                                     </td>
                                     <td>
-                                        <%= product[i]?.offer.status==true?product[i]?.offer.amount:'No Offer' %>
+                                        <%= product[i]?.offer.status==true?`₹${product[i]?.offer.amount}`:'No Offer' %>
                                     </td>
                                     <td>
-                                        <%= product[i].status %>
+                                        <%= product[i].quantity>0?'In Stock':'Out Of Stock' %>
                                     </td>
                                     <td>
                                         <a class="btn btn-sm btn-primary"
-                                            href="/admin/editProduct/<%=product[i]._id%>">Edit</a>
+                                            href="/admin/editProduct/?id=<%=product[i]?._id%>">Edit</a>
                                         <a class="btn btn-sm btn-danger"
-                                            href="/admin/deleteProduct/<%=product[i]._id%>">Delete</a>
+                                            href="/admin/deleteProduct/<%=product[i]?._id%>">Delete</a>
 
                                         <button type="button" class="btn btn-sm btn-primary" id="addOffer"
-                                            onclick="addOffer('<%=product[i]._id%>','product')">
+                                            onclick="addOffer('<%=product[i]._id%>','product','<%=product[i].price%>')">
                                             <%if(product[i]?.offer.status==true){%>
                                                 Update Offer
                                                 <%}else{%>
@@ -54,6 +54,10 @@
                                                     <%}%>
 
                                         </button>
+                                        <%if(product[i]?.offer.status==true){%>
+                                            <a class="btn btn-sm btn-danger"
+                                                href="/admin/deleteOffer?id=<%=product[i]?._id%>">deleteOffer</a>
+                                            <%}%>
                                     </td>
                                 </tr>
                                 <% } %>
@@ -78,7 +82,7 @@
             <%- include('../user-views/partials/alertMessages'); %>
 
                 <script>
-                    function addOffer(id, type) {
+                    function addOffer(id, type, price) {
 
                         Swal.fire({
                             title: "Enter Offer Amount",
@@ -88,28 +92,46 @@
                             showLoaderOnConfirm: true,
                             preConfirm: async (input) => {
                                 try {
-                                    if (input.length < 1) {
+
+                                    if (input.length < 1 || input == NaN) {
                                         // alert(input.length)
                                         Swal.showValidationMessage(`Enter Amaunt`);
+                                        return false
                                     }
                                     const url = `/admin/api/addOffer`;
-                                    const { data } = await axios.post(url, { input, type, id }, {
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                        }
-                                    })
+                                    if (input < 0) {
+                                        Swal.showValidationMessage(`Amaunt should be Greater than 0`);
+                                        return false
+                                    }
+                                    if (price >= input) {//err here
+                                        const { data } = await axios.post(url, { input, type, id }, {
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            }
+                                        })
+                                    } else {
+                                        Swal.showValidationMessage(`Amount cannot lager than Actual price ₹${price}`);
+                                    }
+
                                 } catch (error) {
                                     Swal.showValidationMessage(` Request failed: ${error}`);
                                 }
                             },
                             allowOutsideClick: () => !Swal.isLoading()
                         }).then((result) => {
-                            if (result.isConfirmed) {
+                            if (result.isConfirmed == true) {
                                 Swal.fire({
                                     title: `Success`,
                                     icon: 'success',
                                 });
                                 location.reload()
+                            }
+                            if (result.validationError == true) {
+                                Swal.fire({
+                                    title: `Success`,
+                                    icon: 'success',
+                                    Text: 'enter value lessthan amount'
+                                });
                             }
                         });
                     }

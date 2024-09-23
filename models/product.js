@@ -10,12 +10,17 @@ const productSchema = new mongoose.Schema({
     },
     discription: {
         type: String,
-        required: true,
 
     },
     brand: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Brand',
         required: true
+    },
+    categary: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Catogary',
+        required: true,
     },
     offer: {
         status: {
@@ -27,14 +32,20 @@ const productSchema = new mongoose.Schema({
             default: 0,
         }
     },
-    price: {
+    price: {//current price
         type: Number,
         required: true,
     },
-    categary: {
-        type: String,
-        required: true,
+    actualPrice: {// row price
+        set: {
+            type: Boolean,
+            default: false
+        },
+        amount: {
+            type: Number
+        }
     },
+
     quantity: {
         type: Number,
         default: 0

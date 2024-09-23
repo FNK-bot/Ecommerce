@@ -32,18 +32,27 @@
                                             </p>
 
                                         </div>
-                                        <div class="row " style="padding-left: 600px;">
-                                            <a href="/edit-profile?id=<%=user._id%>" class="col-12 btn-link">Edit
+                                        <div class="float-end " style="padding-left: 600px;">
+                                            <a href="/edit-profile?id=<%=user._id%>"
+                                                class="col-12 btn btn-sm btn-outline-success">Edit
                                                 Profile</a>
-                                            <a href="/changepass?id=<%=user._id%>" class="col-12 btn-link">Change
+                                            <a href="/changepass?id=<%=user._id%>"
+                                                class="col-12 btn btn-sm btn-outline-success">Change
                                                 Password</a>
-                                            <a href="/mycoupens" class="col-12 btn-link">View My Coupens</a>
+                                            <a href="/mycoupens" class="col-12 btn btn-sm btn-outline-success">View My
+                                                Coupens</a>
 
                                             <!-- Button trigger modal -->
                                             <a href="#" data-toggle="modal" data-target="#exampleModalCenter"
-                                                class="col-12 btn-link">
+                                                class="col-12 btn btn-sm btn-outline-success">
                                                 View My Wallet
                                             </a>
+                                            <!-- Button trigger modal -->
+                                            <a href="#" data-toggle="modal" data-target="#exampleModalCenter4"
+                                                class="col-12 btn btn-sm btn-outline-success">
+                                                Referel code
+                                            </a>
+
 
                                             <!-- Modal -->
                                             <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog"
@@ -60,7 +69,7 @@
                                                             </button>
                                                         </div>
                                                         <div class="modal-body">
-                                                            <strong>$ <%=user.wallet%>.0</strong> <span> Available
+                                                            <strong>₹ <%=user.wallet%>.0</strong> <span> Available
                                                                 Balance</span>
 
                                                             <div class="mt-3">
@@ -80,7 +89,7 @@
                                                                                             %>
                                                                                     </td>
                                                                                     <td>
-                                                                                        $<%=x.amount%>
+                                                                                        ₹<%=x.amount%>
                                                                                     </td>
                                                                                     <%if(x.isCredited){%>
                                                                                         <td>Credited</td>
@@ -98,6 +107,38 @@
                                                                     </tbody>
                                                                 </table>
                                                             </div>
+
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-secondary"
+                                                                data-dismiss="modal">Close</button>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+
+                                            <!-- Modal -->
+                                            <div class="modal fade" id="exampleModalCenter4" tabindex="-1" role="dialog"
+                                                aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                                                <div class="modal-dialog modal-dialog-centered" role="document">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title" id="exampleModalLongTitle">
+                                                                Get Referel Code
+                                                            </h5>
+                                                            <button type="button" class="close" data-dismiss="modal"
+                                                                aria-label="Close">
+                                                                <span aria-hidden="true">&times;</span>
+                                                            </button>
+                                                        </div>
+                                                        <div class="modal-body">
+
+                                                            <h2>
+                                                                <%=user.email%>
+                                                            </h2>
+                                                            <p>Copy and Paste this on referrel Area</p>
 
                                                         </div>
                                                         <div class="modal-footer">
@@ -221,13 +262,13 @@
                                                     <p>
                                                         <%= order.method %>
                                                     </p>
-                                                    <p><strong>Shipping fee:</strong> $00</p>
+                                                    <p><strong>Shipping fee:</strong> ₹00</p>
                                                     <p><strong>Total paid:</strong>
                                                         <%= order.totalPrice %>
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div class="d-flex justify-content-end">
+                                            <div class="d-flex justify-content-end  ">
                                                 <%if(order.onlinePayment.status=='Pending' ){%>
                                                     <div> <button id='payBtn' onclick="pay('<%=order._id%>')"
                                                             class="btn btn-outline-success mr-2">Continue
@@ -239,76 +280,181 @@
                                                                 payment
                                                             </button></div>
                                                         <%}%>
-                                                            <%if(order.status=='Delevered'){%>
-                                                                <a href="/returnOrder?id=<%= order._id %>"><button
-                                                                        class="btn btn-outline-danger mr-2">Return
-                                                                        Order</button></a>
-                                                                <%}else{%>
-                                                                    <a href="/returnOrder?id=<%= order._id %>"><button
-                                                                            class="btn btn-secondary mr-2"
-                                                                            disabled>Return
-                                                                            Order</button></a>
-                                                                    <%}%>
-                                                                        <%if(order.status=='Placed'){%>
-                                                                            <a href="/cancelOrder?id=<%= order._id %>"><button
-                                                                                    class="btn btn-outline-danger mr-2">Cancel
-                                                                                    Order</button></a>
-                                                                            <%}else{%>
-                                                                                <a
-                                                                                    href="/cancelOrder?id=<%= order._id %>"><button
-                                                                                        class="btn btn-secondary mr-2"
-                                                                                        disabled>Cancel
-                                                                                        Order</button></a>
-                                                                                <%}%>
 
-                                                                                    <button class="btn btn-primary"
-                                                                                        data-toggle="modal"
-                                                                                        data-target="#exampleModalCenter1">Track
-                                                                                        Order</button>
 
-                                                                                    <!-- Modal -->
-                                                                                    <div class="modal fade"
-                                                                                        id="exampleModalCenter1"
-                                                                                        tabindex="-1" role="dialog"
-                                                                                        aria-labelledby="exampleModalCenterTitle"
-                                                                                        aria-hidden="true">
-                                                                                        <div class="modal-dialog modal-dialog-centered"
-                                                                                            role="document">
-                                                                                            <div class="modal-content">
-                                                                                                <div
-                                                                                                    class="modal-header">
-                                                                                                    <h5 class="modal-title"
-                                                                                                        id="exampleModalLongTitle">
-                                                                                                        Trak Order
-                                                                                                    </h5>
-                                                                                                    <button
-                                                                                                        type="button"
-                                                                                                        class="close"
-                                                                                                        data-dismiss="modal"
-                                                                                                        aria-label="Close">
-                                                                                                        <span
-                                                                                                            aria-hidden="true">&times;</span>
-                                                                                                    </button>
-                                                                                                </div>
-                                                                                                <div class="modal-body">
-                                                                                                    Order Status:
-                                                                                                    <strong>Order
-                                                                                                        Has
-                                                                                                        been
-                                                                                                        <%=order.status%>
-                                                                                                    </strong>
-                                                                                                </div>
-                                                                                                <div
-                                                                                                    class="modal-footer">
-                                                                                                    <button
-                                                                                                        type="button"
-                                                                                                        class="btn btn-secondary"
-                                                                                                        data-dismiss="modal">Close</button>
+                                                            <button class="btn btn-primary mr-2" data-toggle="modal"
+                                                                data-target="#exampleModalCenter1">Track
+                                                                Order</button>
 
+                                                            <button class="btn btn-sm btn-success " data-toggle="modal"
+                                                                data-target="#exampleModalCenter2">Order
+                                                                Details</button>
+
+                                                            <!-- Modal -->
+                                                            <div class="modal fade" id="exampleModalCenter1"
+                                                                tabindex="-1" role="dialog"
+                                                                aria-labelledby="exampleModalCenterTitle"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered"
+                                                                    role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="exampleModalLongTitle">
+                                                                                Trak Order
+                                                                            </h5>
+                                                                            <button type="button" class="close"
+                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Order Status:
+                                                                            <strong>Order
+                                                                                Has
+                                                                                been
+                                                                                <%=order.status%>
+                                                                            </strong>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                data-dismiss="modal">Close</button>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+
+                                                            <!-- Modal -->
+                                                            <div class="modal fade bd-example-modal-lg"
+                                                                id="exampleModalCenter2" tabindex="-1" role="dialog"
+                                                                aria-labelledby="exampleModalCenterTitle"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered"
+                                                                    role="document">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="exampleModalLongTitle">
+                                                                                Order Details
+                                                                            </h5>
+                                                                            <button type="button" class="close"
+                                                                                data-dismiss="modal" aria-label="Close">
+                                                                                <span aria-hidden="true">&times;</span>
+                                                                            </button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <table
+                                                                                class="table text-start align-middle table-bordered table-hover mb-0">
+                                                                                <thead>
+                                                                                    <tr class="text-dark">
+
+                                                                                        <th scope="col" colspan="2">
+                                                                                            Name
+                                                                                        </th>
+                                                                                        <th scope="col">
+                                                                                            Qnt
+                                                                                        </th>
+                                                                                        <th scope="col">
+                                                                                            Total
+
+                                                                                        </th>
+                                                                                        <th scope="col">
+                                                                                            Status
+                                                                                        </th>
+
+                                                                                        <th scope="col" colspan="3">
+                                                                                            Action
+                                                                                        </th>
+                                                                                    </tr>
+                                                                                </thead>
+
+                                                                                <tbody>
+                                                                                    <%for(let
+                                                                                        x=0;x<order.productDetails.length;x++){%>
+                                                                                        <tr>
+                                                                                            <td colspan="2">
+                                                                                                <%=order.productDetails[x].ProductId.name%>
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <%=order.productDetails[x].quantity%>
+
+                                                                                            <td>
+                                                                                                ₹
+                                                                                                <%=order.productDetails[x].total%>
+                                                                                            </td>
+                                                                                            <td>
+                                                                                                <%= order.onlinePayment.status
+                                                                                                    !=='Pending' ?
+                                                                                                    order.productDetails[x].status
+                                                                                                    :'payment Pending'%>
+                                                                                            </td>
+                                                                                            <td colspan="3">
+                                                                                                <div class="row"
+                                                                                                    style="padding-left: 20px;">
+
+                                                                                                    <%if(order.productDetails[x]?.status=='Placed'
+                                                                                                        &&
+                                                                                                        order.onlinePayment.status
+                                                                                                        !=='Pending'
+                                                                                                        ){%>
+                                                                                                        <a
+                                                                                                            href='/cancelOneItem?oid=<%=order._id%>&iid=<%=order.productDetails[x]._id%>'>
+                                                                                                            <button
+                                                                                                                class="btn btn-sm btn-danger ">
+                                                                                                                Cancel
+                                                                                                            </button>
+                                                                                                        </a>
+
+                                                                                                        <%}else{%>
+                                                                                                            <button
+                                                                                                                class="btn btn-sm btn-secondary"
+                                                                                                                disabled>
+                                                                                                                Cancel
+                                                                                                            </button>
+                                                                                                            <%}%>
+
+                                                                                                                <%if(order.productDetails[x]?.status=='Delevered'
+                                                                                                                    &&
+                                                                                                                    order.onlinePayment.status
+                                                                                                                    !=='Pending'
+                                                                                                                    ){%>
+                                                                                                                    <a
+                                                                                                                        href='/returnOneItem?oid=<%=order._id%>&iid=<%=order.productDetails[x]._id%>'>
+                                                                                                                        <button
+                                                                                                                            class="btn btn-sm btn-danger">
+                                                                                                                            Return
+                                                                                                                        </button>
+                                                                                                                    </a>
+
+                                                                                                                    <%}else{%>
+                                                                                                                        <button
+                                                                                                                            class="btn btn-sm btn-secondary"
+                                                                                                                            disabled>
+                                                                                                                            Return
+                                                                                                                        </button>
+                                                                                                                        <%}%>
                                                                                                 </div>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
+
+                                                                                            </td>
+
+
+                                                                                        </tr>
+                                                                                        <%}%>
+                                                                                </tbody>
+                                                                            </table>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button"
+                                                                                class="btn btn-secondary"
+                                                                                data-dismiss="modal">Close</button>
+
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                             </div>
                                         </div>
                                     </div>

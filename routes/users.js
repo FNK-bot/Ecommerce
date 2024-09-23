@@ -21,7 +21,7 @@ const { getProfile, getEditAdress, getEditProfile, getAddAdress, postAddAddress,
      getDeleteAddress, postEditProfile, postEditAdress,
      getChangePassword,
      postChangePassword,
-     returnOrder,
+     returnOrder, cancelOneItem, returnOneItem,
      cancelOrder } = require('../controller/user controller/profileCtrl');
 
 const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem,
@@ -92,6 +92,8 @@ router.get('/deleteOrder', isLogged, deleteOrder)
 router.get('/returnOrder', isLogged, returnOrder)
 router.post('/failedPayment', isLogged, payOnOderPage)
 router.get('/cancelOrder', isLogged, cancelOrder);
+router.get('/cancelOneItem', isLogged, cancelOneItem)
+router.get('/returnOneItem', isLogged, returnOneItem)
 
 //coupens
 router.get('/mycoupens', isLogged, getCoupens)

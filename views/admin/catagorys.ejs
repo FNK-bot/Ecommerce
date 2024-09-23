@@ -13,7 +13,7 @@
                             <th scope="col">Title</th>
                             <th scope="col">Image</th>
                             <th scope="col">description</th>
-                            <th scope="col">Offer Price</th>
+                            <th scope="col">Offer Percentage</th>
                             <th scope="col" colspan="3">Options</th>
                         </tr>
                     </thead>
@@ -34,21 +34,22 @@
                                         <%= catogary[i].discription %>
                                     </td>
                                     <td>
-                                        <%= catogary[i]?.offer.status==true?catogary[i]?.offer.amount:'No Offer' %>
+                                        <%= catogary[i]?.offer.status==true ? `${catogary[i]?.offer?.percentage}% off `
+                                            : 'No Offer' %>
                                     </td>
                                     <td><a class="btn btn-sm btn-primary"
                                             href="/admin/editCatagory?id=<%= catogary[i]._id %>">Edit</a>
                                         <a class="btn btn-sm btn-danger"
                                             href="/admin/deleteCatagory?id=<%= catogary[i]._id %>">Delete</a>
-                                        <button type="button" class="btn btn-sm btn-primary" id="addOffer"
-                                            onclick="addOffer('<%=catogary[i]._id%>','catagory')">
-                                            <%if(catogary[i]?.offer.status==true){%>
-                                                Update Offer
-                                                <%}else{%>
+                                        <%if(catogary[i]?.offer.status==true){%>
+                                            <a class="btn btn-sm btn-danger"
+                                                href="/admin/deleteOffer?id=<%=catogary[i]?._id%>&type=catagory">deleteOffer</a>
+                                            <%}else{%>
+                                                <button type="button" class="btn btn-sm btn-primary" id="addOffer"
+                                                    onclick="addOffer('<%=catogary[i]._id%>','catagory')">
                                                     Add Offer
-                                                    <%}%>
-
-                                        </button>
+                                                </button>
+                                                <%}%>
                                     </td>
                                 </tr>
                                 <% } %>
@@ -73,7 +74,7 @@
                     function addOffer(id, type) {
 
                         Swal.fire({
-                            title: "Enter Offer Amount",
+                            title: "Enter Offer Percentage %",
                             input: "number",
                             showCancelButton: true,
                             confirmButtonText: "Add Offer",
@@ -82,10 +83,15 @@
                                 try {
                                     if (input.length < 1) {
                                         // alert(input.length)
-                                        Swal.showValidationMessage(`Enter Amaunt`);
+                                        Swal.showValidationMessage(`Enter Percentage Number`);
+                                        return false
+                                    }
+                                    if (input > 100 || input < 0 || input == NaN) {
+                                        Swal.showValidationMessage(`Percentage should be number b/w 1 to 100`);
+                                        return false
                                     }
                                     const url = `/admin/api/addOffer`;
-                                    const { data } = await axios.post(url, { input, type, id }, {
+                                    const { data } = await axios.post(url, { input, type: 'catagory', id }, {
                                         headers: {
                                             'Content-Type': 'application/json'
                                         }

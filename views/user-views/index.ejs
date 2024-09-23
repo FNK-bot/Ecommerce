@@ -94,10 +94,10 @@
                                         <img class="hover-img"
                                             src="/admin/assets/images/catagory/<%= product[i]?.images[1] %>" alt="">
                                         <!-- Product Badge -->
-                                        <%if(product[i].offer.status==true){%>
+                                        <%if(product[i].categary?.offer?.status==true){%>
                                             <div class="product-badge offer-badge">
                                                 <span>
-                                                    <%= '$' + product[i].offer.amount%> Off
+                                                    <%= '%' + product[i].categary?.offer.percentage%> Off
                                                 </span>
                                             </div>
                                             <%}%>
@@ -118,10 +118,13 @@
                                             </h6>
                                         </a>
                                         <p class="product-price">
-                                            <span class="old-price">
-                                                <%=product[i].offer.status==true ?'$' +
-                                                    product[i].offer.amount:'$'+product[i].price%>
-                                            </span>$<%= product[i].price %>
+                                            <%if(product[i].actualPrice.amount !==product[i].price ){%>
+                                                <span class="old-price">
+                                                    <%='₹'+product[i].actualPrice.amount %>
+                                                </span>
+                                                <%}%>
+                                                    ₹<%= product[i].price %>
+
                                         </p>
 
                                         <!-- Hover Content -->

@@ -22,7 +22,7 @@
                     <i class="fa fa-chart-pie fa-3x text-primary"></i>
                     <div class="ms-3">
                         <p class="mb-2">Total Revenue</p>
-                        <h6 class="mb-0">$<%= totalRevenue %>
+                        <h6 class="mb-0">₹<%= totalRevenue %>
                         </h6>
                     </div>
                 </div>
@@ -33,7 +33,7 @@
                     <i class="fa fa-chart-area fa-3x text-primary"></i>
                     <div class="ms-3">
                         <p class="mb-2">Total Discount</p>
-                        <h6 class="mb-0">-$<%= totalDiscount %>
+                        <h6 class="mb-0">-₹<%= totalDiscount %>
                         </h6>
                     </div>
                 </div>
@@ -109,11 +109,11 @@
                                         <%= order.orderID %>
                                     </td>
                                     <td>
-                                        <%= order.userName %>
+                                        <%= order.userId?.username %>
                                     </td>
-                                    <td>$<%= order.discount %>
+                                    <td>₹<%= order.discount %>
                                     </td>
-                                    <td>$<%= order.totalPrice %>
+                                    <td>₹<%= order.totalPrice %>
                                     </td>
                                     <td>
                                         <%= order.method %>

@@ -14,7 +14,7 @@
                             <th scope="col">Payment method</th>
                             <th scope="col">Date of Order Placed</th>
                             <th scope="col">status</th>
-                            <th scope="col" colspan="2">Action</th>
+                            <th scope="col" colspan="3">Action</th>
 
                         </tr>
                     </thead>
@@ -49,6 +49,10 @@
                                                         <% }else{ %>
                                                             <a class="btn btn-sm btn-danger" href="#">cancel order</a>
                                                             <% } %> -->
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-sm btn-success"
+                                            href="/admin/orderDetails?id=<%=orders[i]._id%>">Order Details</a>
                                     </td>
                                     <td><a class="btn btn-sm btn-danger"
                                             href="/admin/deleteOrder?id=<%=orders[i]._id%>">Delete</a></td>

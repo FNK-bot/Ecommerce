@@ -4,17 +4,6 @@ const bcrypt = require('bcrypt')
 const dotenv = require('dotenv');
 dotenv.config();
 
-// console.log(`in user auth controller node mailer username :${process.env.USER_NAME} , pass:${process.env.Passs}`)
-
-// (async()=>{
-//     try {
-//         await User.findOneAndDelete({username:'farseen'});
-//         console.log('farseen deleted')
-//     } catch (error) {
-//         console.log('eroor when farseen deleting')
-//     }
-// })();
-
 // setup node mailer
 let transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -62,21 +51,32 @@ const postLogin = async (req, res) => {
         res.status(200);
         console.log('body', req.body)
         let { email, password } = req.body;
+        let referrel = req.body.referrel || null;
         let userData = await User.findOne({ email });
         if (userData) {
             if (!userData.isBlocked) {
                 if (userData.isGoogle && (!userData.password)) {
-                    const hashedPassword = await generateHashedPassword(password);
-                    userData.password = hashedPassword;
-                    await userData.save()
-                    req.session.user_id = userData._id;
-                    req.session.userAuth = true;
-                    res.redirect('/')
+                    res.render('user-views/login', { message: `Youre account is signedup with google please login through google or register and set password or can set password with forgot password option` });
                 }
 
                 else {
 
                     if (await userData.isPasswordMatched(password)) {
+                        //referrel 
+                        if (referrel) {
+                            let validateRefferel = await User.findOne({ email: referrel });
+                            console.log('referrel ', validateRefferel.username)
+                            if (validateRefferel) {
+                                userData.wallet += 25;
+                                userData.transactionHistory.push({
+                                    amount: 25
+                                })
+                                userData.save()
+                                req.session.mType = 'success'
+                                req.session.mContent = 'You got ₹25 with refferl offer,check your wallet'
+                            }
+                        }
+
                         req.session.user_id = userData._id;
                         req.session.userAuth = true;
                         res.redirect('/')

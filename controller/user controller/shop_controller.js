@@ -26,7 +26,7 @@ const getShop = async (req, res) => {
                 sortSetting = {};
         }
 
-        const allProduct = await Product.find(filterCatagory).collation({ locale: 'en', strength: 2 }).sort(sortSetting);
+        const allProduct = await Product.find(filterCatagory).collation({ locale: 'en', strength: 2 }).sort(sortSetting).populate('categary');
         let product = allProduct.filter((product) => product.isDeleted === false)
         const catagory = await Catagory.find({ isDeleted: { $ne: true } })
         const user = await User.findById(req.session.user_id)

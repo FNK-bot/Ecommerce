@@ -95,4 +95,39 @@ const cancelOrder = async (req, res) => {
         console.log('Error in cancel order', error)
     }
 }
-module.exports = { getOrders, shippOrder, unShippOrder, deleteOrder }
+
+
+// Order dettails cntrl
+
+const getOrderDetails = async (req, res) => {
+    try {
+        const oid = req.query.id;
+        const findOrder = await Order.findById(oid).populate({
+            path: 'productDetails.ProductId',
+            select: 'name',
+        });
+        const orderDetails = findOrder.productDetails;
+        console.log(orderDetails);
+        res.render('admin/orderDetails', { orderDetails, oid })
+    } catch (error) {
+        console.log("Error in Get Order details ", error)
+    }
+}
+
+// delever one item
+
+const deleverOneItem = async (req, res) => {
+    try {
+        let { oid, iid } = req.query;
+        const order = await Order.updateOne(
+            { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
+            {
+                $set: { "productDetails.$.status": "Delevered" } // Use the positional operator $ to update the product's status
+            }
+        );
+        res.redirect(`orderDetails?id=${oid}`)
+    } catch (error) {
+        console.log('Error in delver one item Error', error)
+    }
+}
+module.exports = { getOrders, shippOrder, unShippOrder, deleteOrder, getOrderDetails, deleverOneItem }

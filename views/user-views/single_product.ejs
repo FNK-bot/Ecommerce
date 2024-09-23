@@ -98,7 +98,7 @@
             </div>
 
             <div class="mb-3">
-              <span class="h5">$<%= product.price %></span>
+              <span class="h5">₹<%= product.price %></span>
               <span class="text-muted">Only</span>
             </div>
 
@@ -196,10 +196,10 @@
                         <!-- Hover Thumb -->
                         <img class="hover-img" src="/admin/assets/images/catagory/<%= sProduct[i].images[1] %>" alt="">
                         <!-- Product Badge -->
-                        <%if(sProduct[i].offer.status==true){%>
+                        <%if(sProduct[i].categary?.offer?.status==true){%>
                           <div class="product-badge offer-badge">
                             <span>
-                              <%= '$' + sProduct[i].offer.amount%> Off
+                              <%= '%' + sProduct[i].categary?.offer.percentage%> Off
                             </span>
                           </div>
                           <%}%>
@@ -220,9 +220,14 @@
                           </h6>
                         </a>
                         <p class="product-price">
-                          <span class="old-price">
-                            <%=sProduct[i].offer.status==true ?'$' + sProduct[i].offer.amount:'$'+sProduct[i].price%>
-                          </span>$<%= sProduct[i].price %>
+                          <%if(sProduct[i]?.actualPrice.amount !==sProduct[i]?.price && sProduct[i]?.actualPrice.amount
+                            !=undefined ){%>
+                            <span class="old-price">
+                              <%='₹'+sProduct[i]?.actualPrice.amount %>
+                            </span>
+                            <%}%>
+                              ₹<%= sProduct[i].price %>
+
                         </p>
 
 
@@ -320,7 +325,7 @@
 
         plusButton.addEventListener('click', function () {
           let currentValue = parseInt(quantityInput.value);
-          if (!isNaN(currentValue) && currentValue <= <%= product.quantity %>) {
+          if (!isNaN(currentValue) && currentValue < <%= product.quantity %>) {
           quantityInput.value = currentValue + 1;
         }
         if (currentValue > <%= product.quantity %>){
