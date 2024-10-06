@@ -1,0 +1,84 @@
+<%- include('./partials/header'); %>
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light rounded p-4">
+            <form action="/admin/editCoupen" method="POST" class="container needs-validation" id="form" novalidate>
+                <h2 class="mb-4">Edit Coupen</h2>
+
+                <input type="text" name="id" value="<%=coupen._id%>" hidden>
+                <!-- Coupen Name -->
+                <div class="form-group">
+                    <label for="CoupenName">Name</label>
+                    <input type="text" name="name" placeholder="Type here" required class="form-control" id="CoupenName"
+                        value="<%=coupen.name%>">
+                    <div class="invalid-feedback">Name is Required</div>
+                </div>
+
+                <!-- Coupen Code -->
+                <div class="form-group">
+                    <label for="CoupenCode">Code</label>
+                    <input type="text" name="code" placeholder="Type here" required class="form-control" id="CoupenCode"
+                        value="<%=coupen.code%>">
+                    <div class="invalid-feedback">Code is Required</div>
+                </div>
+
+                <!-- Offer Percentage -->
+                <div class="form-group">
+                    <label for="percentage">Offer Percentage</label>
+                    <input type="number" maxlength="3" max="100" required name="percentage" placeholder="Type here"
+                        class="form-control" id="percentage" value="<%=coupen.percentage%>">
+                    <div class="invalid-feedback">Percentage is required and should be less than or equl to 100</div>
+                </div>
+
+                <!-- Expiry Date -->
+                <div class="form-group">
+                    <label for="date">Expiry Date</label>
+                    <input type="date" required name="date" placeholder="Type here" class="form-control" id="date">
+                    <div class="invalid-feedback">Expiry Date is Required</div>
+                </div>
+
+                <!-- Submit button -->
+                <button type="submit" class="btn btn-primary btn-lg btn-block mt-2">Update Coupen</button>
+                <button type="button" class="btn btn-danger btn-lg btn-block mt-2"
+                    onclick="location.href='coupens'">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <%- include('./partials/footer'); %>
+        <%- include('../user-views/partials/alertMessages'); %>
+
+            <script>
+
+                document.addEventListener('DOMContentLoaded', () => {
+                    const dateInput = document.getElementById('date');
+                    const currentDate = new Date('<%=coupen.expiry%>');
+                    const formattedDate = currentDate.toISOString().split('T')[0]; // Get the date part only
+                    dateInput.value = formattedDate;
+                })
+
+                // Get the form
+                const form = document.getElementById('form');
+
+                // Handle focusout event to validate fields when user leaves the input
+                document.querySelectorAll('.form-control').forEach(input => {
+                    input.addEventListener('focusout', function () {
+                        if (!input.checkValidity()) {
+                            input.classList.add('is-invalid');
+                        } else {
+                            input.classList.remove('is-invalid');
+                            input.classList.add('is-valid');
+                        }
+                    });
+                });
+
+                // Handle form submission
+                form.addEventListener('submit', function (event) {
+                    // Check if the form is valid
+                    if (!form.checkValidity()) {
+                        event.preventDefault();  // Prevent form submission if validation fails
+                        event.stopPropagation();
+                    }
+
+                    form.classList.add('was-validated');  // Add Bootstrap's validation class to the form
+                });
+            </script>

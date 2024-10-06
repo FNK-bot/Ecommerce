@@ -3,14 +3,15 @@ var router = express.Router();
 const upload = require('../multer/multer.js')
 const { getDashboard, getSalesReportApi, getSalesReportPage } = require('../controller/admin/dashbaord');
 const { getAllUsers, blockUser, unBlockUser } = require('../controller/admin/users.js');
-const { getAllProduct, getAddProduct, postAddProduct, getEditProduct, postEditProduct, deleteProduct } = require('../controller/admin/product');
+const { getAllProduct, getAddProduct, postAddProduct, getEditProduct, postEditProduct, deleteProduct, deleteImage, addImage } = require('../controller/admin/product');
 const { getAllCatagory, getAddCatagory, getEditCatagory, postAddCatagory, postEditCatagory, deleteCatagory } = require('../controller/admin/catagory');
 const { getlogIn, postLogin, logout } = require('../controller/admin/login_out');
 const isLogged = require('../middleware/authAdmin.js');
-const { getOrders, shippOrder, unShippOrder, deleteOrder, getOrderDetails, deleverOneItem } = require('../controller/admin/ordersCntrl.js');
+const { getOrders, shippOrder, unShippOrder, deleteOrder, getOrderDetails, deleverOneItem, PlaceOneItem } = require('../controller/admin/ordersCntrl.js');
 const { getBrands, getEditBrand, postEditBrand, getAddBrand, postAddBrand, deleteBrand } = require('../controller/admin/brandCtrl.js');
 const { manageOffers, deleteOffer } = require('../controller/admin/offerCtrl.js');
-//login
+const { getCoupens, getAddCoupen, postAddCoupen, deleteCoupen, getEditCoupen, postEditCoupen } = require('../controller/admin/coupenCtrl.js');
+//auth
 router.get('/login', getlogIn);
 router.post('/login', postLogin);
 router.get('/logout', logout)
@@ -30,13 +31,16 @@ router.post('/addProduct', upload.array('images', 12), isLogged, postAddProduct)
 router.get('/editProduct', isLogged, getEditProduct)
 router.post('/editProduct/:id', upload.array('images', 12), isLogged, postEditProduct); //edit product
 router.get('/deleteProduct/:id', isLogged, deleteProduct)
+router.delete('/deleteImage', isLogged, deleteImage)
+router.put('/addImage', upload.single('image'), isLogged, addImage)
 //catagory
 router.get('/catagorys', isLogged, getAllCatagory);//get all catagory
 router.get('/addCatagory', isLogged, getAddCatagory);//get add catagory
 router.post('/addCatagory', upload.single('images'), isLogged, postAddCatagory);//post add catagory
 router.get('/editCatagory', isLogged, getEditCatagory);//get add catagory    
 router.post('/editCatagory', upload.single('images'), postEditCatagory);//post add catagory    
-router.get('/deleteCatagory', deleteCatagory)
+router.get('/deleteCatagory', deleteCatagory);
+
 
 //Brand
 router.get('/brands', isLogged, getBrands);//get all Brand
@@ -55,6 +59,7 @@ router.get('/deleteOrder', isLogged, deleteOrder)
 //order Details
 router.get('/orderDetails', isLogged, getOrderDetails)
 router.get('/deleverOneItem', isLogged, deleverOneItem)
+router.put('/placeOneItem', isLogged, PlaceOneItem);
 
 // sales report
 router.get('/salesReport', isLogged, getSalesReportPage)
@@ -63,4 +68,12 @@ router.get('/api/sales-report', isLogged, getSalesReportApi)
 //offer
 router.post('/api/addOffer', isLogged, manageOffers)
 router.get('/deleteOffer', isLogged, deleteOffer)
+
+//Coupens 
+router.get('/coupens', isLogged, getCoupens)
+router.get('/addCoupen', isLogged, getAddCoupen)
+router.post('/addCoupen', isLogged, postAddCoupen)
+router.get('/editCoupen', isLogged, getEditCoupen)
+router.post('/editCoupen', isLogged, postEditCoupen)
+router.delete('/deleteCoupen', isLogged, deleteCoupen)
 module.exports = router;

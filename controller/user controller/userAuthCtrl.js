@@ -79,6 +79,10 @@ const postLogin = async (req, res) => {
 
                         req.session.user_id = userData._id;
                         req.session.userAuth = true;
+                        //for handling the req from diffrent url
+                        const redirectTo = req.session.userReturnTo || '/';
+                        delete req.session.userReturnTo; // Clean up returnTo after redirect
+                        return res.redirect(redirectTo)
                         res.redirect('/')
                     }
                     else {
@@ -114,10 +118,42 @@ const getLogOut = (req, res) => {
 const getOtpPage = async (req, res) => {
     try {
         res.status(200);
-        let email = req.session.email ? req.session.email : false;
-        res.render('user-views/otp', { message: null, email })
+        let email = req.session.email ;
+        console.log(req.session.User)
+        console.log(req.session.OTP)
+        let message = req.session.otpMessage || null
+        req.session.otpMessage = null;
+        res.render('user-views/otp', { message, email })
     } catch (error) {
         res.render('error while getting otp page Error: ', error)
+    }
+}
+
+const resendOtp = async (req, res) => {
+    try {
+        let email = req.session.email || req.body.email
+        console.log(email)
+        let otp = generateOtp();
+        console.log('resened otp ', otp)
+        req.session.OTP = otp;
+        let mailOptions = {
+            from: process.env.USER_NAME,
+            to: email,
+            subject: 'Verify Your Account  ✔',
+            text: `Your OTP is : ${otp}`, // plain text body
+            html: `<b>  <h4 >Your OTP  ${otp}</h4>    
+                <br>  <a href="/otp">Click here</a></b>`, // html body
+        };
+        transporter.sendMail(mailOptions, function (error, info) {
+            if (error) {
+                console.log('Node mailer Error :', error);
+                req.session.otpMessage = 'Error Occured while sending New OTP'
+                res.redirect('/otp')
+            }
+            res.status(200)
+        });
+    } catch (error) {
+        console.log('Error in Resend Oto cntrl Error', error)
     }
 }
 
@@ -149,7 +185,8 @@ const postOtp = async (req, res) => {
         }
         else {
             console.log(email);
-            res.render('user-views/otp', { message: 'Invalid OTP', email })
+            req.session.otpMessage = 'You Entered Wrong OTP'
+            res.redirect('/otp')
         }
     } catch (error) {
         res.render('user-views/login', { message: 'OTP ERROR PLESE TRY WITH GOOGLE' })
@@ -180,8 +217,11 @@ const postRegister = async (req, res) => {
         }
         else {
             req.session.User = req.body;
+            req.session.email = req.body.email
+            console.log(req.session.User)
             let otp = generateOtp();
             req.session.OTP = otp;
+            console.log(req.session.OTP)
             let mailOptions = {
                 from: process.env.USER_NAME,
                 to: email,
@@ -193,11 +233,13 @@ const postRegister = async (req, res) => {
             transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
                     console.log('Node mailer Error :', error);
-                    res.render('user-views/register', { message: 'Error Occured in senting otp' })
+                    req.session.otpMessage = 'Error Occured while sending otp'
+                    res.redirect('/otp')
                 } else {
                     console.log('Email sent: ' + info.response);
                     console.log('generated otp', otp);
-                    res.render('user-views/otp', { email, message: null })
+                    req.session.otpMessage = null
+                    res.redirect('/otp')
                 }
             });
 
@@ -334,5 +376,5 @@ const googleAuth = async (req, res) => {
 
 module.exports = {
     getLogin, getOtpPage, getRegister, getForgotPassword, postForgotPassword, getResetPassword, postResetPassword,
-    postRegister, postOtp, postLogin, getLogOut, googleAuth
+    postRegister, postOtp, postLogin, getLogOut, googleAuth, resendOtp
 };

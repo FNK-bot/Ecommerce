@@ -86,6 +86,8 @@ const userSchema = new mongoose.Schema({
     googleID: {
         type: String,
         unique: true,
+        require: false,
+        sparse: true,
     }
     ,
     isGoogle: {

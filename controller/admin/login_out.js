@@ -37,7 +37,10 @@ const postLogin = async (req, res) => {
         // }
         req.session.Admin = true;
 
-        res.redirect('/admin/')
+        //for handling the req from diffrent url
+        const redirectTo = req.session.returnTo || '/admin/';
+        delete req.session.returnTo; // Clean up returnTo after redirect
+        return res.redirect(redirectTo)
     } catch (error) {
         console.log('Error in post login function ', error);
     }

@@ -136,24 +136,45 @@
                   <!-- <%= product.size %> -->
                 </div>
 
-                <!-- col.// -->
-                <div class="col-md-4 col-6 mb-3">
-                  <label class="mb-2 d-block">Quantity</label>
-                  <div class="input-group mb-3" style="width: 170px;">
-                    <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon1"
-                      data-mdb-ripple-color="dark">
-                      <i class="fa fa-minus"></i>
-                    </button>
-                    <input type="text" class="form-control text-center border border-secondary" placeholder="14"
-                      aria-label="Example text with button addon" aria-describedby="button-addon1" id="quantity-input"
-                      value="1" />
-                    <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon2"
-                      data-mdb-ripple-color="dark">
-                      <i class="fa fa-plus"></i>
-                    </button>
+                <%if(product.quantity>0){%>
+                  <!-- col.// -->
+                  <div class="col-md-4 col-6 mb-3">
+                    <label class="mb-2 d-block">Quantity</label>
+                    <div class="input-group mb-3" style="width: 170px;">
+                      <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon1"
+                        data-mdb-ripple-color="dark">
+                        <i class="fa fa-minus"></i>
+                      </button>
+                      <input type="text" class="form-control text-center border border-secondary" placeholder="14"
+                        aria-label="Example text with button addon" aria-describedby="button-addon1" id="quantity-input"
+                        value="1" />
+                      <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon2"
+                        data-mdb-ripple-color="dark">
+                        <i class="fa fa-plus"></i>
+                      </button>
+                    </div>
                   </div>
-                </div>
 
+                  <%}else{%>
+                    <!-- col.// -->
+                    <div class="col-md-4 col-6 mb-3">
+                      <label class="mb-2 d-block">Quantity</label>
+                      <div class="input-group mb-3" style="width: 170px;">
+                        <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon1"
+                          data-mdb-ripple-color="dark" disabled>
+                          <i class="fa fa-minus"></i>
+                        </button>
+                        <input type="text" class="form-control text-center border border-secondary" placeholder="0"
+                          aria-label="Example text with button addon" aria-describedby="button-addon1"
+                          id="quantity-input" value="0" />
+                        <button class="btn btn-white border border-secondary px-3" type="button" id="button-addon2"
+                          data-mdb-ripple-color="dark" disabled>
+                          <i class="fa fa-plus"></i>
+                        </button>
+                      </div>
+                    </div>
+
+                    <%}%>
 
               </div>
               <a href="#" class="btn btn-warning shadow-0"> Buy now </a>
@@ -212,7 +233,7 @@
                       <!-- Product Description -->
                       <div class="product-description">
                         <span>
-                          <%= sbrand[i].name %>
+                          <%= sbrand[i]?.name %>
                         </span>
                         <a href="/product?product=<%= sProduct[i]._id %>">
                           <h6>

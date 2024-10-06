@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
-  <meta name="author" content="Muhamad Nauval Azhar">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="description" content="This is a login page template based on Bootstrap 5">
   <title>Essence Register</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-BmbxuPwQa2lc/FVzBcNJ7UAyJxM6wuqIj61tLrc4wSX0szH/Ev+nYRRuWlolflfl" crossorigin="anonymous">
 </head>
 
 <body>
@@ -15,72 +15,112 @@
     <div class="container h-100">
       <div class="row justify-content-sm-center h-100">
         <div class="col-xxl-4 col-xl-5 col-lg-5 col-md-7 col-sm-9">
-          <div class="text-center my-5">
-            
-          </div>
-
+          <div class="text-center my-5"></div>
           <div class="card shadow-lg">
             <div class="card-body p-5">
               <h1 class="fs-4 card-title fw-bold mb-4">Register</h1>
-              <form action="/register" method="POST" class="needs-validation" novalidate="">
-                <%if(message){%>
-                <div class="alert alert-primary" role="alert">
-                  <%=message%>
-                </div>
-                <%}%>
-                <div class="mb-3">
-                  <label class="mb-2 text-muted" for="name">Name</label>
-                  <input id="name" type="text" class="form-control" name="name" value="" required autofocus>
-                  <div class="invalid-feedback">
-                    Name is required 
+              <form id="registerForm" action="/register" method="POST" class="needs-validation" novalidate>
+                <% if (message) { %>
+                  <div class="alert alert-primary" role="alert">
+                    <%= message %>
                   </div>
-                </div>
+                  <% } %>
 
-                <div class="mb-3">
-                  <label class="mb-2 text-muted" for="email">E-Mail Address</label>
-                  <input id="email" type="email" class="form-control"  placeholder="Enter Email"  name="email" value="" required>
-                  <div class="invalid-feedback">
-                    Email is invalid
-                  </div>
-                </div>
+                    <div class="mb-3">
+                      <label class="mb-2 text-muted" for="name">Name</label>
+                      <input id="name" type="text" class="form-control" name="name" required autofocus>
+                      <div class="invalid-feedback">Name is required</div>
+                    </div>
 
-                <div class="mb-3">
-                  <label class="mb-2 text-muted" for="phone">Phone Number</label>
-                  <input id="phone" type="tel" class="form-control" name="phone" placeholder="Enter 10 digit phone " value="" required>
-                  <div class="invalid-feedback">
-                    phone is invalid
-                  </div>
-                </div>
+                    <div class="mb-3">
+                      <label class="mb-2 text-muted" for="email">E-Mail Address</label>
+                      <input id="email" type="email" class="form-control" name="email" required>
+                      <div class="invalid-feedback">Email is invalid</div>
+                    </div>
 
-                <div class="mb-3">
-                  <label class="mb-2 text-muted" for="password">Password</label>
-                  <input id="password" type="password" class="form-control" name="password" placeholder="Minimum 6 digit password required " required>
-                  <div class="invalid-feedback">
-                    Password is required
-                  </div>
-                </div>
+                    <div class="mb-3">
+                      <label class="mb-2 text-muted" for="phone">Phone Number</label>
+                      <input id="phone" type="tel" class="form-control" name="phone" pattern="[0-9]{10}" required>
+                      <div class="invalid-feedback">Enter a valid 10-digit phone number</div>
+                    </div>
 
-                <div class="align-items-center d-flex">
-                  <button type="submit" class="btn btn-primary form-control">
-                    Register 
-                  </button>
-                </div>
+                    <div class="mb-3">
+                      <label class="mb-2 text-muted" for="password">Password</label>
+                      <input id="password" type="password" class="form-control" name="password" minlength="8" required>
+                      <div class="invalid-feedback">Password must be at least 8 characters long</div>
+                    </div>
+
+                    <div class="mb-3">
+                      <label class="mb-2 text-muted" for="confirmPassword">Confirm Password</label>
+                      <input id="confirmPassword" type="password" class="form-control" name="confirmPassword"
+                        minlength="8" required>
+                      <div class="invalid-feedback ">Passwords do not match</div>
+                    </div>
+
+                    <div class="align-items-center d-flex">
+                      <button type="submit" class="btn btn-primary form-control">Verify With OTP</button>
+                    </div>
               </form>
               <hr>
               <div class="text-center mt-2">
-              <a href="/google" class="text-dark">Register with Google <i class="fab fa-google me-2"></i></a>
+                <a href="/google" class="text-dark">Register with Google <i class="fab fa-google me-2"></i></a>
               </div>
               <hr>
               <div class="card-footer py-3 border-0">
-                <div class="text-center">
-                   Already have an account? <a href="/login" class="text-dark">Login</a>
-                </div>
+                <div class="text-center">Already have an account? <a href="/login" class="text-dark">Login</a></div>
               </div>
-
+            </div>
           </div>
         </div>
       </div>
-    </div>
   </section>
+
+  <script>
+    const form = document.getElementById('registerForm');
+    const inputs = form.querySelectorAll('input');
+
+    // Focus-out validation for each input
+    inputs.forEach(input => {
+      input.addEventListener('focusout', () => {
+        validateField(input);
+      });
+    });
+
+    // Validate on form submit
+    form.addEventListener('submit', (event) => {
+      let isValid = true;
+      inputs.forEach(input => {
+        if (!validateField(input)) {
+          isValid = false;
+        }
+      });
+
+      if (!isValid) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+
+    function validateField(input) {
+      if (input.id === 'confirmPassword') {
+        // Custom validation for confirm password
+        const password = document.getElementById('password').value;
+        if (input.value !== password) {
+          input.setCustomValidity('Passwords do not match');
+        } else {
+          input.setCustomValidity('');
+        }
+      }
+
+      if (!input.checkValidity()) {
+        input.classList.add('is-invalid');
+        return false;
+      } else {
+        input.classList.remove('is-invalid');
+        input.classList.add('is-valid');
+        return true;
+      }
+    }
+  </script>
 </body>
+
 </html>

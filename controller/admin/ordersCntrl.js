@@ -6,13 +6,13 @@ const User = require('../../models/user')
 
 const getOrders = async (req, res) => {
     try {
-        const allOrders = await Order.find({ isDeleted: false })
+        const allOrders = await Order.find({ isDeleted: false }).sort({ createdOn: -1 })
         // console.log('All Orders',allOrders)
         const itemsperpage = 6;
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
-        const totalpages = Math.ceil(allOrders.length / 5);
+        const totalpages = Math.ceil(allOrders.length / 6);
         const currentOrder = allOrders.slice(startindex, endindex);
         let alertMessage = req.session.alertMessage
         req.session.alertMessage = null;
@@ -122,7 +122,7 @@ const deleverOneItem = async (req, res) => {
         const order = await Order.updateOne(
             { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
             {
-                $set: { "productDetails.$.status": "Delevered" } // Use the positional operator $ to update the product's status
+                $set: { "productDetails.$.status": "Delevered", status: 'some Item Delevered' } // Use the positional operator $ to update the product's status
             }
         );
         res.redirect(`orderDetails?id=${oid}`)
@@ -130,4 +130,21 @@ const deleverOneItem = async (req, res) => {
         console.log('Error in delver one item Error', error)
     }
 }
-module.exports = { getOrders, shippOrder, unShippOrder, deleteOrder, getOrderDetails, deleverOneItem }
+
+
+const PlaceOneItem = async (req, res) => {
+    try {
+        let { oid, iid } = req.query;
+        console.log(req.query)
+        const order = await Order.updateOne(
+            { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
+            {
+                $set: { "productDetails.$.status": "Placed", status: 'some Item Placed' } // Use the positional operator $ to update the product's status
+            }
+        );
+        res.status(200).json({ message: 'success marked as placed' })
+    } catch (error) {
+        console.log('Error in delver one item Error', error)
+    }
+}
+module.exports = { getOrders, shippOrder, unShippOrder, deleteOrder, getOrderDetails, deleverOneItem, PlaceOneItem }

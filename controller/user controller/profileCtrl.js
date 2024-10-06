@@ -422,8 +422,10 @@ const cancelOneItem = async (req, res) => {
         const order = await Order.updateOne(
             { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
             {
-                $set: { "productDetails.$.status": "Cancelled" } // Use the positional operator $ to update the product's status
-            }
+                $set: { "productDetails.$.status": "Cancelled", status: 'some item Cancelled' } // Use the positional operator $ to update the product's status
+            }, {
+
+        }
         );
         const item = findOrder.productDetails.id(iid)
         console.log(item)
@@ -467,7 +469,7 @@ const returnOneItem = async (req, res) => {
         const order = await Order.updateOne(
             { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
             {
-                $set: { "productDetails.$.status": "Returned" } // Use the positional operator $ to update the product's status
+                $set: { "productDetails.$.status": "Returned", status: 'some item returned' } // Use the positional operator $ to update the product's status
             }
         );
 

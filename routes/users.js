@@ -15,7 +15,7 @@ const getSingleProduct = require('../controller/user controller/single_product')
 
 const { getOtpPage, getLogin, getRegister, getForgotPassword, postRegister,
      postOtp, postLogin, getLogOut, googleAuth, getResetPassword, postResetPassword,
-     postForgotPassword } = require('../controller/user controller/userAuthCtrl');
+     postForgotPassword, resendOtp } = require('../controller/user controller/userAuthCtrl');
 
 const { getProfile, getEditAdress, getEditProfile, getAddAdress, postAddAddress,
      getDeleteAddress, postEditProfile, postEditAdress,
@@ -35,6 +35,7 @@ const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem
 
 const { getWishlist, addToWishlist, deleteWishlist } = require('../controller/user controller/wishlistCtrl');
 
+const checkCartQuantities = require('../middleware/cartValidation')
 
 // get landing page
 router.get('/', getLanding)
@@ -49,6 +50,7 @@ router.get('/register', getRegister);
 router.post('/register', postRegister);
 router.get('/otp', getOtpPage);
 router.post('/otp', postOtp);
+router.post('/resendOtp', resendOtp)
 router.get('/forgotPassword', getForgotPassword);
 router.post('/forgotPassword', postForgotPassword);
 router.get('/resetPassword', getResetPassword)
@@ -79,11 +81,11 @@ router.post('/addToCart', isLogged, postAddtoCart);
 router.post('/addToCart', isLogged, postAddtoCart);
 router.put('/incrementQnt', isLogged, putIncrementQnt);
 router.put('/decrementQnt', isLogged, putDecrementQnt);
-router.get('/deleteCartItem', isLogged, deleteCartItem)
+router.delete('/deleteCartItem', isLogged, deleteCartItem)
 
 
 //checkOut
-router.get('/checkOut', isLogged, getCheckOut)
+router.get('/checkOut', isLogged, checkCartQuantities, getCheckOut)
 router.post('/checkOut', isLogged, postChekOut)
 
 //order

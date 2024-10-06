@@ -12,8 +12,8 @@
                             <th scope="col"><input class="form-check-input" type="checkbox"></th>
                             <th scope="col">Name</th>
                             <th scope="col">Image</th>
-                            <th scope="col">Price</th>
-                            <th scope="col">Offer Price</th>
+                            <th scope="col">Current Price</th>
+                            <th scope="col">Actual Price</th>
                             <th scope="col">Stock</th>
                             <th scope="col" colspan="3">Action</th>
 
@@ -34,7 +34,8 @@
                                     <td>₹<%= product[i].price %>
                                     </td>
                                     <td>
-                                        <%= product[i]?.offer.status==true?`₹${product[i]?.offer.amount}`:'No Offer' %>
+                                        <%= product[i]?.actualPrice.set?'₹'+
+                                            product[i]?.actualPrice.amount:product[i].price %>
                                     </td>
                                     <td>
                                         <%= product[i].quantity>0?'In Stock':'Out Of Stock' %>

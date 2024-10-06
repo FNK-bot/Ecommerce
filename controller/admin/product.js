@@ -1,7 +1,8 @@
 const Catagory = require('../../models/catagory');
 const Product = require('../../models/product')
 const Brand = require('../../models/brand')
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
+const { image } = require('pdfkit');
 //get all Producsts 
 const getAllProduct = async (req, res) => {
     try {
@@ -48,12 +49,22 @@ const postAddProduct = async (req, res) => {
         const checkProductExist = await Product.findOne({ name: req.body.name });
         console.log('check product exist', checkProductExist);
 
+        if (req.files.length == 0 || !(req.files.length >= 2)) {
+            req.session.alertMessage = {
+                type: 'error', // Can be 'success', 'error', 'warning', or 'info'
+                message: 'Atleast Two images required'
+            };
+            return res.redirect('/admin/addProduct');
+        }
+
         if (checkProductExist) {
             req.session.alertMessage = {
                 type: 'error', // Can be 'success', 'error', 'warning', or 'info'
                 message: 'Product already Exist with Name'
             };
             return res.redirect('/admin/addProduct');
+
+
         } else {
             const images = [];
 
@@ -142,30 +153,6 @@ const postEditProduct = async (req, res) => {
     try {
         console.log('Post edit product control', req.body, req.files);
         const id = req.params.id;
-        let postedImages = [];
-        let editProduct;
-        let images = [];
-
-        if (req.files && req.files.length > 0) {
-            for (let i = 0; i < req.files.length; i++) {
-                postedImages.push(req.files[i].filename);
-                console.log(req.files[i].filename)
-            }
-        } else {
-            images = null;
-        }
-        let findOldData = await Product.findById(id);
-        let oldImage = findOldData.images;
-        let { exImage1, exImage2 } = req.body;
-        if (exImage1 == 'true' && exImage2 != 'true') {
-            images = [postedImages[0], oldImage[1]]
-        }
-        if (exImage2 == 'true' && exImage1 != 'true') {
-            images = [oldImage[0], postedImages[0]]
-        }
-        if (exImage2 == 'true' && exImage1 == 'true') {
-            images = [postedImages[0], postedImages[1]]
-        }
 
 
         const updateData = {
@@ -178,10 +165,6 @@ const postEditProduct = async (req, res) => {
             size: req.body.size,
             color: req.body.color,
         };
-
-        if (images) {
-            updateData.images = images;
-        }
 
         //offer manage
         let product = await Product.findById(id)
@@ -202,8 +185,55 @@ const postEditProduct = async (req, res) => {
 };
 
 
-// delete
+// manage delete product image
 
+const deleteImage = async (req, res) => {
+    try {
+
+        let { productId, imageName } = req.body;
+        let findProduct = await Product.findById(productId);
+        if (findProduct) {
+            if (findProduct && findProduct.images.length == 2) {
+
+                console.log('erroro images 2 ')
+                return res.status(201).json({ message: 'Minimum Two images needed if  you need to change image upload image you want and try to delete after' });
+            }
+            await Product.updateOne(
+                { _id: productId },
+                { $pull: { images: imageName } }
+            )
+            console.log('changed image')
+            return res.status(200).json({ message: 'success' })
+        } else {
+            console.log('product not found', productId)
+        }
+    } catch (error) {
+        console.log("Error in Delete product image api ", error)
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+// manage newly addeed product image
+const addImage = async (req, res) => {
+    try {
+        let { productId } = req.body;
+        console.log(req.body)
+        console.log(req.file)
+        let imageName = req.file.filename
+        console.log(imageName)
+        await Product.updateOne(
+            { _id: productId },
+            { $push: { images: imageName } }
+        )
+        res.status(200).json({ imageName })
+    } catch (error) {
+        console.log("Error in add  product image api ", error)
+        res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+
+// delete
 const deleteProduct = async (req, res) => {
     try {
         console.log('delete product control')
@@ -227,5 +257,5 @@ const deleteProduct = async (req, res) => {
 }
 module.exports = {
     getAllProduct, postEditProduct,
-    getAddProduct, getEditProduct, postAddProduct, deleteProduct
+    getAddProduct, getEditProduct, postAddProduct, deleteProduct, deleteImage, addImage
 };

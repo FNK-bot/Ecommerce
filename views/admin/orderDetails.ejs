@@ -51,11 +51,12 @@
                                             </a>
 
                                             <%}else{%>
-                                                <a>
-                                                    <button class="btn btn-sm btn-secondary " disabled>
-                                                        Mark as Delevered
-                                                    </button>
-                                                </a>
+
+                                                <button class="btn btn-sm btn-warning "
+                                                    onclick="markAsPlaced('<%=orderDetails[i]._id%>','<%=oid%>')">
+                                                    Mark as Placed
+                                                </button>
+
 
                                                 <% } %>
                                     </td>
@@ -74,5 +75,9 @@
     </div>
     <!-- Recent Sales End -->
 
-
+    <script>
+        function markAsPlaced(iid, oid) {
+            axios.put(`/admin/placeOneItem?iid=${iid}&oid=${oid}`).then(res => location.reload())
+        }
+    </script>
     <%- include('./partials/footer'); %>

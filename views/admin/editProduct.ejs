@@ -3,6 +3,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.11/cropper.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <style>
+        .img-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .deleteButton {
+            position: absolute;
+            left: 50%;
+            bottom: 5px;
+            transform: translateX(-50%)
+        }
+
+        .img-thumbnail {
+            max-width: 200px;
+            margin-right: 10px;
+
+        }
+    </style>
+
     <div class="container-fluid pt-4 px-4">
         <div class="bg-light rounded p-4">
             <form action="/admin/editProduct/<%=product._id%>" method="POST" enctype="multipart/form-data" id="formMain"
@@ -18,8 +39,8 @@
 
                 <div class="form-group">
                     <label for="productDescription">Description</label>
-                    <textarea value='<%=product.discription%>' placeholder="<%=product.discription%>" name="discription"
-                        class="form-control" rows="4" id="productDescription"></textarea>
+                    <textarea name="discription" class="form-control" rows="4"
+                        id="productDescription"><%=product.discription%></textarea>
                     <small id="descriptionError" class="form-text text-danger"></small>
                 </div>
 
@@ -83,12 +104,12 @@
                 <div class="form-group">
                     <label for="productSize">Size</label>
                     <select class="form-select" name="size" id="productSize" value='<%=product.size%>'>
-                        <option value="XS" <%=product.size==="XS" ? "selected" : "">XS</option>
+                        <option value="XS" <%=product.size==="XS" ? "selected" : "" %> >XS</option>
                         <option value="S" <%=product.size==="S" ? "selected" : "" %>>Small</option>
                         <option value="M" <%=product.size==="M" ? "selected" : "" %>>Medium</option>
                         <option value="L" <%=product.size==="L" ? "selected" : "" %>>Large</option>
                         <option value="XL" <%=product.size==="XL" ? "selected" : "" %>>Extra Large</option>
-                        <option value="XXL" <%=product.size==="XXL" ? "selected" : "">XXL</option>
+                        <option value="XXL" <%=product.size==="XXL" ? "selected" : "" %> >XXL</option>
                         <!-- Add more options as needed -->
                     </select>
                     <small id="sizeError" class="form-text text-danger"></small>
@@ -114,29 +135,23 @@
                     </select>
                     <small id="categoryError" class="form-text text-danger"></small>
                 </div>
+                <!-- Media -->
                 <div class="form-group">
                     <label for="productImages">Images</label>
-                    <small id="imagesError" class="form-text text-danger">Click on image to change Image</small>
-                </div>
-                <div class="input-box-container row">
-                    <div class="inputBox text-center col-6"
-                        style="height: 345px;width: 230px;background-color:aliceblue;" id="inputBox">
-                        <img src="/admin/assets/images/catagory/<%=product.images[0]%>" alt="" srcset="" id="boxImage"
-                            style="object-fit: fill;height: 300px;width: 200px">
+                    <input class="form-control" type="file" accept="image/*" name="images" multiple id="productImages">
+                    <div id="imagePreviewContainer" class="mt-2">
+                        <%for(let i=0;i<product.images.length;i++){%>
+                            <div class="img-container" id="loadedImages-<%=i%>">
+                                <img src="/admin/assets/images/catagory/<%=product.images[i]%>" alt=""
+                                    class="img-thumbnail">
+                                <button type="button" class="btn btn-danger deleteButton"
+                                    onclick="deleteImage('loadedImages-<%=i%>','<%=product.images[i]%>')"
+                                    id="deleteButton">Delete</button>
+                            </div>
+                            <%}%>
                     </div>
-                    <div class="inputBox text-center col-6"
-                        style="height: 345px;width: 230px;background-color:aliceblue;" id="inputBox2">
-                        <img src="/admin/assets/images/catagory/<%=product.images[1]%>" alt="" srcset="" id="boxImage"
-                            style="object-fit: fill;height: 300px;width: 200px">
-                    </div>
-                    <input type="file" class="inputImage1" name="images" id="inputImage1" accept="image/*" hidden>
-                    <input type="file" class="inputImage1" name="images" id="inputImage2" accept="image/*" hidden>
+                    <small id="imagesError" class="form-text text-danger">Crop all images before upload</small>
                 </div>
-
-                <input type="text" name="exImage1" value='<%=product.images[0]%>' class="form-control" id="exImage1"
-                    hidden>
-                <input type="text" name="exImage2" value='<%=product.images[1]%>' class="form-control" id="exImage2"
-                    hidden>
 
 
                 <!-- Submit button -->
@@ -148,32 +163,42 @@
 
 
 
-
     <script>
+        const input = document.getElementById('productImages');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const productId = '<%=product._id%>';
 
-        let exImage1 = document.getElementById('exImage1')
-        let exImage2 = document.getElementById('exImage2')
+        function deleteImage(divId, imageName) {
+            axios.delete('/admin/deleteImage', {
+                data: { imageName, productId }
+            }).then((res) => {
+                console.log(res)
+                if (res.status == 201) {
+                    Swal.fire({
+                        title: "Image Deletion Error",
+                        text: res.data.message,
+                        icon: "warning",
+                    });
+                    return
+                }
+                let findDiv = document.getElementById(divId)
+                imagePreviewContainer.removeChild(findDiv)
+            }).catch((err) => {
+                console.log(err)
+                alert(err.message)
+            })
+        }
 
-        let inputBox2 = document.getElementById('inputBox2');
-        let imageInput2 = document.getElementById('inputImage2');
-        // let inputBoxText2 = document.getElementById('inputBox-text');
-        let dataTransfer2 = new DataTransfer();
+        input.addEventListener('change', () => {
 
-        inputBox2.addEventListener('click', () => {
-            if (!imageInput2.files.length > 0) {
-                imageInput2.click();
-            }
-        });
 
-        imageInput2.addEventListener('change', (event) => {
-            let file = event.target.files[0];
-            if (file) {
+            const dataTransfer = new DataTransfer(); // Initialize DataTransfer to keep track of all cropped files
+
+            Array.from(input.files).forEach(file => {
                 const reader = new FileReader();
                 reader.onload = function (e) {
                     const img = document.createElement('img');
                     img.src = e.target.result;
-                    img.style.maxWidth = '200px';
-                    img.style.marginRight = '10px';
                     img.classList.add('img-thumbnail');
 
                     const cropContainer = document.createElement('div');
@@ -182,7 +207,7 @@
                     cropContainer.style.display = 'inline-block';
 
                     const cropButton = document.createElement('button');
-                    cropButton.type = 'button';
+                    cropButton.type = 'button'
                     cropButton.textContent = 'Crop';
                     cropButton.id = 'CropBtn';
                     cropButton.classList.add('btn', 'btn-sm', 'btn-info', 'crop-btn');
@@ -191,22 +216,27 @@
                     cropButton.style.left = '50%';
                     cropButton.style.transform = 'translateX(-50%)';
 
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'button'
+                    deleteButton.textContent = 'Delete';
+                    deleteButton.id = 'deleteButton';
+                    deleteButton.classList.add('btn', 'btn-sm', 'btn-danger', 'deleteButton');
+
                     cropContainer.appendChild(img);
                     cropContainer.appendChild(cropButton);
-                    inputBox2.innerHTML = '';  // Clear previous content
-                    inputBox2.appendChild(cropContainer);
+                    imagePreviewContainer.appendChild(cropContainer);
 
                     const cropper = new Cropper(img, {
                         aspectRatio: 235 / 345,
                         autoCropArea: 1,
                         viewMode: 1,
                         scalable: false,
-                        zoomable: false,
-                        movable: false,
+                        zoomable: true,
+                        movable: true,
                     });
 
                     cropButton.addEventListener('click', () => {
-                        cropButton.innerText = 'Cropped';
+                        cropButton.innerText = 'cropped';
                         const canvas = cropper.getCroppedCanvas({
                             width: 235,
                             height: 345
@@ -216,129 +246,13 @@
                             canvas.toBlob(blob => {
                                 const newImg = document.createElement('img');
                                 newImg.src = URL.createObjectURL(blob);
+
                                 newImg.classList.add('img-thumbnail');
-                                newImg.style.maxWidth = '200px';
-                                cropContainer.innerHTML = ''; // Clear previous content
 
-                                inputBox2.appendChild(newImg);
-
-                                // Create and append the delete button
-                                const deleteButton = document.createElement('button');
-                                deleteButton.type = 'button';
-                                deleteButton.textContent = 'Delete Image';
-                                deleteButton.classList.add('btn', 'btn-sm', 'btn-danger');
-
-                                deleteButton.style.zIndex = 1;
-                                inputBox2.appendChild(deleteButton);
-
-
-
-                                // Add the cropped file to the DataTransfer object
-                                const croppedFile = new File([blob], file.name, { type: 'image/jpeg', lastModified: new Date() });
-                                dataTransfer2.items.add(croppedFile);
-
-                                // Update input.files with the cropped file
-                                imageInput2.files = dataTransfer2.files;
-
-                                //mark updated
-                                exImage2.value = 'true'
-
-                                // Event listener for the delete button
-                                deleteButton.addEventListener('click', (e) => {
-                                    inputBox2.innerHTML = `<img src="/images/uploadImage.png" alt="" srcset="" id="boxImage"
-                                                        style="object-fit: fill;height: 300px;width: 200px">`;
-                                    imageInput2.value = '';  // Clear file input
-                                    dataTransfer2 = new DataTransfer();  // Reset the DataTransfer object
-                                    e.stopPropagation()
-                                });
-                            });
-                        } else {
-                            console.error('Canvas is undefined, possibly due to incorrect cropper initialization.');
-                        }
-                    });
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    </script>
-
-    <script>
-        let inputBox = document.getElementById('inputBox');
-        let imageInput1 = document.getElementById('inputImage1');
-        let inputBoxText = document.getElementById('inputBox-text');
-        let dataTransfer = new DataTransfer();
-
-        inputBox.addEventListener('click', () => {
-            if (!imageInput1.files.length > 0) {
-                imageInput1.click();
-            }
-        });
-
-        imageInput1.addEventListener('change', (event) => {
-            let file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const img = document.createElement('img');
-                    img.src = e.target.result;
-                    img.style.maxWidth = '200px';
-                    img.style.marginRight = '10px';
-                    img.classList.add('img-thumbnail');
-
-                    const cropContainer = document.createElement('div');
-                    cropContainer.classList.add('crop-container');
-                    cropContainer.style.position = 'relative';
-                    cropContainer.style.display = 'inline-block';
-
-                    const cropButton = document.createElement('button');
-                    cropButton.type = 'button';
-                    cropButton.textContent = 'Crop';
-                    cropButton.id = 'CropBtn';
-                    cropButton.classList.add('btn', 'btn-sm', 'btn-info', 'crop-btn');
-                    cropButton.style.position = 'absolute';
-                    cropButton.style.bottom = '5px';
-                    cropButton.style.left = '50%';
-                    cropButton.style.transform = 'translateX(-50%)';
-
-                    cropContainer.appendChild(img);
-                    cropContainer.appendChild(cropButton);
-                    inputBox.innerHTML = '';  // Clear previous content
-                    inputBox.appendChild(cropContainer);
-
-                    const cropper = new Cropper(img, {
-                        aspectRatio: 235 / 345,
-                        autoCropArea: 1,
-                        viewMode: 1,
-                        scalable: false,
-                        zoomable: false,
-                        movable: false,
-                    });
-
-                    cropButton.addEventListener('click', () => {
-                        cropButton.innerText = 'Cropped';
-                        const canvas = cropper.getCroppedCanvas({
-                            width: 235,
-                            height: 345
-                        });
-
-                        if (canvas) {
-                            canvas.toBlob(blob => {
-                                const newImg = document.createElement('img');
-                                newImg.src = URL.createObjectURL(blob);
-                                newImg.classList.add('img-thumbnail');
-                                newImg.style.maxWidth = '200px';
-                                cropContainer.innerHTML = ''; // Clear previous content
-
-                                inputBox.appendChild(newImg);
-
-                                // Create and append the delete button
-                                const deleteButton = document.createElement('button');
-                                deleteButton.type = 'button';
-                                deleteButton.textContent = 'Delete Image';
-                                deleteButton.classList.add('btn', 'btn-sm', 'btn-danger');
-
-                                deleteButton.style.zIndex = 1;
-                                inputBox.appendChild(deleteButton);
+                                cropContainer.innerHTML = '';
+                                // let imageContainer = document.getElementsById('img-container')
+                                cropContainer.appendChild(newImg);
+                                cropContainer.appendChild(deleteButton);
 
 
 
@@ -346,20 +260,39 @@
                                 const croppedFile = new File([blob], file.name, { type: 'image/jpeg', lastModified: new Date() });
                                 dataTransfer.items.add(croppedFile);
 
-                                // Update input.files with the cropped file
-                                imageInput1.files = dataTransfer.files;
+                                // Update input.files with all cropped files
+                                input.files = dataTransfer.files;
 
-                                //mark updated
-                                exImage1.value = 'true'
+                                //send the new image
+                                const formData = new FormData();
+                                formData.append('image', croppedFile);
+                                formData.append('productId', productId);
+                                let ImageName;
+                                axios.put('/admin/addImage', formData).then((res) => imageName = res.data.imageName);
 
-                                // Event listener for the delete button
                                 deleteButton.addEventListener('click', (e) => {
-                                    inputBox.innerHTML = `<img src="/images/uploadImage.png" alt="" srcset="" id="boxImage"
-                                                     style="object-fit: fill;height: 300px;width: 200px">`;
-                                    imageInput1.value = '';  // Clear file input
-                                    dataTransfer = new DataTransfer();  // Reset the DataTransfer object
-                                    e.stopPropagation()
-                                });
+                                    axios.delete('/admin/deleteImage', {
+                                        data: { imageName, productId }
+                                    }).then((res) => {
+                                        console.log(res)
+                                        if (res.status == 200) {
+                                            cropContainer.innerHTML = ''; // Update DOM here to remove the cropped image container
+                                            return
+                                        } else {
+                                            Swal.fire({
+                                                title: "Image Deletion Error",
+                                                text: res.data.message,
+                                                icon: "warning",
+                                            });
+                                        }
+
+                                    }).catch((err) => {
+                                        console.log(err)
+                                        alert(err.message)
+                                    })
+
+                                })
+
                             });
                         } else {
                             console.error('Canvas is undefined, possibly due to incorrect cropper initialization.');
@@ -367,17 +300,22 @@
                     });
                 };
                 reader.readAsDataURL(file);
-            }
+            });
         });
+
+
+
     </script>
+
+
+
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const form = document.getElementById('formMain')
             const productPrice = document.getElementById('productPrice');
             const productQuantity = document.getElementById('productQuantity');
-            const input = document.getElementById('productImages');
-            const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+
 
             // Validate if input is a number
             function validateNumberField(field, errorFieldId, fieldName) {
@@ -413,30 +351,6 @@
             }
 
 
-
-            function areImagesUploaded() {
-                const errorField = document.getElementById('imagesError');
-
-                //for deleted management
-                if (exImage1.value == 'true' && !imageInput1.files.length) {
-                    errorField.textContent = "Please upload  images 1.";
-                    return false;
-                }
-                if (exImage2.value == 'true' && !imageInput2.files.length) {
-                    errorField.textContent = "Please upload  images 2.";
-                    return false;
-                }
-                if (exImage2.value == 'true' && exImage1.value == 'true' && !imageInput1.files.length && !imageInput1.files.length) {
-                    errorField.textContent = "Please upload two images.";
-                    return false;
-                }
-
-
-
-                return true;
-            }
-
-
             // Add focus validation for price
             productPrice.addEventListener('blur', function () {
                 validateNumberField(productPrice, 'priceError', 'Price');
@@ -455,9 +369,8 @@
                 const isPriceValid = validateNumberField(productPrice, 'priceError', 'Price');
                 const isQuantityValid = validateNumberField(productQuantity, 'quantityError', 'Quantity');
                 const isCroppedVar = isCropped()
-                const areImagesUploadedVar = areImagesUploaded()
 
-                if (!isPriceValid || !isQuantityValid || !isCroppedVar || !areImagesUploadedVar) {
+                if (!isPriceValid || !isQuantityValid || !isCroppedVar) {
                     Swal.fire({
                         title: "Field Error",
                         text: 'Please Check All Fields',

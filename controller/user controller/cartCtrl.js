@@ -65,7 +65,23 @@ const getCart = async (req, res) => {
         // let discount = user.cart.discount;
         let coupen = user.cart.coupen;
         console.log('coupen get cart', coupen)
-        res.render('user-views/cart', { cart: user.cart.cartItems, product: products, total, subTotal, discount, coupen })
+
+        let alertMessage;
+        if (!req.session.alertMessage) {
+            alertMessage = {
+                type: req.session.mType,
+                message: req.session.mContent,
+            }
+        }
+        else {
+            alertMessage = req.session.alertMessage
+        }
+
+        req.session.alertMessage = null;
+        req.session.mType = ' ';
+        req.session.mContent = " ";
+
+        res.render('user-views/cart', { cart: user.cart.cartItems, product: products, total, subTotal, discount, coupen, alertMessage })
     } catch (error) {
         console.log(`Error in get cart Error:${error}`)
     }
@@ -151,9 +167,42 @@ const putIncrementQnt = async (req, res) => {
                 console.log(singleTotal, "sinlge total")
                 console.log('qnt added')
 
-                res.status(200).json({
+                return res.status(200).json({
                     message: `Quantity incremented`, messageType: 'success',
                     cartQnt, singleTotal, total, subTotal, ms: false,
+                });
+            }
+
+            else if (cart.quantity > product.quantity) {
+                const updated = await User.updateOne(
+                    { _id: req.session.user_id, 'cart.cartItems.ProductId': product_id },
+                    {
+                        $set: {
+                            'cart.cartItems.$.quantity': product.quantity, // Set quantity to product quantity
+                            'cart.cartItems.$.total': product.quantity * product.price, // Set total to quantity * price
+                        }
+                    },
+                    { new: true }
+                );
+                let UpdatedUser = await User.findById(req.session.user_id)
+                console.log('updated cart', UpdatedUser.cart)
+                // UpdatedUser.cart.total += product.price;
+                // UpdatedUser.save();
+                let singleTotal = (product.quantity) * product.price;
+                let cartQnt = product.quantity;
+                let total = 0;
+                let subTotal = 0;
+                UpdatedUser.cart.cartItems.forEach((val) => {
+                    total += val.total;
+                    subTotal += val.total;
+                })
+
+                console.log(singleTotal, "sinlge total")
+                console.log('qnt added')
+
+                return res.status(200).json({
+                    message: `Product Stock updated Youre cart quantity set to maximum cart quantity`, messageType: 'info',
+                    cartQnt, singleTotal, total, subTotal, ms: true,
                 });
             }
             else {
@@ -167,7 +216,7 @@ const putIncrementQnt = async (req, res) => {
                     subTotal += val.total;
                 })
                 console.log('no more left to add')
-                res.status(200).json({
+                return res.status(200).json({
                     message: `no more left to add`, messageType: 'info',
                     cartQnt, singleTotal, total, subTotal, ms: true
                 });
@@ -194,6 +243,42 @@ const putDecrementQnt = async (req, res) => {
         let cart = user.cart.cartItems.find(item => item.ProductId == sid)
         console.log('cart og ', cart)
         console.log(typeof (product_id))
+
+
+
+        if (cart.quantity > product.quantity) {
+            const updated = await User.updateOne(
+                { _id: req.session.user_id, 'cart.cartItems.ProductId': product_id },
+                {
+                    $set: {
+                        'cart.cartItems.$.quantity': product.quantity, // Set quantity to product quantity
+                        'cart.cartItems.$.total': product.quantity * product.price, // Set total to quantity * price
+                    }
+                },
+                { new: true }
+            );
+            let UpdatedUser = await User.findById(req.session.user_id)
+            console.log('updated cart', UpdatedUser.cart)
+            // UpdatedUser.cart.total += product.price;
+            // UpdatedUser.save();
+            let singleTotal = (product.quantity) * product.price;
+            let cartQnt = product.quantity;
+            let total = 0;
+            let subTotal = 0;
+            UpdatedUser.cart.cartItems.forEach((val) => {
+                total += val.total;
+                subTotal += val.total;
+            })
+
+            console.log(singleTotal, "sinlge total")
+            console.log('qnt added')
+
+            return res.status(200).json({
+                message: `Product Stock updated Youre cart quantity set to maximum cart quantity`, messageType: 'info',
+                cartQnt, singleTotal, total, subTotal, ms: true,
+            });
+        }
+
         if (cart) {
             if (cart.quantity > 1) {
                 const updated = await User.updateOne(
@@ -222,11 +307,13 @@ const putDecrementQnt = async (req, res) => {
                 console.log(singleTotal, "sinlge total")
                 console.log('qnt decremented')
 
-                res.status(200).json({
+                return res.status(200).json({
                     message: `Quantity decremented`, messageType: 'success',
                     cartQnt, singleTotal, total, subTotal, ms: false,
                 });
             }
+
+
             else {
                 let singleTotal = (cart.quantity) * product.price;
                 let cartQnt = cart.quantity;
@@ -237,11 +324,13 @@ const putDecrementQnt = async (req, res) => {
                     subTotal += val.total;
                 })
                 console.log('Minimum 1 required or you can delete')
-                res.status(200).json({
+                return res.status(200).json({
                     message: `Minimum 1 required or you can delete`, messageType: 'info',
                     cartQnt, singleTotal, total, subTotal, ms: true
                 });
             }
+
+
         }
 
 
@@ -254,28 +343,49 @@ const putDecrementQnt = async (req, res) => {
 //delete cart item from cart
 const deleteCartItem = async (req, res) => {
     try {
+        console.log(req.body)
         let id = req.body.id;
-        let user = await User.findById(req.session.user_id)
-        let cart = user.cart.cartItems.findIndex(item => item.ProductId == id);
-        if (cart) {
-            // If the item is found, remove it from the array
-            user.cart.cartItems.splice(cart, 1);
+        console.log('delte cart item passed id', id)
+        let user = await User.findById(req.session.user_id);
+        let initialLength = user.cart.cartItems.length;
+        let initialData = user.cart.cartItems;
+
+        // Filter out the item by its ProductId
+        user.cart.cartItems = user.cart.cartItems.filter(item => item.ProductId != id);
+        let checkIsThere = user.cart.cartItems.find(item => item.ProductId.toString() == id.toString());
+        if (!checkIsThere) {
+            console.log(checkIsThere)
+            console.log('cart item not found with id')
+        } else {
+            console.log(checkIsThere)
+            console.log('cart item  found with id')
+        }
+        if (user.cart.cartItems.length < initialLength) {
             user.markModified('cart');
             await user.save();
-            res.redirect('/cart')
+            console.log('Cart item deleted');
 
+
+            console.log(initialData)
+            console.log(user.cart.cartItems)
+            res.status(200).json({ message: ' Item Deleted successfully' });
+        } else {
+            res.status(500).json({ message: 'Error: Item not found in cart' });
         }
 
     } catch (error) {
-        console.log(`eroor while deleting item  Eroor;${error}`)
-        res.status(500).json({ message: `Error while adding to cart` });
+        console.log(`Error while deleting item: ${error}`);
+        res.status(500).json({ message: 'Error while deleting item from cart' });
     }
-}
+};
+
 
 // checkout Ctrl
 const getCheckOut = async (req, res) => {
     try {
         let user = await User.findById(req.session.user_id)
+
+        //check here
 
         //check user cart is empty
         if (user.cart.cartItems.length <= 0) {
@@ -640,21 +750,6 @@ const getOrderSuccess = async (req, res) => {
         let user = await User.findById(req.session.user_id);
         let orderId = req.query.id
         let suggestedProducts = await Product.find().limit(4);
-        let findCoupen = await Coupens.findOne({ code: 'la5dkxnadw' });
-        if (user.coupens.length == 0) {
-            user.coupens.push({
-                coupenId: findCoupen._id
-            });
-            await user.save()
-            console.log('user coupen pushed')
-            alertMessage = {
-                type: 'success', // Can be 'success', 'error', 'warning', or 'info'
-                message: 'New Coupen Added'
-            };
-        }
-        else {
-            console.log('coupen is there')
-        }
         res.render('user-views/orderSuccess', { orderId, product: suggestedProducts, alertMessage })
         req.session.alertMessage = null;
 
@@ -697,10 +792,8 @@ const invoice = async (req, res) => {
 //coupen Cntrl
 const getCoupens = async (req, res) => {
     try {
-        let user = await User.findById(req.session.user_id);
-        console.log('coupen ids', user.coupens)
-        let myCoupenId = user.coupens.map((coupen) => coupen.coupenId)
-        let myCoupens = await Coupens.find({ _id: { $in: myCoupenId } })
+        let user = await User.findById(req.session.user_id)
+        let myCoupens = await Coupens.find({ isDeleted: false })
         console.log('mycoupens', myCoupens)
         res.render('user-views/coupens', { coupens: myCoupens, user })
     } catch (error) {
@@ -717,7 +810,7 @@ const applyCoupen = async (req, res) => {
         }, 0);
         let isValid = false;
         let clietCode = req.body.code;
-        let checkCode = await Coupens.findOne({ code: clietCode });
+        let checkCode = await Coupens.findOne({ isDeleted: false, code: clietCode });
         console.log('check code', checkCode)
         if (checkCode) {
             isValid = true;

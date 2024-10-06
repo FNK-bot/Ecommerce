@@ -1,0 +1,68 @@
+<%- include('./partials/header'); %>
+    <!-- Recent Sales Start -->
+    <div class="container-fluid pt-4 px-4">
+        <div class="bg-light text-center rounded p-4">
+            <div class="d-flex align-items-center justify-content-between mb-4">
+                <h6 class="mb-0">All coupens</h6>
+            </div>
+            <div class="table-responsive">
+                <table class="table text-start align-middle table-bordered table-hover mb-0">
+                    <thead>
+                        <tr class="text-dark">
+                            <th scope="col"><input class="form-check-input" type="checkbox"></th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Expiry</th>
+                            <th scope="col">Code</th>
+                            <th scope="col">Offer Percentage</th>
+                            <th scope="col" colspan="3">Options</th>
+                        </tr>
+                    </thead>
+                    <% if (coupens.length> 0) { %>
+
+                        <% for (let i=0; i < coupens.length; i++) { %>
+
+                            <tbody>
+                                <tr>
+                                    <td><input class="form-check-input" type="checkbox"></td>
+                                    <td>
+                                        <%= coupens[i].name %>
+                                    </td>
+                                    <td>
+                                        <%=coupens[i].expiry.toLocaleString()%>
+                                    </td>
+                                    <td>
+                                        <%= coupens[i].code %>
+                                    </td>
+                                    <td>
+                                        <%= coupens[i].percentage+' %' +' off' %>
+                                    </td>
+                                    <td><a class="btn btn-sm btn-primary"
+                                            href='/admin/editCoupen?id=<%=coupens[i]._id%>'>Edit</a>
+                                        <a class="btn btn-sm btn-danger"
+                                            onclick="deleteCoupen('<%=coupens[i]._id%>')">Delete</a>
+
+                                    </td>
+                                </tr>
+                                <% } %>
+                                    <% } else { %>
+                                        <tr>
+                                            <td colspan="7">No coupens Found <a href="/admin/addCoupen">add one</a>
+                                            </td>
+
+                                        </tr>
+                                        <% } %>
+                </table>
+            </div>
+        </div>
+    </div>
+    <!-- Recent Sales End -->
+
+    <script>
+        function deleteCoupen(id) {
+            axios.delete('/admin/deleteCoupen', { data: { id } })
+        }
+    </script>
+
+    <%- include('./partials/pageCon'); %>
+        <%- include('./partials/footer'); %>
+            <%- include('../user-views/partials/alertMessages'); %>

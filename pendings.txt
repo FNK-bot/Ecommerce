@@ -178,3 +178,38 @@ https://github.com/Irshadudheen/eCommerce-Website/tree/master/views/client
 Irshad P
 5:38 PM
 https://waterrmalann.notion.site/A-simple-guide-to-hosting-a-Node-js-app-on-AWS-EC2-6e05ee8c5689452f94a2c550f66aeecd
+
+
+https://github.com/Irshadpp/eStore.git
+
+
+Pending Topics:
+Responsive behaviour is missing
+order details page
+   view details is missing -x
+App crashed multiple times during the review
+All list should be sort based on date -x
+return 
+Application is not stable
+
+Need to recheck each functionalities
+
+unable to add offers - product details page is not loading -x
+keep actual price column in product list grid --x
+edit product form - x
+   Delete button is missing-x
+   multiple image upload is missing-x
+remove add to cart button for out of stock product ---x
+Confirm password is missing -x
+form validations are missing -x
+OTP timer is missing -x
+
+wallet purchase is missing(Optional)
+
+otp error while login
+
+favarite
+add to cart
+actaual price
+
+

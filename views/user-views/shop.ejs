@@ -160,11 +160,19 @@
                           </span>
                         </div>
                         <%}%>
-                          <!-- Favourite -->
-                          <div class="product-favourite" id="favorite-<%= product[i]._id %>"
-                            onclick="addToFav('<%= product[i]._id %>')">
-                            <a class="favme fa fa-heart"></a>
-                          </div>
+
+                          <%if(product[i].quantity <=0){%>
+                            <div class="product-badge offer-badge">
+                              <span>
+                                Out of Stock
+                              </span>
+                            </div>
+                            <%}%>
+                              <!-- Favourite -->
+                              <div class="product-favourite" id="favorite-<%= product[i]._id %>"
+                                onclick="addToFav('<%= product[i]._id %>')">
+                                <a class="favme fa fa-heart"></a>
+                              </div>
                     </div>
 
                     <!-- Product Description -->
@@ -174,7 +182,7 @@
                       </span>
                       <a href="/product?product=<%= product[i]._id %>">
                         <h6>
-                          <%= product[i].name %>
+                          <%= product[i]?.name %>
                         </h6>
                       </a>
                       <p class="product-price">
@@ -193,9 +201,11 @@
                       <!-- Hover Content -->
                       <div class="hover-content">
                         <!-- Add to Cart -->
-                        <div class="add-to-cart-btn" onclick="addTOCart('<%= product[i]._id %>')">
-                          <a class="btn essence-btn">Add to Cart</a>
-                        </div>
+                        <%if(product[i].quantity>0){%>
+                          <div class="add-to-cart-btn" onclick="addTOCart('<%= product[i]._id %>')">
+                            <a class="btn essence-btn">Add to Cart</a>
+                          </div>
+                          <%}%>
                       </div>
                     </div>
                   </div>

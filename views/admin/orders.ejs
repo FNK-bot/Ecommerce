@@ -34,22 +34,13 @@
                                         <%= orders[i].createdOn.toLocaleDateString() %>
                                     </td>
                                     <td>
-                                        <%= orders[i].status %>
+                                        <% let val='Placed All' ; for (let x=0; x < orders[i].productDetails.length;
+                                            x++) { if(orders[i].productDetails[x].status !=='Placed' ) {
+                                            val='Not Placed All' ; break; } } %>
+                                            <%= val %>
+
                                     </td>
-                                    <td>
-                                        <% if(orders[i].status=='Placed' ) {%>
-                                            <a class="btn btn-sm btn-success"
-                                                href="/admin/shippOrder?id=<%=orders[i]._id%>">Mark as Delevered</a>
-                                            <% }else{ %>
-                                                <a class="btn btn-sm btn-warning"
-                                                    href="/admin/unShippOrder?id=<%=orders[i]._id%>">Mark as Placed</a>
-                                                <% } %>
-                                                    <!-- <% if(orders[i].status=='canceled' ) {%>
-                                                        <a class="btn btn-sm btn-success" href="#">Re Order</a>
-                                                        <% }else{ %>
-                                                            <a class="btn btn-sm btn-danger" href="#">cancel order</a>
-                                                            <% } %> -->
-                                    </td>
+
                                     <td>
                                         <a class="btn btn-sm btn-success"
                                             href="/admin/orderDetails?id=<%=orders[i]._id%>">Order Details</a>
@@ -69,6 +60,13 @@
             </div>
         </div>
     </div>
+    <!-- 
+    <script>
+
+        function deleteOrder(order_id){
+            axios.delete(`/admin/deleteOrder?id=${order_id}`)
+        }
+    </script> -->
     <!-- Recent Sales End -->
     <%- include('./partials/pageCon'); %>
 
