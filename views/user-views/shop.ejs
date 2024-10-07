@@ -5,7 +5,9 @@
       <div class="row h-100 align-items-center">
         <div class="col-12">
           <div class="page-title text-center">
-            <h2>dresses</h2>
+            <h2>
+              <%=active%>
+            </h2>
           </div>
         </div>
       </div>
@@ -168,17 +170,20 @@
                               </span>
                             </div>
                             <%}%>
-                              <!-- Favourite -->
-                              <div class="product-favourite" id="favorite-<%= product[i]._id %>"
-                                onclick="addToFav('<%= product[i]._id %>')">
-                                <a class="favme fa fa-heart"></a>
-                              </div>
+
+                              <%if(user){%>
+                                <!-- Favourite -->
+                                <div class="product-favourite" id="favorite-<%= product[i]._id %>"
+                                  onclick="addToFav('<%= product[i]._id %>')">
+                                  <a class="favme fa fa-heart"></a>
+                                </div>
+                                <%}%>
                     </div>
 
                     <!-- Product Description -->
                     <div class="product-description">
                       <span>
-                        <%= brand[i]?.name %>
+                        <%= product[i]?.brand?.name %>
                       </span>
                       <a href="/product?product=<%= product[i]._id %>">
                         <h6>
@@ -201,7 +206,7 @@
                       <!-- Hover Content -->
                       <div class="hover-content">
                         <!-- Add to Cart -->
-                        <%if(product[i].quantity>0){%>
+                        <%if(product[i].quantity>0 && user){%>
                           <div class="add-to-cart-btn" onclick="addTOCart('<%= product[i]._id %>')">
                             <a class="btn essence-btn">Add to Cart</a>
                           </div>
@@ -251,7 +256,7 @@
     </div>
     </div>
   </section>
-
+  </BODY>
   <script>
 
     // sorting 
@@ -311,4 +316,3 @@
     }
 
   </script>
-  <%- include('./partials/footer'); %>

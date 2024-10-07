@@ -233,14 +233,17 @@ const getSalesReportPage = async (req, res) => {
 
         if (req.query.download === 'pdf') {
             const filePath = generatePDF(orders, totalRevenue, totalDiscount, totalSale);
-            res.download(filePath, 'salesReport.pdf', (err) => {
-                if (err) {
-                    console.log('Error downloading file', err);
-                    res.status(500).send("Error downloading file");
-                } else {
-                    fs.unlinkSync(filePath);
-                }
-            });
+            setTimeout(() => {
+                res.download(filePath, 'salesReport.pdf', (err) => {
+                    if (err) {
+                        console.log('Error downloading file', err);
+                        res.status(500).send("Error downloading file");
+                    } else {
+                        fs.unlinkSync(filePath);
+                    }
+                }, 5000);
+            })
+
         } else if (req.query.download === 'excel') {
             const filePath = await generateExcel(orders, totalRevenue, totalDiscount, totalSale);
             res.download(filePath, 'salesReport.xlsx', (err) => {

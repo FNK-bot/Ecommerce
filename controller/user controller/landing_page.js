@@ -7,7 +7,7 @@ const getLanding = async (req, res) => {
     try {
         const user = req.session.user_id;
         const catagory = await Catagory.find({ isDeleted: false }).limit(3)
-        const product = await Product.find({ isDeleted: false }).limit(6);
+        const product = await Product.find({ isDeleted: false }).limit(6).populate({ path: 'brand', select: 'name', strictPopulate: false })
         const brand_ids = product.map((item) => item.brand);
         const brand = await Brand.find({ _id: { $in: brand_ids } });
         console.log('brand', brand)

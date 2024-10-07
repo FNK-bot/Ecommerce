@@ -40,36 +40,44 @@
             </div>
         </div>
     </div>
-    <!-- Sale & Revenue End -->
-    <%if(orders.length>0){%>
-        <!-- Filter Section Start -->
-        <div class="container-fluid pt-4">
-            <form action="/admin/salesReport" method="GET" class="d-flex   align-items-end ">
-                <div class="form-group me-3" style="padding-left: 15px;">
-                    <label for="filter" class="form-label">Filter By:</label>
-                    <select name="filter" id="filter" class="form-select">
-                        <option value="daily">Daily</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="monthly">Monthly</option>
-                        <option value="yearly">Yearly</option>
-                        <option value="custom">Custom</option>
-                    </select>
-                </div>
-                <div class="form-group me-3 ">
-                    <label for="startDate" class="form-label">Start Date:</label>
-                    <input type="date" name="startDate" id="startDate" class="form-control" disabled>
-                </div>
-                <div class="form-group me-3 ">
-                    <label for="endDate" class="form-label">End Date:</label>
-                    <input type="date" name="endDate" id="endDate" class="form-control" disabled>
-                </div>
-                <div class="form-group ">
-                    <button type="submit" class="btn btn-primary">Filter</button>
-                </div>
-            </form>
-        </div>
-        <!-- Filter Section End -->
 
+    <!-- Sale & Revenue End -->
+
+
+    <!-- Filter Section Start -->
+    <div class="container-fluid pt-4">
+        <form action="/admin/salesReport" method="GET" class="row gx-3 gy-2 align-items-end">
+            <!-- Filter By Select -->
+            <div class="col-12 col-sm-6 col-md-3">
+                <label for="filter" class="form-label">Filter By:</label>
+                <select name="filter" id="filter" class="form-select">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="custom">Custom</option>
+                </select>
+            </div>
+            <!-- Start Date -->
+            <div class="col-12 col-sm-6 col-md-3">
+                <label for="startDate" class="form-label">Start Date:</label>
+                <input type="date" name="startDate" id="startDate" class="form-control" disabled>
+            </div>
+            <!-- End Date -->
+            <div class="col-12 col-sm-6 col-md-3">
+                <label for="endDate" class="form-label">End Date:</label>
+                <input type="date" name="endDate" id="endDate" class="form-control" disabled>
+            </div>
+            <!-- Submit Button -->
+            <div class="col-12 col-sm-6 col-md-3">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+        </form>
+    </div>
+    <!-- Filter Section End -->
+
+
+    <%if(orders.length>0){%>
 
         <!-- Sales Report Start -->
         <div class="container-fluid pt-4 px-4">
@@ -79,8 +87,8 @@
 
                     <h6 class="mb-0">Sales Report</h6>
                     <div>
-                        <a href="/admin/salesReport?download=pdf" class="btn btn-danger">Download PDF</a>
-                        <a href="/admin/salesReport?download=excel" class="btn btn-success">Download Excel</a>
+                        <a href="/admin/salesReport?download=pdf" class="btn btn-danger mt-1">Download PDF</a>
+                        <a href="/admin/salesReport?download=excel" class="btn btn-success mt-1">Download Excel</a>
                     </div>
                 </div>
                 <div class="table-responsive">
@@ -135,7 +143,7 @@
 
                 <div class="bg-light text-center rounded p-4">
                     <div class="notFound text-center ">
-                        <h5>No Orders yet !</h5>
+                        <h5>No Orders found !</h5>
                     </div>
                 </div>
             </div>

@@ -184,8 +184,8 @@ https://github.com/Irshadpp/eStore.git
 
 
 Pending Topics:
-Responsive behaviour is missing
-order details page
+Responsive behaviour is missing-x
+order details page-x
    view details is missing -x
 App crashed multiple times during the review
 All list should be sort based on date -x
@@ -208,8 +208,19 @@ wallet purchase is missing(Optional)
 
 otp error while login
 
-favarite
-add to cart
-actaual price
+favarite ---x
+add to cart --x
+actaual price  -x
 
+add offer validation error --x
 
+edit password validaion --x
+aad catogry off --x
+
+invoice custumer undifined --x
+coupen issue --x
+
+admin order isssue --x
+add address validaion
+profile pic
+ordetails back btn

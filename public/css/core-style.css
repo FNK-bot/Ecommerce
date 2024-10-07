@@ -54,7 +54,7 @@ a {
   transition: all 500ms ease 0s;
   text-decoration: none;
   outline: 0 solid transparent;
-  color: #fbf5f5;
+  color: #000000;
   font-weight: 600;
   font-size: 12px;
 }
@@ -65,7 +65,7 @@ a:focus {
   transition: all 500ms ease 0s;
   text-decoration: none;
   outline: 0 solid transparent;
-  color: #000000;
+  color: skyblue;
   font-weight: 600;
   font-size: 12px;
 }

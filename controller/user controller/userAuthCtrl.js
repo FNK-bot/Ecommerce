@@ -37,8 +37,6 @@ const generateHashedPassword = async (password) => {
 const getLogin = async (req, res) => {
     try {
         res.status(200);
-        // req.session.previousUrl = req.originalUrl =='/login' ? '/' :req.originalUrl;
-        // console.log(`Previous Url :${req.session.previousUrl}`)
         res.render('user-views/login', { message: null })
     } catch (error) {
         res.render('error')
@@ -46,8 +44,6 @@ const getLogin = async (req, res) => {
 }
 const postLogin = async (req, res) => {
     try {
-        // const url = req.session.previousUrl ? req.session.previousUrl : '/';
-        // console.log(`Previous Url :${url}`)
         res.status(200);
         console.log('body', req.body)
         let { email, password } = req.body;
@@ -83,7 +79,7 @@ const postLogin = async (req, res) => {
                         const redirectTo = req.session.userReturnTo || '/';
                         delete req.session.userReturnTo; // Clean up returnTo after redirect
                         return res.redirect(redirectTo)
-                        res.redirect('/')
+
                     }
                     else {
                         res.render('user-views/login', { message: `Password is Wrong` });
@@ -118,7 +114,7 @@ const getLogOut = (req, res) => {
 const getOtpPage = async (req, res) => {
     try {
         res.status(200);
-        let email = req.session.email ;
+        let email = req.session.email;
         console.log(req.session.User)
         console.log(req.session.OTP)
         let message = req.session.otpMessage || null
@@ -361,15 +357,15 @@ const postResetPassword = async (req, res) => {
 
 //google auth cntrl
 const googleAuth = async (req, res) => {
-    // This callback will be called after the user is authenticated by Passport
+
     req.logIn(req.user, (err) => {
         if (err) {
             console.log('Login failed')
-            return res.render('user-views/login', { message: 'Login failed' });
+            return res.render('user-views/login', { message: 'Google Login failed ' });
         }
         console.log('google authenticated  id', req.user.id);
         req.session.userAuth = true;
-        req.session.user_id = req.user.id;  // Save user ID in session
+        req.session.user_id = req.user.id;
         return res.redirect('/');
     });
 }

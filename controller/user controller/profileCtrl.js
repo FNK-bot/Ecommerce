@@ -304,36 +304,54 @@ const getChangePassword = async (req, res) => {
 }
 const postChangePassword = async (req, res) => {
     try {
-        let currentPassword = req.body.currentPassword ? req.body.currentPassword : false;
+        let currentPassword = req.body.currentPassword || false;
         console.log('curr', currentPassword)
         let { newPassword, confirmPassword } = req.body;
         let user = await User.findById({ _id: req.session.user_id })
         if (currentPassword) {
-            if (await user.isPasswordMatched(currentPassword) && !(currentPassword == newPassword)) {
+            if (newPassword !== confirmPassword) {
+                req.session.mType = 'info';
+                req.session.mContent = "new password and confirm password are not same ";
+                return res.redirect('/changepass');
+            }
+
+            if (await user.isPasswordMatched(newPassword)) {
+                req.session.mType = 'info';
+                req.session.mContent = "new password and Current password is same ";
+                return res.redirect('/changepass');
+            }
+
+
+            if (await user.isPasswordMatched(currentPassword)) {
                 console.log('pass matched');
                 let hashed = await generateHashedPassword(confirmPassword);
                 user.password = hashed;
                 await user.save()
                 req.session.mType = 'success';
                 req.session.mContent = "Password changed ";
-                res.redirect('/profile')
-            }
-
-            if (currentPassword == newPassword) {
-                req.session.mType = 'info';
-                req.session.mContent = "new password and Current password is same ";
-                res.redirect('/profile');
+                return res.redirect('/profile')
             }
             else {
                 req.session.mType = 'error';
-                req.session.mContent = "Current password is wrong ";
-                res.redirect('/changepass');
+                req.session.mContent = "Current Password is Not Matched";
+                return res.redirect('/changepass');
             }
+
+
+        }
+        else if (!currentPassword && !user.password) {
+            console.log('pass matched');
+            let hashed = await generateHashedPassword(confirmPassword);
+            user.password = hashed;
+            await user.save()
+            req.session.mType = 'success';
+            req.session.mContent = "Password changed ";
+            return res.redirect('/profile')
         }
         else {
             req.session.mType = 'error';
             req.session.mContent = "Enter the Fieds ";
-            res.redirect('/changepass');
+            return res.redirect('/changepass');
         }
 
     } catch (error) {

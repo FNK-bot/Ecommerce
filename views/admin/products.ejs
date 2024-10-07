@@ -93,7 +93,7 @@
                             showLoaderOnConfirm: true,
                             preConfirm: async (input) => {
                                 try {
-
+                                    input = parseInt(input)
                                     if (input.length < 1 || input == NaN) {
                                         // alert(input.length)
                                         Swal.showValidationMessage(`Enter Amaunt`);

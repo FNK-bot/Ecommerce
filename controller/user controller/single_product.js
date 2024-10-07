@@ -8,24 +8,20 @@ const getSingleProduct = async (req, res) => {
     try {
         const product_id = req.query.product;
         const user = req.session.user_id;
-        const suggestedProducts = await Product.find({ isDeleted: false }).limit(4);
-        const sbrand_ids = suggestedProducts.map((item) => item.brand);
-        const sbrand = await Brand.find({ _id: { $in: sbrand_ids } });
+        const suggestedProducts = await Product.find({ isDeleted: false }).limit(4).populate({ path: 'brand', select: 'name', strictPopulate: false });
 
-        const product = await Product.findById(product_id)
-        const brand = await Brand.findById(product.brand);
-
+        const product = await Product.findById(product_id).populate({ path: 'brand', select: 'name', strictPopulate: false });
         if (user) {
             const userdata = await User.findById(user)
             res.render("user-views/single_product", {
-                user: userdata, product, brand,
-                sProduct: suggestedProducts, sbrand
+                user: userdata, product,
+                sProduct: suggestedProducts,
             });
 
         } else {
             res.render("user-views/single_product", {
-                user: null, product, brand,
-                sProduct: suggestedProducts, sbrand
+                user: null, product,
+                sProduct: suggestedProducts,
             });
         }
     } catch (error) {

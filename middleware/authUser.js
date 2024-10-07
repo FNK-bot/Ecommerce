@@ -20,8 +20,8 @@ const isLogged = ((req, res, next) => {
     } else {
         //for handling the req from diffrent url
         req.session.userReturnTo = req.originalUrl
-        res.render('user-views/login', { message: 'You need to login for continue shopping' })
-        // res.redirect('/login')
+        console.log('Return url', req.session.userReturnTo)
+        res.render('user-views/login', { message: 'You need to login for continue shopping' });
     }
 })
 module.exports = isLogged

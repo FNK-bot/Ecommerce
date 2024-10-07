@@ -8,7 +8,7 @@ const getShop = async (req, res) => {
         let sort = req.query.sort || '';
         let catagory_id = req.query.id || false;
         let sortSetting = {};
-        let filterCatagory = catagory_id ? { categary: catagory_id } : {};
+        let filterCatagory = catagory_id ? { isDeleted: false, categary: catagory_id } : { isDeleted: false, };
         switch (sort) {
             case 'price-asc':
                 sortSetting.price = 1;
@@ -26,13 +26,18 @@ const getShop = async (req, res) => {
                 sortSetting = {};
         }
 
-        const allProduct = await Product.find(filterCatagory).collation({ locale: 'en', strength: 2 }).sort(sortSetting).populate('categary');
+        const allProduct = await Product.find(filterCatagory).collation({ locale: 'en', strength: 2 }).sort(sortSetting).populate('categary').populate({ path: 'brand', select: 'name', strictPopulate: false })
+        console.log(allProduct)
         let product = allProduct.filter((product) => product.isDeleted === false)
         const catagory = await Catagory.find({ isDeleted: { $ne: true } })
         const user = await User.findById(req.session.user_id)
         const brand_ids = product.map((item) => item.brand);
         const brand = await Brand.find({ _id: { $in: brand_ids } });
-
+        let categoryName;
+        if (catagory_id) {
+            categoryName = await Catagory.findById(catagory_id)
+        }
+        let active = catagory_id ? categoryName.name : 'All Dresses';
         let totalProducts = product.length;
         const itemsperpage = totalProducts > 9 ? 9 : totalProducts;
         console.log('item per page' + itemsperpage)
@@ -41,7 +46,7 @@ const getShop = async (req, res) => {
         const endindex = startindex + itemsperpage;
         const totalpages = Math.ceil(totalProducts / 9);
         let currentproduct = product.slice(startindex, endindex);
-        res.render("user-views/shop", { user, product: currentproduct, catagory, totalpages, currentpage, totalProducts, brand });
+        res.render("user-views/shop", { user, product: currentproduct, catagory, totalpages, currentpage, totalProducts, brand, active });
 
     } catch (error) {
 

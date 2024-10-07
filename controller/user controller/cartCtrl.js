@@ -484,7 +484,7 @@ const postChekOut = async (req, res) => {
                 order_id: razorpayOrder.id,
                 amount: total * 100,
                 currency: "INR",
-                userName: user?.userName,
+                userName: user?.username,
                 userEmail: user.email,
                 userMobile: user.mobile
             });
@@ -623,7 +623,7 @@ const payOnOderPage = async (req, res) => {
                 order_id: order.onlinePayment.orderId,
                 amount: total * 100,
                 currency: "INR",
-                userName: user?.userName,
+                userName: user?.username,
                 userEmail: user.email,
                 userMobile: user?.mobile,
                 isInetiated: true,
@@ -660,7 +660,7 @@ const payOnOderPage = async (req, res) => {
 
 
 //Generate Invoice
-const generateInvoicePDF = async (orderDetails) => {
+const generateInvoicePDF = async (orderDetails, user) => {
     try {
         // Get list of Product IDs from order details
         const list = orderDetails.productDetails.map((item) => item.ProductId);
@@ -682,7 +682,7 @@ const generateInvoicePDF = async (orderDetails) => {
         // Order Details
         doc.fontSize(12).text(`Order ID: ${orderDetails.orderID}`);
         doc.text(`Date: ${new Date(orderDetails.createdOn).toLocaleDateString()}`);
-        doc.text(`Customer: ${orderDetails.userName}`);
+        doc.text(`Customer: ${user.username}`);
         doc.text(`Payment Method: ${orderDetails.method}`);
         doc.text(`Status: ${orderDetails.status}`);
         doc.moveDown();
@@ -712,8 +712,8 @@ const generateInvoicePDF = async (orderDetails) => {
             doc.moveDown();
             doc.text(products[index].name, col1, rowTop, { width: 200, align: 'left' });
             doc.text(product.quantity, col2, rowTop, { width: 100, align: 'left' });
-            doc.text(`$${product.total}`, col3, rowTop, { width: 100, align: 'left' });
-            doc.text(`$${product.total}`, col4, rowTop, { width: 100, align: 'left' });
+            doc.text(`${product.total}`, col3, rowTop, { width: 100, align: 'left' });
+            doc.text(`${product.total}`, col4, rowTop, { width: 100, align: 'left' });
         });
 
         doc.moveDown();
@@ -721,10 +721,10 @@ const generateInvoicePDF = async (orderDetails) => {
 
         // Summary Section
         doc.fontSize(12);
-        doc.text(`Total Price: $${orderDetails.totalPrice}`);
-        doc.text(`Discount: $${orderDetails.discount}`);
-        doc.text(`Shipping Charge: $${orderDetails.shippingCharge}`);
-        doc.text(`Grand Total: $${orderDetails.totalPrice - orderDetails.discount + orderDetails.shippingCharge}`);
+        doc.text(`Total Price: ${orderDetails.totalPrice}`);
+        doc.text(`Discount: ${orderDetails.discount}`);
+        doc.text(`Shipping Charge: ${orderDetails.shippingCharge}`);
+        doc.text(`Grand Total: ${orderDetails.totalPrice - orderDetails.discount + orderDetails.shippingCharge}`);
 
         doc.moveDown();
         doc.text('Thank you for your purchase!', { align: 'center' });
@@ -762,11 +762,12 @@ const getOrderSuccess = async (req, res) => {
 const invoice = async (req, res) => {
     try {
         let orderId = req.query.id;
+        let user = await User.findById(req.session.user_id);
         const order = await Order.find({ orderID: orderId });
         if (order.length > 0) {
             console.log('order found');
             console.log(order)
-            let filePath = await generateInvoicePDF(order[0]);
+            let filePath = await generateInvoicePDF(order[0], user);
             setTimeout(() => {
                 res.download(filePath, 'invoice.pdf', (err) => {
                     if (err) {

@@ -19,7 +19,7 @@ let oderSchema = new mongoose.Schema({
     createdOn: {
         required: true,
         type: Date,
-        default: Date.now()
+        default: Date.now
     },
     date: {
         required: true,

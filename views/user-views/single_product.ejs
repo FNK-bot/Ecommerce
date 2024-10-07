@@ -9,8 +9,8 @@
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- MDB -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/7.3.2/mdb.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>//sweeetalert
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>Axios
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <style>
@@ -92,14 +92,24 @@
                 </span>
               </div>
               <!-- <span class="text-muted"><i class="fas fa-shopping-basket fa-sm mx-1"></i>154 orders</span> -->
-              <span class="text-success ms-2 '<%= stock = product.quantity >= 1 ? 'text-success ' :'text-danger ' %>' ">
-                <%= stock=product.quantity>= 1 ? 'In stock' :'Out Of Stock' %>
+              <span class="text-success ms-2 <%= product.quantity >= 1 ? 'text-success ' :'text-danger ' %> ">
+                <%= product.quantity>=1 ? 'In stock' :'Out Of Stock' %>
               </span>
             </div>
 
-            <div class="mb-3">
-              <span class="h5">₹<%= product.price %></span>
-              <span class="text-muted">Only</span>
+            <div class=" mb-3">
+
+              <span class="h5 ">
+                <%if(product?.actualPrice?.amount !==product.price ){%>
+
+                  <span class="text-muted mr-2" style="text-decoration: line-through;">
+                    <%='₹'+product.actualPrice.amount %>
+                  </span>
+
+                  <%}%>
+                    ₹<%= product.price %> Only
+              </span>
+
             </div>
 
             <p>
@@ -118,7 +128,7 @@
 
               <dt class="col-3">Brand</dt>
               <dd class="col-9">
-                <%= brand.name %>
+                <%= product.brand.name %>
               </dd>
             </div>
 
@@ -177,11 +187,14 @@
                     <%}%>
 
               </div>
-              <a href="#" class="btn btn-warning shadow-0"> Buy now </a>
-              <a href="#" class="btn btn-primary shadow-0" onclick="addTOCart('<%= product._id %>')"> <i
-                  class="me-1 fa fa-shopping-basket"></i> Add to cart </a>
-              <a href="#" class="btn btn-light border border-secondary py-2 icon-hover px-3"
-                onclick="addToFav('<%= product._id %>')"> <i class="me-1 fa fa-heart fa-lg"></i> Save </a>
+
+              <button class="btn btn-warning shadow-0" <%=product.quantity<=0?' disabled':''%> > Buy now </button>
+              <button class="btn btn-primary shadow-0" onclick="addTOCart('<%= product._id %>')"
+                <%=product.quantity<=0?'disabled':''%> >
+                <i class="me-1 fa fa-shopping-basket"></i> Add to cart </button>
+              <button class="btn btn-light border border-secondary py-2 icon-hover px-3"
+                onclick="addToFav('<%= product._id %>')" <%=product.quantity<=0?'disabled':''%> > <i
+                  class="me-1 fa fa-heart fa-lg"></i> Save </button>
             </div>
         </main>
       </div>
@@ -227,13 +240,13 @@
 
                             <!-- Favourite -->
                             <div class="product-favourite">
-                              <a href="#" class="favme fa fa-heart"></a>
+                              <a href="#" class="favme fa fa-heart" onclick="addToFav('<%= sProduct[i]._id %>')"></a>
                             </div>
                       </div>
                       <!-- Product Description -->
                       <div class="product-description">
                         <span>
-                          <%= sbrand[i]?.name %>
+                          <%= sProduct[i].brand?.name %>
                         </span>
                         <a href="/product?product=<%= sProduct[i]._id %>">
                           <h6>

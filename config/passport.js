@@ -24,14 +24,14 @@ passport.use(new googleStrategy({
 
                 if (!checkEmailExist) {
                     console.log(`/googele auth/ :new user creating.... with   ${profile.emails[0].value}`)
-                    await User.create({
+                    let newUser = await User.create({
                         username: profile.displayName,
                         email: profile.emails[0].value,
                         googleID: profile.id,
                         isGoogle: true,
                     })
                     console.log(`/googele auth/ :new user created   ${profile.emails[0].value}`)
-                    return cb(null, user)
+                    return cb(null, newUser)
                 }
                 else {
                     console.log(`/googele auth/ :email exists  ${profile.emails[0].value}`)
@@ -63,7 +63,7 @@ passport.deserializeUser((id, cb) => {
     User.findById(id).then((user) => {
         cb(null, user)
     })
-        .catch((error) => {
+        .catch((err) => {
             cb(err, null)
         })
 })
