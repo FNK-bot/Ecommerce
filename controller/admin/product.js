@@ -43,13 +43,13 @@ const getAddProduct = async (req, res) => {
 const postAddProduct = async (req, res) => {
     try {
         console.log('body ', req.body);
-        let message = '';
+        // let message = '';
         console.log('req.files ', req.files);
 
         const checkProductExist = await Product.findOne({ name: req.body.name });
         console.log('check product exist', checkProductExist);
 
-        if (req.files.length == 0 || !(req.files.length >= 2)) {
+        if (req.files.length < 2) {
             req.session.alertMessage = {
                 type: 'error', // Can be 'success', 'error', 'warning', or 'info'
                 message: 'Atleast Two images required'
@@ -173,7 +173,7 @@ const postEditProduct = async (req, res) => {
         product.offer.status = false;
         product.save()
 
-        editProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
+        let editProduct = await Product.findByIdAndUpdate(id, updateData, { new: true });
         req.session.alertMessage = {
             type: 'success', // Can be 'success', 'error', 'warning', or 'info'
             message: 'Product Updated'
@@ -185,7 +185,7 @@ const postEditProduct = async (req, res) => {
 };
 
 
-// manage delete product image
+// manage delete product image api
 
 const deleteImage = async (req, res) => {
     try {
@@ -213,7 +213,7 @@ const deleteImage = async (req, res) => {
     }
 }
 
-// manage newly addeed product image
+// manage newly addeed product image api
 const addImage = async (req, res) => {
     try {
         let { productId } = req.body;

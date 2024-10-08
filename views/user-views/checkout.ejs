@@ -162,6 +162,22 @@
                                                         </label>
                                                     </div>
                                                 </div>
+
+                                                <div class="col-lg-3 col-sm-6">
+                                                    <div>
+                                                        <label class="card-radio-label"
+                                                            onclick="walletValidation('<%= user.wallet %>')">
+                                                            <input type="radio" name="paymentMethod" value="wallet"
+                                                                class="card-radio-input" id="walletInput" disabled />
+                                                            <span class="card-radio py-3 text-center text-truncate">
+                                                                <i class="bx bx-wallet d-block h2 mb-3"></i>
+                                                                Pay With Wallet
+                                                            </span>
+
+                                                            <small id="walletError"> </small>
+                                                        </label>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -279,6 +295,31 @@
 
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
+
+        function walletValidation(amount) {
+            // alert('cc')
+            let walletAmount = parseInt(amount);
+            let totalCartPrice = parseInt('<%=totalCartPrice%>');
+            // alert(n)
+            let input = document.getElementById('walletInput')
+            let err = document.getElementById('walletError');
+            if (walletAmount >= totalCartPrice) {
+                err.innerText = '';
+                err.classList = 'd-none';
+                input.disabled = false
+                return
+            }
+            err.style.color = 'red';
+            err.innerText = 'Insuficient money in youre wallet'
+            Swal.fire({
+                icon: "info",
+                title: "info",
+                text: " Insuficient money in youre wallet.",
+            });
+            return;
+
+        }
+
         function codValidation(amount) {
             // alert('cc')
             let n = parseInt(amount);
@@ -338,6 +379,18 @@
                 Swal.fire({
                     title: "Order Placed !",
                     text: `Order Placed By COD`,
+                    icon: "success"
+                });
+                console.log(data)
+                let orderId = data.orderId;
+                location.href = `/orderSuccess?id=${orderId}`
+                console.log('redireceted')
+            }
+            if (data.paymentWallet == true) {
+                console.log('Wallet payment done')
+                Swal.fire({
+                    title: "Order Placed !",
+                    text: `Order Placed By Wallet`,
                     icon: "success"
                 });
                 console.log(data)

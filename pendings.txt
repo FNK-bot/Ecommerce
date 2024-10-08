@@ -224,3 +224,17 @@ admin order isssue --x
 add address validaion
 profile pic
 ordetails back btn
+
+admin login credentials -x
+buy now 
+offer indication
+product add afetr cancel or return -x
+buy with wallet -x
+custumer name in order admin -x
+
+shop now on header user
+put rating
+
+crud routs
+image handlin on catergry and brand
+offer catagory updation

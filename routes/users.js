@@ -112,4 +112,8 @@ router.get('/search', search)
 
 //invoice api
 router.get('/downloadInvoice', isLogged, invoice)
+
+router.all('*', (req, res) => {
+     res.render('404')
+})
 module.exports = router;

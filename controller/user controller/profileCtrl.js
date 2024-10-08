@@ -454,7 +454,7 @@ const cancelOneItem = async (req, res) => {
         user.transactionHistory.push({
             amount: refundAmaunt
         })
-        user.save();
+        await user.save();
 
         console.log(item.quantity)
         //manage stock
@@ -499,11 +499,11 @@ const returnOneItem = async (req, res) => {
         user.transactionHistory.push({
             amount: refundAmaunt
         })
-        user.save();
+        await user.save();
         // console.log(user)
 
         //manage stock
-        Product.findOneAndUpdate({ _id: item.ProductId }, {
+        await Product.findOneAndUpdate({ _id: item.ProductId }, {
             $inc: { quantity: item.quantity }
         });
 

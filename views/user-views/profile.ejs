@@ -28,17 +28,16 @@
                 <div class="card-body">
                     <!-- User Profile Info -->
                     <div class="row align-items-center mb-4">
-                        <div class="col-md-2 col-4">
+                        <div class="col-md-1 col-2">
                             <% if(user.image){ %>
-                                <img src="/admin/assets/images/catagory/<%=user.image%>"
-                                    class="rounded-circle img-fluid" style="height: 50px; width: 50px;"
-                                    alt="Profile Picture">
+                                <img src="/admin/assets/images/catagory/<%=user.image%>" class=" img-fluid"
+                                    style="height: 50px; width: 100px; border-radius: -5;" alt="Profile Picture">
                                 <%}else{%>
                                     <img src="/img/profileImage.jpeg" class="rounded-circle img-fluid"
                                         style="height: 50px; width: 50px;" alt="Profile Picture">
                                     <%}%>
                         </div>
-                        <div class="col-md-6 col-8">
+                        <div class="col-md-6 col-10">
                             <h5 class="card-title mb-0">
                                 <%=user.username%>
                             </h5>
@@ -85,14 +84,20 @@
                                                                 <tr>
                                                                     <!-- <th scope="row">1</th> -->
                                                                     <td>
-                                                                        <%=x.date.toLocaleDateString() %>
-                                                                    </td>
-                                                                    <td>
-                                                                        ₹<%=x.amount%>
+                                                                        <%=x.date.toLocaleString() %>
                                                                     </td>
                                                                     <%if(x.isCredited){%>
-                                                                        <td>Credited</td>
-                                                                        <%}%>
+                                                                        <td>+ ₹<%=x.amount%>
+                                                                        </td>
+                                                                        <%}else{%>
+                                                                            <td>- ₹<%=x.amount%>
+                                                                            </td>
+                                                                            <%}%>
+                                                                                <%if(x.isCredited){%>
+                                                                                    <td>Credited</td>
+                                                                                    <%}else{%>
+                                                                                        <td>Debited</td>
+                                                                                        <%}%>
                                                                 </tr>
                                                                 <%}%>
                                                                     <%}else{%>
@@ -282,7 +287,7 @@
                                                                     </button>
                                                                 </div>
                                                                 <div class="modal-body">
-                                                                    Order Status: <strong>Order Has been
+                                                                    Order Status: <strong>
                                                                         <%=order.status%>
                                                                     </strong>
                                                                 </div>

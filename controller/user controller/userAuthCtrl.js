@@ -113,10 +113,11 @@ const getLogOut = (req, res) => {
 };
 const getOtpPage = async (req, res) => {
     try {
+        console.log('-----get otp--')
         res.status(200);
         let email = req.session.email;
         console.log(req.session.User)
-        console.log(req.session.OTP)
+        console.log('otp loading curr otp' + req.session.OTP)
         let message = req.session.otpMessage || null
         req.session.otpMessage = null;
         res.render('user-views/otp', { message, email })
@@ -127,11 +128,13 @@ const getOtpPage = async (req, res) => {
 
 const resendOtp = async (req, res) => {
     try {
+        console.log('-----resend otp--')
         let email = req.session.email || req.body.email
         console.log(email)
         let otp = generateOtp();
         console.log('resened otp ', otp)
         req.session.OTP = otp;
+        console.log('resasigned otp', req.session.OTP)
         let mailOptions = {
             from: process.env.USER_NAME,
             to: email,
@@ -146,7 +149,7 @@ const resendOtp = async (req, res) => {
                 req.session.otpMessage = 'Error Occured while sending New OTP'
                 res.redirect('/otp')
             }
-            res.status(200)
+            res.status(200).json({ success: true })
         });
     } catch (error) {
         console.log('Error in Resend Oto cntrl Error', error)
@@ -154,6 +157,7 @@ const resendOtp = async (req, res) => {
 }
 
 const postOtp = async (req, res) => {
+    console.log('-----post otp--')
     let email = req.session.email;
     console.log('post otp email :', email)
     try {
@@ -162,8 +166,9 @@ const postOtp = async (req, res) => {
         let numberOtp = parseInt(formOtp);
         let orgOtp = req.session.OTP;
         console.log('otp input', numberOtp);
+        console.log('session otp ', orgOtp);
 
-        if (numberOtp == orgOtp) {
+        if (orgOtp == numberOtp) {
             console.log(req.session.User);
             let { name, email, phone, password } = req.session.User;
             let hashedPassword = await generateHashedPassword(password)

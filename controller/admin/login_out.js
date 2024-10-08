@@ -1,8 +1,13 @@
 const User = require('../../models/user')
+const dotenv = require('dotenv');
+dotenv.config();
+
 const getlogIn = async (req, res) => {
     try {
         res.status(200)
-        res.render('admin/login')
+        let message = req.session.adminErrorMessage || null;
+        delete req.session.adminErrorMessage
+        res.render('admin/login', { message })
     } catch (error) {
         console.log('error in login')
     }
@@ -22,25 +27,27 @@ const postLogin = async (req, res) => {
     try {
         const { email, password } = req.body;
         console.log('email' + email);
+        console.log('password' + password);
 
         // const findAdmin = await User.findOne({ email, isAdmin: '1' });
         // console.log('admin data :', findAdmin);
+        console.log('env ', process.env.adminPassword)
+        if (email == process.env.adminEmail && password == process.env.adminPassword) {
 
-        // if (email == 'farseennkbcr28@gmail.com'&& password == '123') {
+            console.log('correct')
+            req.session.Admin = true;
+            //for handling the req from diffrent url
+            const redirectTo = req.session.returnTo || '/admin/';
+            delete req.session.returnTo; // Clean up returnTo after redirect
+            return res.redirect(redirectTo)
 
-        //     console.log('correct')
-        //     req.session.Admin = true;
+        } else {
+            req.session.adminErrorMessage = 'Wrong Credentials';
+            return res.redirect('/admin/login')
+        }
 
-        //     res.redirect('/admin/')
-        // } else {
-        //     res.redirect('/admin/login')
-        // }
-        req.session.Admin = true;
 
-        //for handling the req from diffrent url
-        const redirectTo = req.session.returnTo || '/admin/';
-        delete req.session.returnTo; // Clean up returnTo after redirect
-        return res.redirect(redirectTo)
+
     } catch (error) {
         console.log('Error in post login function ', error);
     }

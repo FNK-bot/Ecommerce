@@ -469,7 +469,6 @@ const postChekOut = async (req, res) => {
                 status: 'Payment Pending',
                 address: address,
                 discount: user.cart.discount,
-                userName: user.username,//
                 productDetails: products_details,
                 onlinePayment: {
                     status: 'initial',
@@ -558,7 +557,6 @@ const postChekOut = async (req, res) => {
                 status: 'Placed',
                 address: address,
                 discount: user.cart.discount,
-                userName: user.username,//
                 productDetails: products_details,
             })
             await newOrder.save()
@@ -568,6 +566,97 @@ const postChekOut = async (req, res) => {
             user.save()
             res.json({ orderId: orderId, paymentCod: true })
             console.log('new oder saved usnig cod ', newOrder);
+
+            console.log('paymethod cod')
+
+        }
+
+        if (req.body.paymentMethod === 'cod') {
+
+            let orderId = generateOderId();
+            let addressId = req.body.address
+            let address = user.address.find((item) => {
+                return item._id.toString() === addressId.toString()
+            })
+            console.log('address finded ', address)
+
+            //manage the stock
+            for (let item of products_details) {
+                await Product.updateOne(
+                    { _id: item.ProductId }, // Find the product by its ProductId
+                    { $inc: { quantity: -item.quantity } } // Decrease the quantity using $inc
+                );
+
+            }
+
+            let newOrder = new Order({
+                orderID: orderId,
+                totalPrice: total,
+                date: Date.now(),//
+                productId: product_ids,
+                userId: user._id,
+                method: 'cod',
+                status: 'Placed',
+                address: address,
+                discount: user.cart.discount,
+                productDetails: products_details,
+            })
+            await newOrder.save()
+
+            //clear cart
+            user.cart = {};
+            user.save()
+            res.json({ orderId: orderId, paymentCod: true })
+            console.log('new oder saved usnig cod ', newOrder);
+
+            console.log('paymethod cod')
+
+        }
+        if (req.body.paymentMethod === 'wallet') {
+
+            let orderId = generateOderId();
+            let addressId = req.body.address
+            let address = user.address.find((item) => {
+                return item._id.toString() === addressId.toString()
+            })
+            console.log('address finded ', address)
+
+            //manage the stock
+            for (let item of products_details) {
+                await Product.updateOne(
+                    { _id: item.ProductId }, // Find the product by its ProductId
+                    { $inc: { quantity: -item.quantity } } // Decrease the quantity using $inc
+                );
+
+            }
+
+            let newOrder = new Order({
+                orderID: orderId,
+                totalPrice: total,
+                date: Date.now(),//
+                productId: product_ids,
+                userId: user._id,
+                method: 'wallet',
+                status: 'Placed',
+                address: address,
+                discount: user.cart.discount,
+                productDetails: products_details,
+            })
+            await newOrder.save()
+
+            //clear cart
+            user.cart = {};
+
+            // add transaction history on user
+            user.transactionHistory.push({
+                method: 'wallet',
+                amount: total,
+                isCredited: false,
+                isDebited: true,
+            })
+            user.save()
+            res.json({ orderId: orderId, paymentWallet: true })
+            console.log('new oder saved usnig wallet ', newOrder);
 
             console.log('paymethod cod')
 

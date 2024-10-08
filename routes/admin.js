@@ -76,4 +76,9 @@ router.post('/addCoupen', isLogged, postAddCoupen)
 router.get('/editCoupen', isLogged, getEditCoupen)
 router.post('/editCoupen', isLogged, postEditCoupen)
 router.delete('/deleteCoupen', isLogged, deleteCoupen)
+
+//404 
+router.all('*', (req, res) => {
+    res.render('404')
+})
 module.exports = router;

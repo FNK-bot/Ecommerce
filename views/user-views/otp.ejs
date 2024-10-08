@@ -261,7 +261,7 @@
             <div class="subtitle" id="subtitle">We've sent a OTP to <%=email%>
             </div>
             <%}else{%>
-              <div class="title">
+              <div class="title" id="title">
                 <%=message%>
               </div>
               <div class="subtitle" id="subtitle">Re-Check the Otp shared In Your Gmail <%=email%>
@@ -318,7 +318,16 @@
           headers: {
             "Content-type": "application/json; charset=UTF-8"
           }
-        });
+        }).then(response => response.json())
+          .then(data => {
+            if (!data.success) {
+              alert('Error resending OTP: ' + data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error resending OTP:', error);
+            alert('An error occurred while resending OTP. Please try again.');
+          });
       };
 
       let inputs = document.querySelectorAll(".input");

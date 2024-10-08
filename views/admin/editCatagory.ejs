@@ -12,8 +12,10 @@
                 </div>
                 <div class="form-group">
                     <label for="categoryDescription">Description</label>
-                    <textarea placeholder="<%=catagory.discription %>" value="<%=catagory.discription %>"
-                        name="discription" class="form-control" rows="4" id="categoryDescription"></textarea>
+                    <textarea placeholder="<%=catagory.discription %>" name="discription" class="form-control" rows="4"
+                        id="categoryDescription">
+                        <%=catagory?.discription %>
+                    </textarea>
                 </div>
 
                 <!-- Media -->
