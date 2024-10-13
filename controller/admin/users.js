@@ -1,53 +1,88 @@
+const { isValidObjectId } = require('mongoose');
 const User = require('../../models/user')
- 
-const getAllUsers = async(req,res)=>{
+
+const getAllUsers = async (req, res) => {
     try {
-        // // test user
-        // let newuser = new User({
-        //     username:'farseen',
-        //     email:'fareseen',
-        //     isBlocked:true
-        // });
-        // newuser.save()
-        // // await User.deleteOne({username:'farseen'})
         res.status(200)
+
+        //fetch All user
         let allUsers = await User.find();
+
+        //Pagination Logic
         const itemsperpage = 6;
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
         const totalpages = Math.ceil(allUsers.length / 5);
-        const currentUsers = allUsers.slice(startindex,endindex);
-        let message = `All Users list`
-        res.render('admin/users',{users:currentUsers,totalpages,currentpage,message})
+        const currentUsers = allUsers.slice(startindex, endindex);
+
+        res.render('admin/users', { users: currentUsers, totalpages, currentpage })
     } catch (error) {
-        res.status(500)
-        console.log('Error in get all users ',error)
+
+        console.error('Error in get all users ', error)
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 }
-const blockUser = async(req,res)=>{
+
+const blockUser = async (req, res) => {
     try {
         let id = req.params.id;
-        let user = await User.findByIdAndUpdate(id,{
-            isBlocked:true,
-        },{new:true});
 
-        res.redirect('/admin/users')
+        //validate id
+        if (!id || !isValidObjectId(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'user not found',
+            });
+        }
+
+        let user = await User.findByIdAndUpdate(id, {
+            isBlocked: true,
+        }, { new: true });
+
+
+        res.status(200).json({
+            success: true,
+            message: `User ${user.username} has been blocked.`,
+        });
     } catch (error) {
-        console.log('Error in block user ',error)
+        console.error('Error in block user', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error blocking the user.',
+        });
     }
 }
 
-const unBlockUser = async(req,res)=>{
+const unBlockUser = async (req, res) => {
     try {
         let id = req.params.id;
-        let user = await User.findByIdAndUpdate(id,{
-            isBlocked:false,
-        },{new:true});
 
-        res.redirect('/admin/users')
+        //validate id 
+        if (!id || !isValidObjectId(id)) {
+            return res.status(400).json({
+                success: false,
+                message: 'user not found',
+            });
+        }
+
+
+        let user = await User.findByIdAndUpdate(id, {
+            isBlocked: false,
+        }, { new: true });
+
+
+        res.status(200).json({
+            success: true,
+            message: `User ${user.username} has been unblocked.`,
+        });
     } catch (error) {
-        console.log('Error in unblock user ',error)
+        console.error('Error in unblock user', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error unblocking the user.',
+        });
     }
 }
-module.exports = {getAllUsers,blockUser,unBlockUser};
+
+module.exports = { getAllUsers, blockUser, unBlockUser };

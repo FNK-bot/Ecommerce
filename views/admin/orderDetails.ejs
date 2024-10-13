@@ -44,20 +44,21 @@
                                     </td>
                                     <td>
                                         <%if(orderDetails[i]?.status=='Placed'){%>
-                                            <a href='deleverOneItem?iid=<%=orderDetails[i]._id%>&oid=<%=oid%>'>
-                                                <button class="btn btn-sm btn-success ">
-                                                    Mark as Delevered
-                                                </button>
-                                            </a>
+
+                                            <button class="btn btn-sm btn-success "
+                                                onclick="deleverOneItem('<%=orderDetails[i]._id%>','<%=oid%>')">
+                                                Mark as Delevered
+                                            </button>
+
 
                                             <%}else{%>
-                                                <a>
-                                                    <button class="btn btn-sm btn-secondary " disabled>
-                                                        Mark as Delevered
-                                                    </button>
+
+                                                <button class="btn btn-sm btn-secondary " disabled>
+                                                    Mark as Delevered
+                                                </button>
 
 
-                                                    <% } %>
+                                                <% } %>
                                     </td>
                                 </tr>
                                 <% } %>
@@ -75,8 +76,47 @@
     <!-- Recent Sales End -->
 
     <script>
-        function markAsPlaced(iid, oid) {
-            axios.put(`/admin/placeOneItem?iid=${iid}&oid=${oid}`).then(res => location.reload())
+        function deleverOneItem(iid, oid) {
+            // Show confirmation dialog using SweetAlert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will mark this item as delivered!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, deliver it!',
+                cancelButtonText: 'No, cancel!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send PUT request using Axios if confirmed
+                    axios.put(`/admin/deleverOneItem?iid=${iid}&oid=${oid}`)
+                        .then((response) => {
+                            Swal.fire(
+                                'Delivered!',
+                                'The item has been marked as delivered.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Reload the page to reflect the change
+                            });
+                        })
+                        .catch((error) => {
+                            Swal.fire(
+                                'Error!',
+                                'There was a problem delivering the item. Please try again.',
+                                'error'
+                            );
+                            console.error("Error delivering item:", error);
+                        });
+                } else {
+                    Swal.fire(
+                        'Cancelled',
+                        'The item delivery process was cancelled.',
+                        'info'
+                    );
+                }
+            });
         }
+
     </script>
     <%- include('./partials/footer'); %>

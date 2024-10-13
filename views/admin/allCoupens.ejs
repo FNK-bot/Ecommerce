@@ -56,13 +56,52 @@
         </div>
     </div>
     <!-- Recent Sales End -->
-
-    <script>
-        function deleteCoupen(id) {
-            axios.delete('/admin/deleteCoupen', { data: { id } })
-        }
-    </script>
-
     <%- include('./partials/pageCon'); %>
         <%- include('./partials/footer'); %>
             <%- include('../user-views/partials/alertMessages'); %>
+                <script>
+                    function deleteCoupen(id) {
+                        // Show a confirmation dialog
+                        Swal.fire({
+                            title: 'Are you sure?',
+                            text: "Once deleted, you will not be able to recover this coupon!",
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonColor: '#3085d6',
+                            cancelButtonColor: '#d33',
+                            confirmButtonText: 'Yes, delete it!'
+                        }).then((result) => {
+                            if (result.isConfirmed) { // Check if the confirmation was accepted
+                                // Send the delete request if confirmed
+                                axios.delete(`/admin/deleteCoupen`, { data: { id: id } }) // Sending the ID in the request body
+                                    .then((response) => {
+                                        // Handle successful deletion
+                                        Swal.fire(
+                                            'Deleted!',
+                                            'Your coupon has been deleted.',
+                                            'success'
+                                        ).then(() => {
+                                            window.location.reload(); // Reloads the current page to reflect changes
+                                        });
+                                    })
+                                    .catch((error) => {
+                                        // Handle error case
+                                        Swal.fire(
+                                            'Error!',
+                                            'There was a problem deleting the coupon.',
+                                            'error'
+                                        );
+                                        console.error('Error deleting coupon:', error);
+                                    });
+                            } else {
+                                // If cancelled, show a cancellation message (optional)
+                                Swal.fire(
+                                    'Cancelled',
+                                    'Your coupon is safe!',
+                                    'info'
+                                );
+                            }
+                        });
+                    }
+
+                </script>

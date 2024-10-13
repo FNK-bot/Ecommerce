@@ -36,8 +36,8 @@
 
                                     <td><a class="btn btn-sm btn-primary"
                                             href="/admin/editBrand?id=<%= brands[i]._id %>">Edit</a>
-                                        <a class="btn btn-sm btn-danger"
-                                            href="/admin/deleteBrand?id=<%= brands[i]._id %>">Delete</a>
+                                        <button class="btn btn-sm btn-danger"
+                                            onclick="deleteBrand('<%= brands[i]._id %>')">Delete</button>
 
                                     </td>
                                 </tr>
@@ -58,3 +58,53 @@
     <%- include('./partials/pageCon'); %>
         <%- include('./partials/footer'); %>
             <%- include('../user-views/partials/alertMessages'); %>
+
+
+                <% if (brands.length> 0) { %>
+                    <script>
+                        function deleteBrand(id) {
+                            // Show a confirmation dialog
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: "Once deleted, you will not be able to recover this brand!",
+                                icon: 'warning',
+                                showCancelButton: true, // Enable the cancel button
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) { // Check if the confirmation was accepted
+                                    // Send the delete request if confirmed
+                                    axios.delete(`/admin/deleteBrand?id=${id}`)
+                                        .then((response) => {
+                                            // Handle successful deletion
+                                            Swal.fire(
+                                                'Deleted!',
+                                                'Your brand has been deleted.',
+                                                'success'
+                                            ).then(() => {
+                                                window.location.reload(); // Reloads the current page to reflect changes
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            // Handle error case
+                                            Swal.fire(
+                                                'Error!',
+                                                'There was a problem deleting the brand.',
+                                                'error'
+                                            );
+                                            console.error('Error deleting brand:', error);
+                                        });
+                                } else {
+                                    // If cancelled, show a cancellation message (optional)
+                                    Swal.fire(
+                                        'Cancelled',
+                                        'Your brand is safe!',
+                                        'info'
+                                    );
+                                }
+                            });
+                        }
+
+                    </script>
+                    <% } %>

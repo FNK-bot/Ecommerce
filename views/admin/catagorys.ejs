@@ -39,11 +39,11 @@
                                     </td>
                                     <td><a class="btn btn-sm btn-primary"
                                             href="/admin/editCatagory?id=<%= catogary[i]._id %>">Edit</a>
-                                        <a class="btn btn-sm btn-danger"
-                                            href="/admin/deleteCatagory?id=<%= catogary[i]._id %>">Delete</a>
+                                        <button class="btn btn-sm btn-danger"
+                                            onclick="deleteCatagory('<%= catogary[i]._id %>')">Delete</button>
                                         <%if(catogary[i]?.offer.status==true){%>
-                                            <a class="btn btn-sm btn-danger"
-                                                href="/admin/deleteOffer?id=<%=catogary[i]?._id%>&type=catagory">deleteOffer</a>
+                                            <button class="btn btn-sm btn-danger"
+                                                onclick="deleteOffer('<%=catogary[i]?._id%>')">deleteOffer</button>
                                             <%}else{%>
                                                 <button type="button" class="btn btn-sm btn-primary" id="addOffer"
                                                     onclick="addOffer('<%=catogary[i]._id%>','catagory')">
@@ -69,46 +69,140 @@
     <%- include('./partials/pageCon'); %>
         <%- include('./partials/footer'); %>
             <%- include('../user-views/partials/alertMessages'); %>
+                <% if (catogary.length> 0) { %>
+                    <script>
 
-                <script>
-                    function addOffer(id, type) {
-
-                        Swal.fire({
-                            title: "Enter Offer Percentage %",
-                            input: "number",
-                            showCancelButton: true,
-                            confirmButtonText: "Add Offer",
-                            showLoaderOnConfirm: true,
-                            preConfirm: async (input) => {
-                                try {
-                                    if (input.length < 1) {
-                                        // alert(input.length)
-                                        Swal.showValidationMessage(`Enter Percentage Number`);
-                                        return false
-                                    }
-                                    if (input > 100 || input < 0 || input == NaN) {
-                                        Swal.showValidationMessage(`Percentage should be number b/w 1 to 100`);
-                                        return false
-                                    }
-                                    const url = `/admin/api/addOffer`;
-                                    const { data } = await axios.post(url, { input, type: 'catagory', id }, {
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                        }
-                                    })
-                                } catch (error) {
-                                    Swal.showValidationMessage(` Request failed: ${error}`);
+                        function deleteCatagory(id) {
+                            // Show a confirmation dialog
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: "Once deleted, you will not be able to recover this category!",
+                                icon: 'warning',
+                                showCancelButton: true, // Enable the cancel button
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!'
+                            }).then((result) => {
+                                if (result.isConfirmed) { // Check if the confirmation was accepted
+                                    // Send the delete request if confirmed
+                                    axios.delete(`/admin/deleteCatagory?id=${id}`)
+                                        .then((response) => {
+                                            // Handle successful deletion
+                                            Swal.fire(
+                                                'Deleted!',
+                                                'Your category has been deleted.',
+                                                'success'
+                                            ).then(() => {
+                                                window.location.reload(); // Reloads the current page to reflect changes
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            // Handle error case
+                                            Swal.fire(
+                                                'Error!',
+                                                'There was a problem deleting the category.',
+                                                'error'
+                                            );
+                                            console.error('Error deleting category:', error);
+                                        });
+                                } else {
+                                    // If cancelled, show a cancellation message (optional)
+                                    Swal.fire(
+                                        'Cancelled',
+                                        'Your category is safe!',
+                                        'info'
+                                    );
                                 }
-                            },
-                            allowOutsideClick: () => !Swal.isLoading()
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                Swal.fire({
-                                    title: `Success`,
-                                    icon: 'success',
-                                });
-                                location.reload()
-                            }
-                        });
-                    }
-                </script>
+                            });
+                        }
+
+                    </script>
+
+                    <script>
+                        function addOffer(id, type) {
+
+                            Swal.fire({
+                                title: "Enter Offer Percentage %",
+                                input: "number",
+                                showCancelButton: true,
+                                confirmButtonText: "Add Offer",
+                                showLoaderOnConfirm: true,
+                                preConfirm: async (input) => {
+                                    try {
+                                        if (input.length < 1) {
+                                            // alert(input.length)
+                                            Swal.showValidationMessage(`Enter Percentage Number`);
+                                            return false
+                                        }
+                                        if (input > 100 || input < 0 || input == NaN || input == 0) {
+                                            Swal.showValidationMessage(`Percentage should be number b/w 1 to 100`);
+                                            return false
+                                        }
+                                        const url = `/admin/api/addOffer`;
+                                        const { data } = await axios.post(url, { input, type: 'catagory', id }, {
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            }
+                                        })
+                                    } catch (error) {
+                                        Swal.showValidationMessage(` Request failed: ${error}`);
+                                    }
+                                },
+                                allowOutsideClick: () => !Swal.isLoading()
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    Swal.fire({
+                                        title: `Success`,
+                                        icon: 'success',
+                                    });
+                                    location.reload()
+                                }
+                            });
+                        };
+                        function deleteOffer(id) {
+                            // Define the URL
+                            let url = `/admin/deleteOffer?id=${id}&type=catagory`;
+
+                            // Show confirmation dialog
+                            Swal.fire({
+                                title: 'Are you sure?',
+                                text: "You are about to delete this offer. This action cannot be undone!",
+                                icon: 'warning',
+                                showCancelButton: true,
+                                confirmButtonColor: '#3085d6',
+                                cancelButtonColor: '#d33',
+                                confirmButtonText: 'Yes, delete it!',
+                                cancelButtonText: 'No, cancel!',
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    // If the user confirms, send the delete request
+                                    axios.delete(url)
+                                        .then((response) => {
+                                            // Handle successful deletion
+                                            Swal.fire(
+                                                'Deleted!',
+                                                'The offer has been deleted.',
+                                                'success'
+                                            ).then(() => {
+                                                // Reload the page to reflect changes
+                                                window.location.reload();
+                                            });
+                                        })
+                                        .catch((error) => {
+                                            // Handle error during deletion
+                                            Swal.fire(
+                                                'Error!',
+                                                'There was a problem deleting the offer.',
+                                                'error'
+                                            );
+                                            console.error('Error deleting offer:', error);
+                                        });
+                                } else {
+                                    // If the user cancels, show cancellation message
+                                    Swal.fire('Cancelled', 'Your offer is safe!', 'info');
+                                }
+                            });
+                        }
+
+                    </script>
+                    <% } %>

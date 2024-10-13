@@ -264,16 +264,18 @@ coupen validaity check
 post checkout cheing the product qnt
 
 --week 12--
-product delete - confirmation 
+product delete - confirmation -x
 product delete - still showing on the user side--x
 cart show out of stock -x 
 session handling issue -x
-application crash 
 wallet history sort by recent s -x
-product- add offer - populate actual price
-password fields - eye icon
+product- add offer - populate actual price -x
 otp expiry time -x
+application crash 
+password fields - eye icon 
 
 goback handle
 chek cart after sock update
 order succes id params
+
+...manage deleted data mongo db

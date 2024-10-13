@@ -1,120 +1,136 @@
-const Order = require('../../models/order');
-const ProductModel = require('../../models/product')
+const ProductModel = require('../../models/product');
 const Category = require('../../models/catagory');
-const Brand = require('../../models/brand');
-const mongoose = require('mongoose');
 
 
 const manageOffers = async (req, res) => {
     try {
-        console.log('offer api')
-        console.log(req.body)
         let { input, type, id } = req.body;
         input = parseInt(input)
 
+        //If request From Product Offer
         if (type == 'product') {
-            if (!mongoose.Types.ObjectId.isValid(id)) {
-                id = new mongoose.Types.ObjectId(id);
-            }
-            console.log('in products')
+
             let product = await ProductModel.findById(id);
+            if (!product) {
+                return res.status(404).json({ error: 'Product Not Found' })
+            }
+
+            //validate product Price is greater than input and input greter than zero 
             if (product.price >= input && input >= 0) {
                 product.offer.status = true;
                 product.offer.amount = input;
+
+                // Ensure the actual price is set only the first time
                 if (!product.actualPrice.set) {
                     product.actualPrice.set = true
                     product.actualPrice.amount = product.price;
                 }
+
                 product.price = input
                 await product.save()
-                let result = await ProductModel.findById(id);
-                console.log(result)
-                res.json({ isConfirmed: true })
+
+                res.status(200).json({ isConfirmed: true })
             } else {
-                res.json({ validationError: true, isConfirmed: false })
+                res.status(400).json({ validationError: true, isConfirmed: false })
             }
         }
 
+        // Category Offer Logic
+        else if (type == 'catagory') {
 
-        if (type == 'catagory') {
-            console.log('catogary')
-            if (input <= 100 && input >= 0) {
+            //check input in not greater than 100 and Lessthan 0
+            if (input <= 100 && input > 0) {
                 let catagory = await Category.findById(id);
-                console.log(catagory)
-                console.log(typeof id)
+                if (!catagory) {
+                    return res.status(404).json({ error: 'Catagory Not Found' });
+                };
+
                 catagory.offer.status = true;
                 catagory.offer.percentage = input;
-                await catagory.save()
-                let catagoryCh = await Category.findById(id);
-                console.log('catogary chnaged ', catagory._id)
+                await catagory.save();
+
                 let allProductsOfCatagory = await ProductModel.find({ categary: id });
-                console.log(allProductsOfCatagory)
+
                 for (let product of allProductsOfCatagory) {
-                    //offer for all products -- offer calculated by percentage
-                    product.price = product.price - Math.floor(product.price * (input / 100))
-                    await product.save()
-                    let chnaged = await ProductModel.findOne({ _id: product._id });
-                    console.log('chnaged price', chnaged.price)
+                    //setting offer for all products -- offer calculated by percentage
+                    if (!product.actualPrice.set) {
+                        product.actualPrice.amount = product.price;
+                        product.actualPrice.set = true;
+                    }
+                    product.price = product.actualPrice.amount - Math.floor(product.actualPrice.amount * (input / 100));
+                    await product.save();
                 }
 
-                res.json({ isConfirmed: true })
+                res.status(200).json({ isConfirmed: true })
             } else {
-                res.json({ validationError: true, isConfirmed: false })
+                res.status(400).json({ validationError: true, isConfirmed: false })
             }
         }
 
     } catch (error) {
-        console.log(`Error in Offer api`, error);
+        console.error(`Error in Offer api`, error);
+        res.status(500).json({ validationError: true, isConfirmed: false })
     }
 }
 
 
+
 const deleteOffer = async (req, res) => {
     try {
-        console.log('delerte offer api')
-        console.log(req.query)
-        let id = req.query.id
-        let type = req.query.type || 'product';
+
+        let id = req.query.id;
+        let type = req.query.type;
+
         if (type == 'product') {
-            id = new mongoose.Types.ObjectId(id)
             let product = await ProductModel.findById(id);
+            if (!product) {
+                return res.status(404).json({ error: 'Product Not Found' });
+            }
 
             product.offer.status = false;
             product.offer.amount = 0;
             product.price = product.actualPrice.amount
             await product.save()
-            let result = await ProductModel.findById(id);
-            console.log(result)
-            res.redirect('products')
+
+            res.status(200).json({ message: "success" });
 
         }
-        if (type == 'catagory') {
+        else if (type == 'catagory') {
 
             let catagory = await Category.findById(id);
-            console.log(catagory)
-            console.log(typeof id)
+            if (!catagory) {
+                return res.status(404).json({ error: 'Category Not Found' });
+            }
+
             catagory.offer.status = false;
             let input = catagory.offer.percentage
             catagory.offer.percentage = 0;
             await catagory.save()
-            let catagoryCh = await Category.findById(id);
-            console.log('catogary chnaged ', catagoryCh)
+
+
             let allProductsOfCatagory = await ProductModel.find({ categary: id });
-            console.log(allProductsOfCatagory)
+
             for (let product of allProductsOfCatagory) {
+
                 //offer for all products -- offer calculated by percentage
-                product.price = product.price + Math.floor(product.price * (input / 100))
+                if (!product.actualPrice.set) {
+                    product.actualPrice.set = true;
+                }
+                product.actualPrice.amount = product.price;
+                product.price = product.actualPrice.amount + Math.floor(product.actualPrice.amount * (input / 100));
                 await product.save()
-                let chnaged = await ProductModel.findOne({ _id: product._id });
-                console.log('chnaged price', chnaged.price)
+
             }
 
-            res.redirect('back');
+            res.status(200).json({ message: 'success' });
+        }
+        else {
+            res.status(400).json({ error: 'Not valid Request' });
         }
 
-
     } catch (error) {
-        console.log(`Error in Delete Offer api`, error);
+        console.error(`Error in Delete Offer api`, error);
+        res.status(500).json({ error: 'Internal Server error' });
     }
 }
 

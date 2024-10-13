@@ -45,8 +45,8 @@
                                         <a class="btn btn-sm btn-success"
                                             href="/admin/orderDetails?id=<%=orders[i]._id%>">Order Details</a>
                                     </td>
-                                    <td><a class="btn btn-sm btn-danger"
-                                            href="/admin/deleteOrder?id=<%=orders[i]._id%>">Delete</a></td>
+                                    <td><button class="btn btn-sm btn-danger"
+                                            onclick="deleteOrder('<%=orders[i]._id%>')">Delete</button></td>
                                 </tr>
                                 <% } %>
                                     <% } else { %>
@@ -60,14 +60,51 @@
             </div>
         </div>
     </div>
-    <!-- 
-    <script>
 
-        function deleteOrder(order_id){
-            axios.delete(`/admin/deleteOrder?id=${order_id}`)
+    <script>
+        function deleteOrder(id) {
+            // Show confirmation dialog using SweetAlert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will delete the order and it cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'No, cancel!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send DELETE request using Axios if confirmed
+                    axios.delete(`/admin/deleteOrder?id=${id}`)
+                        .then((response) => {
+                            Swal.fire(
+                                'Deleted!',
+                                'The order has been successfully deleted.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Reload the page to reflect changes
+                            });
+                        })
+                        .catch((error) => {
+                            Swal.fire(
+                                'Error!',
+                                'There was an issue deleting the order. Please try again.',
+                                'error'
+                            );
+                            console.error("Error deleting order:", error);
+                        });
+                } else {
+                    Swal.fire(
+                        'Cancelled',
+                        'Your order is safe!',
+                        'info'
+                    );
+                }
+            });
         }
-    </script> -->
-    <!-- Recent Sales End -->
+
+    </script>
     <%- include('./partials/pageCon'); %>
 
         <%- include('./partials/footer'); %>
