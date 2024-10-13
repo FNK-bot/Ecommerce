@@ -238,3 +238,42 @@ put rating
 crud routs
 image handlin on catergry and brand
 offer catagory updation
+
+
+ADDRESS SHOW I IN PROFILE
+
+Delete product managment
+check product when user paying stock
+
+https://chatgpt.com/share/6706a9e9-0bc0-8003-990f-6ed1022ba7aa
+
+only update what changed
+
+*helmet
+*exprees validator
+*node procees env 'production'and 'deployment'
+*winston --logiing ip supecious
+*express-rate-limit
+\\\\handle bad request and 404
+*Splunk, Loggly, or cloud logging systems
+\\\ error handling in production
+going to shop when clicking shop catagory
+coupen issue
+add to cart validate product qnt
+coupen validaity check 
+post checkout cheing the product qnt
+
+--week 12--
+product delete - confirmation 
+product delete - still showing on the user side--x
+cart show out of stock -x 
+session handling issue -x
+application crash 
+wallet history sort by recent s -x
+product- add offer - populate actual price
+password fields - eye icon
+otp expiry time -x
+
+goback handle
+chek cart after sock update
+order succes id params

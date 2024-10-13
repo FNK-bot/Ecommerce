@@ -51,14 +51,13 @@
                                             </a>
 
                                             <%}else{%>
+                                                <a>
+                                                    <button class="btn btn-sm btn-secondary " disabled>
+                                                        Mark as Delevered
+                                                    </button>
 
-                                                <button class="btn btn-sm btn-warning "
-                                                    onclick="markAsPlaced('<%=orderDetails[i]._id%>','<%=oid%>')">
-                                                    Mark as Placed
-                                                </button>
 
-
-                                                <% } %>
+                                                    <% } %>
                                     </td>
                                 </tr>
                                 <% } %>

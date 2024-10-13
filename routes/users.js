@@ -18,14 +18,14 @@ const { getOtpPage, getLogin, getRegister, getForgotPassword, postRegister,
      postForgotPassword, resendOtp } = require('../controller/user controller/userAuthCtrl');
 
 const { getProfile, getEditAdress, getEditProfile, getAddAdress, postAddAddress,
-     getDeleteAddress, postEditProfile, postEditAdress,
+     deleteAddress, postEditProfile, postEditAdress,
      getChangePassword,
      postChangePassword,
-     returnOrder, cancelOneItem, returnOneItem,
-     cancelOrder } = require('../controller/user controller/profileCtrl');
+     cancelOneItem, returnOneItem,
+} = require('../controller/user controller/profileCtrl');
 
 const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem,
-     getCheckOut, postChekOut, deleteOrder,
+     getCheckOut, postChekOut,
      getOrderSuccess,
      getCoupens,
      applyCoupen,
@@ -67,7 +67,7 @@ router.get('/product', isLogged, getSingleProduct)
 router.get('/profile', isLogged, getProfile)
 router.get('/add-new-address', isLogged, getAddAdress)
 router.post('/add-new-address', isLogged, postAddAddress)
-router.get('/deleteAddress', isLogged, getDeleteAddress)
+router.delete('/deleteAddress', isLogged, deleteAddress)
 router.get('/editAddress', isLogged, getEditAdress)
 router.post('/editAddress', isLogged, postEditAdress)
 router.get('/edit-profile', isLogged, getEditProfile)
@@ -78,7 +78,6 @@ router.post('/changepass', isLogged, postChangePassword)
 //Cart
 router.get('/cart', isLogged, getCart)
 router.post('/addToCart', isLogged, postAddtoCart);
-router.post('/addToCart', isLogged, postAddtoCart);
 router.put('/incrementQnt', isLogged, putIncrementQnt);
 router.put('/decrementQnt', isLogged, putDecrementQnt);
 router.delete('/deleteCartItem', isLogged, deleteCartItem)
@@ -88,14 +87,11 @@ router.delete('/deleteCartItem', isLogged, deleteCartItem)
 router.get('/checkOut', isLogged, checkCartQuantities, getCheckOut)
 router.post('/checkOut', isLogged, postChekOut)
 
-//order
+//order in profile
 router.get('/orderSuccess', isLogged, getOrderSuccess)
-router.get('/deleteOrder', isLogged, deleteOrder)
-router.get('/returnOrder', isLogged, returnOrder)
 router.post('/failedPayment', isLogged, payOnOderPage)
-router.get('/cancelOrder', isLogged, cancelOrder);
-router.get('/cancelOneItem', isLogged, cancelOneItem)
-router.get('/returnOneItem', isLogged, returnOneItem)
+router.delete('/cancelOneItem', isLogged, cancelOneItem)
+router.post('/returnOneItem', isLogged, returnOneItem)
 
 //coupens
 router.get('/mycoupens', isLogged, getCoupens)
@@ -105,7 +101,7 @@ router.put('/cancel-coupen', isLogged, cancelCoupen);
 //wishlist
 router.get('/wishlist', isLogged, getWishlist)
 router.get('/addToWishlist', isLogged, addToWishlist)
-router.get('/deleteFromWishlist', isLogged, deleteWishlist)
+router.delete('/deleteWishlistItem', isLogged, deleteWishlist)
 
 //search 
 router.get('/search', search)
@@ -114,6 +110,6 @@ router.get('/search', search)
 router.get('/downloadInvoice', isLogged, invoice)
 
 router.all('*', (req, res) => {
-     res.render('404')
+     res.render('error-responses/404')////
 })
 module.exports = router;

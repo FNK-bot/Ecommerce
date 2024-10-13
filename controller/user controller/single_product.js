@@ -1,32 +1,45 @@
 const Product = require('../../models/product')
-const Catagory = require('../../models/catagory')
 const User = require('../../models/user')
-const Brand = require('../../models/brand')
-
+const { isValidObjectId } = require('mongoose');
 
 const getSingleProduct = async (req, res) => {
     try {
         const product_id = req.query.product;
-        const user = req.session.user_id;
-        const suggestedProducts = await Product.find({ isDeleted: false }).limit(4).populate({ path: 'brand', select: 'name', strictPopulate: false });
 
-        const product = await Product.findById(product_id).populate({ path: 'brand', select: 'name', strictPopulate: false });
-        if (user) {
-            const userdata = await User.findById(user)
-            res.render("user-views/single_product", {
-                user: userdata, product,
-                sProduct: suggestedProducts,
-            });
-
-        } else {
-            res.render("user-views/single_product", {
-                user: null, product,
-                sProduct: suggestedProducts,
-            });
+        // Check if product_id exists in the query and is it valid id (santizing)
+        if (!product_id || !isValidObjectId(product_id)) {
+            return res.status(400).json({ message: 'Product ID is required or Product Id is not valid' });
         }
-    } catch (error) {
 
-        console.log('error in getLanding error:', error)
+        const user = req.session.user_id || null;
+
+        //fetching Suggested or Recommended products
+        const suggestedProducts = await Product.find({ isDeleted: false })
+            .limit(4).populate({ path: 'brand', select: 'name', strictPopulate: false });
+
+        //fetching Product by id
+        const product = await Product.findById(product_id)
+            .populate({ path: 'brand', select: 'name', strictPopulate: false });
+
+        //check is the product is there or is it soft Deleted, And the logic
+        if (product.isDeleted || !product) {
+            return res.status(404).json({ message: 'product not found' })
+        }
+
+        let userData = null;
+        if (user) {
+            // feching user data is user id is in session 
+            userData = await User.findById(user);
+        }
+
+        return res.render("user-views/single_product", {
+            user: userData, product,
+            sProduct: suggestedProducts, //sProduct is suggested Products 
+        });
+
+    } catch (error) {
+        console.error(`Error in getSingleProduct :`, error.message);
+        res.status(500).json({ message: 'Internal server error' });
     }
 }
 

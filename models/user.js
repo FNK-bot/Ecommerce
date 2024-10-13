@@ -141,11 +141,6 @@ const userSchema = new mongoose.Schema({
             type: mongoose.Schema.Types.ObjectId,
             ref: "Product"
         },
-        isDeleted: {
-            type: Boolean,
-            required: true,
-            default: false,
-        }
     }],
     wallet: {
         type: Number,

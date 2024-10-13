@@ -196,8 +196,8 @@
                                                     <td>
                                                         <a href="/editAddress?id=<%=user.address[i]._id%>"
                                                             class="btn btn-sm btn-outline-primary">Edit</a>
-                                                        <a href="/deleteAddress?id=<%=user.address[i]._id%>"
-                                                            class="btn btn-sm btn-outline-danger">Delete</a>
+                                                        <button onclick="deleteAddress('<%=user.address[i]._id%>')"
+                                                            class="btn btn-sm btn-outline-danger">Delete</button>
                                                     </td>
                                                 </tr>
                                                 <% } %>
@@ -231,8 +231,8 @@
                                             </p>
                                         </div>
                                         <div class="col-md-3 col-6">
-                                            <p><strong>Contact:</strong>
-                                                <%= order.address.name %>
+                                            <p><strong>Address Type:</strong>
+                                                <%= order?.address?.adressType %>
                                             </p>
                                             <p><strong>Phone:</strong>
                                                 <%= order.address.mobile %>
@@ -357,13 +357,13 @@
                                                                                                 &&
                                                                                                 order.onlinePayment.status
                                                                                                 !=='Pending' ){%>
-                                                                                                <a
-                                                                                                    href='/cancelOneItem?oid=<%=order._id%>&iid=<%=order.productDetails[x]._id%>'>
-                                                                                                    <button
-                                                                                                        class="btn btn-sm btn-danger mr-2">
-                                                                                                        Cancel
-                                                                                                    </button>
-                                                                                                </a>
+
+                                                                                                <button
+                                                                                                    onclick="cancelItem('<%=order._id%>','<%=order.productDetails[x]._id%>')"
+                                                                                                    class="btn btn-sm btn-danger mr-2">
+                                                                                                    Cancel
+                                                                                                </button>
+
 
                                                                                                 <%}else{%>
                                                                                                     <button
@@ -378,13 +378,14 @@
                                                                                                             order.onlinePayment.status
                                                                                                             !=='Pending'
                                                                                                             ){%>
-                                                                                                            <a
-                                                                                                                href='/returnOneItem?oid=<%=order._id%>&iid=<%=order.productDetails[x]._id%>'>
-                                                                                                                <button
-                                                                                                                    class="btn btn-sm btn-danger mr-2">
-                                                                                                                    Return
-                                                                                                                </button>
-                                                                                                            </a>
+
+
+                                                                                                            <button
+                                                                                                                onclick="returnItem('<%=order._id%>','<%=order.productDetails[x]._id%>')"
+                                                                                                                class="btn btn-sm btn-danger mr-2">
+                                                                                                                Return
+                                                                                                            </button>
+
 
                                                                                                             <%}else{%>
                                                                                                                 <button
@@ -424,6 +425,121 @@
         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
         <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+        <script>
+            //Delete Addrews
+            function deleteAddress(id) {
+                // Confirm deletion with the user
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, delete it!',
+                    cancelButtonText: 'No, cancel!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete('/deleteAddress', { data: { id } })
+                            .then((res) => {
+                                // Notify user of success and reload the page
+                                Swal.fire({
+                                    title: 'Deleted!',
+                                    text: 'Address has been deleted.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            })
+                            .catch((error) => {
+
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Address deletion failed. Please try again.',
+                                    icon: 'error'
+                                });
+                            });
+                    }
+                });
+            }
+
+
+            //cancel Item in order
+            function cancelItem(oid, iid) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, cancel it!',
+                    cancelButtonText: 'No, cancel!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.delete('/cancelOneItem', { data: { oid, iid } })
+                            .then((res) => {
+                                // Notify user of success and reload the page
+                                Swal.fire({
+                                    title: 'Cancelled!',
+                                    text: 'Product has been Cancelled.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            })
+                            .catch((error) => {
+
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Product Cancellation failed. Please try again.',
+                                    icon: 'error'
+                                });
+                            });
+                    }
+                });
+
+            }
+
+            //return Item in order
+            function returnItem(oid, iid) {
+                Swal.fire({
+                    title: 'Are you sure?',
+                    text: 'This action cannot be undone!',
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Yes, Return it!',
+                    cancelButtonText: 'No, cancel!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        axios.post('/returnOneItem', { oid, iid })
+                            .then((res) => {
+                                // Notify user of success and reload the page
+                                Swal.fire({
+                                    title: 'Returned!',
+                                    text: 'Product has been Returned.',
+                                    icon: 'success',
+                                    timer: 1500,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.reload();
+                                });
+                            })
+                            .catch((error) => {
+
+                                Swal.fire({
+                                    title: 'Error',
+                                    text: 'Product Return Request failed. Please try again.',
+                                    icon: 'error'
+                                });
+                            });
+                    }
+                });
+
+            }
+        </script>
+
         <script>
             async function pay(id) {
 

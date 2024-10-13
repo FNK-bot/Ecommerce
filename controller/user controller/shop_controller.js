@@ -1,14 +1,24 @@
-const Product = require('../../models/product')
-const Catagory = require('../../models/catagory')
-const User = require('../../models/user')
-const Brand = require('../../models/brand')
+const Product = require('../../models/product');
+const Catagory = require('../../models/catagory');
+const User = require('../../models/user');
+const Brand = require('../../models/brand');
+const { isValidObjectId } = require('mongoose');
 
 const getShop = async (req, res) => {
     try {
+
         let sort = req.query.sort || '';
         let catagory_id = req.query.id || false;
-        let sortSetting = {};
+
+        // check the catagory id is valid 
+        if (catagory_id && !isValidObjectId(catagory_id)) {
+            return res.status(400).json({ message: 'catagory not found' })
+        };
+
+        // check catagory id is there and the logic
         let filterCatagory = catagory_id ? { isDeleted: false, categary: catagory_id } : { isDeleted: false, };
+
+        let sortSetting = {};
         switch (sort) {
             case 'price-asc':
                 sortSetting.price = 1;
@@ -26,32 +36,42 @@ const getShop = async (req, res) => {
                 sortSetting = {};
         }
 
-        const allProduct = await Product.find(filterCatagory).collation({ locale: 'en', strength: 2 }).sort(sortSetting).populate('categary').populate({ path: 'brand', select: 'name', strictPopulate: false })
-        console.log(allProduct)
-        let product = allProduct.filter((product) => product.isDeleted === false)
-        const catagory = await Catagory.find({ isDeleted: { $ne: true } })
+        //Fetch All products Data which is not deleted and sort and match catagory
+        const allProduct = await Product.find(filterCatagory).collation({ locale: 'en', strength: 2 }).sort(sortSetting)
+            .populate('categary').populate({ path: 'brand', select: 'name', strictPopulate: false })
+
+        //fetch Catagory
+        const catagory = await Catagory.find({ isDeleted: false });
+
+        //fetch user data
         const user = await User.findById(req.session.user_id)
-        const brand_ids = product.map((item) => item.brand);
-        const brand = await Brand.find({ _id: { $in: brand_ids } });
+
+        //Assign catagory name and assign the catgoryName if catagory id  
         let categoryName;
         if (catagory_id) {
             categoryName = await Catagory.findById(catagory_id)
         }
-        let active = catagory_id ? categoryName.name : 'All Dresses';
-        let totalProducts = product.length;
+        //Determine active catogory if the catagory name is there
+        let active = catagory_id ? categoryName.name : 'All Items';
+
+        //Pagination logic
+        let totalProducts = allProduct.length;
         const itemsperpage = totalProducts > 9 ? 9 : totalProducts;
-        console.log('item per page' + itemsperpage)
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
         const totalpages = Math.ceil(totalProducts / 9);
-        let currentproduct = product.slice(startindex, endindex);
-        res.render("user-views/shop", { user, product: currentproduct, catagory, totalpages, currentpage, totalProducts, brand, active });
+        let currentproduct = allProduct.slice(startindex, endindex);
+
+        //return respose with data
+        return res.render("user-views/shop", {
+            user, product: currentproduct, catagory,
+            totalpages, currentpage, totalProducts, active
+        });
 
     } catch (error) {
-
-        console.log('error in getShop error:', error)
+        console.error('error in getShop error:', error)
+        res.status(500).json({ message: "Internal Server Error" })
     }
 };
-
 module.exports = getShop

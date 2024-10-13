@@ -39,42 +39,57 @@ const getLogin = async (req, res) => {
         res.status(200);
         res.render('user-views/login', { message: null })
     } catch (error) {
-        res.render('error')
+        console.error('Error Get Login ', error);
+        res.status(500).json({ message: 'Internal server Error' })
     }
 }
+
 const postLogin = async (req, res) => {
     try {
         res.status(200);
-        console.log('body', req.body)
+
         let { email, password } = req.body;
+
+        //Handle Refferel offer Input
         let referrel = req.body.referrel || null;
         let userData = await User.findOne({ email });
+
+        //validate User
         if (userData) {
+            //check user is not Blocked
             if (!userData.isBlocked) {
+
+                //Handle if user signed with google and no passaword set yet 
                 if (userData.isGoogle && (!userData.password)) {
-                    res.render('user-views/login', { message: `Youre account is signedup with google please login through google or register and set password or can set password with forgot password option` });
+                    res.render('user-views/login', {
+                        message: `Youre account is signedup with google please
+                         login through google or register and set password or can set password with forgot password option` });
                 }
 
                 else {
-
+                    // If password Matched
                     if (await userData.isPasswordMatched(password)) {
                         //referrel 
                         if (referrel) {
                             let validateRefferel = await User.findOne({ email: referrel });
-                            console.log('referrel ', validateRefferel.username)
+
                             if (validateRefferel) {
                                 userData.wallet += 25;
                                 userData.transactionHistory.push({
                                     amount: 25
                                 })
-                                userData.save()
-                                req.session.mType = 'success'
-                                req.session.mContent = 'You got ₹25 with refferl offer,check your wallet'
+                                await userData.save();
+                                req.session.alertMessage = {
+                                    type: 'success',
+                                    message: 'You got ₹25 with refferl offer,check your wallet'
+                                }
+
                             }
                         }
 
                         req.session.user_id = userData._id;
                         req.session.userAuth = true;
+
                         //for handling the req from diffrent url
                         const redirectTo = req.session.userReturnTo || '/';
                         delete req.session.userReturnTo; // Clean up returnTo after redirect
@@ -87,62 +102,79 @@ const postLogin = async (req, res) => {
                 }
             }
             else {
+                //Handle User Is Blocked
                 res.render('user-views/login', { message: 'This Account is blocked by the Admin , contact at Eseenceofficial@gmail.com ' })
             }
 
         }
-
         else {
+            //If no user Data Found with email
             res.render('user-views/login', { message: `User not Found Please Sign Up` });
         }
 
     } catch (error) {
-        console.log('error occured in post Login', error);
-        res.render('user-views/login', { message: error })
+        console.error('error occured in post Login', error);
+        res.render('user-views/login', { message: 'Something Gone Wrong' })
 
     }
 }
+
 const getLogOut = (req, res) => {
     try {
         res.status(200);
-        req.session.destroy();
+
+        //delete user id from session 
+        delete req.session.user_id
+        req.session.userAuth = false;
+
         res.redirect('/');
     } catch (error) {
-        console.log('error in logout error:', error)
+        console.error('error in logout error:', error)
     }
 };
+
 const getOtpPage = async (req, res) => {
     try {
-        console.log('-----get otp--')
         res.status(200);
+
         let email = req.session.email;
-        console.log(req.session.User)
-        console.log('otp loading curr otp' + req.session.OTP)
+
+        console.log('current Otp ', req.session.OTP)
+
+        //Handle Message needed for otp Page
         let message = req.session.otpMessage || null
+
         req.session.otpMessage = null;
         res.render('user-views/otp', { message, email })
     } catch (error) {
-        res.render('error while getting otp page Error: ', error)
+        console.error('Error Happend in Get otp ctrl', error);
+        res.render('user-views/login', { message: 'Something Gone Wrong' })
     }
 }
 
 const resendOtp = async (req, res) => {
     try {
-        console.log('-----resend otp--')
+
         let email = req.session.email || req.body.email
-        console.log(email)
+
         let otp = generateOtp();
-        console.log('resened otp ', otp)
+
         req.session.OTP = otp;
-        console.log('resasigned otp', req.session.OTP)
+        console.log('resended Otp', otp)
+        req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // Set expiration time to 5 minutes
+
+
+        //setting Mail Options
         let mailOptions = {
             from: process.env.USER_NAME,
             to: email,
             subject: 'Verify Your Account  ✔',
-            text: `Your OTP is : ${otp}`, // plain text body
+            text: `Your OTP is : ${otp} ,Only valid For 5 minuts`, // plain text body
             html: `<b>  <h4 >Your OTP  ${otp}</h4>    
                 <br>  <a href="/otp">Click here</a></b>`, // html body
         };
+
+        //Handling Send Mail with Node Mailer
         transporter.sendMail(mailOptions, function (error, info) {
             if (error) {
                 console.log('Node mailer Error :', error);
@@ -151,28 +183,39 @@ const resendOtp = async (req, res) => {
             }
             res.status(200).json({ success: true })
         });
+
     } catch (error) {
-        console.log('Error in Resend Oto cntrl Error', error)
+        console.error('Error in Resend Oto cntrl Error', error)
+        res.render('user-views/login', { message: 'Something Gone Wrong' })
     }
 }
 
 const postOtp = async (req, res) => {
-    console.log('-----post otp--')
-    let email = req.session.email;
-    console.log('post otp email :', email)
     try {
+        //handle Input from user
         const { one, two, three, four } = req.body;
         let formOtp = one + two + three + four;
         let numberOtp = parseInt(formOtp);
-        let orgOtp = req.session.OTP;
-        console.log('otp input', numberOtp);
-        console.log('session otp ', orgOtp);
 
+        //configure OTP variables
+        let orgOtp = req.session.OTP;
+        let otpExpiresAt = req.session.otpExpiresAt;
+
+        console.log('session otp ', orgOtp); ///test
+
+        //validate Expiry
+        if (Date.now() > otpExpiresAt) {
+            req.session.otpMessage = 'OTP has expired, please request a new one.';
+            return res.redirect('/otp');
+        }
+
+        //check Otp Macthing
         if (orgOtp == numberOtp) {
-            console.log(req.session.User);
             let { name, email, phone, password } = req.session.User;
+
+            //Generate Hashed Pasword
             let hashedPassword = await generateHashedPassword(password)
-            console.log('email verified');
+
             let newUser = new User({
                 username: name,
                 email: email,
@@ -180,65 +223,87 @@ const postOtp = async (req, res) => {
                 password: hashedPassword,
             });
             await newUser.save()
+
+            //Verified Logic
             req.session.user_id = newUser._id;
             req.session.userAuth = true;
-            res.redirect('/');
+
+            //for handling the req from diffrent url
+            const redirectTo = req.session.userReturnTo || '/';
+            delete req.session.userReturnTo; // Clean up returnTo after redirect
+            return res.redirect(redirectTo)
         }
         else {
-            console.log(email);
             req.session.otpMessage = 'You Entered Wrong OTP'
-            res.redirect('/otp')
+            return res.redirect('/otp')
         }
+
     } catch (error) {
+        console.error('Post Otp Error :', error);
         res.render('user-views/login', { message: 'OTP ERROR PLESE TRY WITH GOOGLE' })
-        console.log('Post Otp Error :', error);
     }
 }
 
+// Register Loading Page
 const getRegister = async (req, res) => {
     try {
         res.status(200);
         res.render('user-views/register', { message: null })
     } catch (error) {
-
+        console.error('Get Register Error :', error);
+        res.render('user-views/login', { message: 'some thing went wrong' })
     }
 }
+
 const postRegister = async (req, res) => {
     try {
         res.status(200);
+
         let { email, phone, name } = req.body;
-        console.log(req.body)
+
         let message = null;
+
+        //Fetch user 
         let isExist = await User.findOne({ email })
+
+        //Validate user
         if (isExist) {
+            //if user Exist
             message = `${email} already exists`;
-            console.log(message)
-            // res.send("alert('email already exist '); window.location.href = '/register'; ");
+
             res.render('user-views/register', { message })
         }
         else {
+            //If user Not Registered
             req.session.User = req.body;
             req.session.email = req.body.email
-            console.log(req.session.User)
+
+            //configure otp
             let otp = generateOtp();
             req.session.OTP = otp;
-            console.log(req.session.OTP)
+            req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // Set expiration time to 5 minutes
+
+            console.log('Register Otp', req.session.OTP)
+
+            //Node Mailer Option Config
             let mailOptions = {
                 from: process.env.USER_NAME,
                 to: email,
                 subject: 'Verify Your Account  ✔',
-                text: `Your OTP is : ${otp}`, // plain text body
+                text: `Your OTP is : ${otp} ,Only Valid for 5 minuts`, // plain text body
                 html: `<b>  <h4 >Your OTP  ${otp}</h4>    
                 <br>  <a href="/otp">Click here</a></b>`, // html body
             };
+            //handle NodeMailer
             transporter.sendMail(mailOptions, function (error, info) {
+
                 if (error) {
-                    console.log('Node mailer Error :', error);
+                    console.error('Node mailer Error :', error);
+
                     req.session.otpMessage = 'Error Occured while sending otp'
                     res.redirect('/otp')
+
                 } else {
-                    console.log('Email sent: ' + info.response);
-                    console.log('generated otp', otp);
                     req.session.otpMessage = null
                     res.redirect('/otp')
                 }
@@ -247,7 +312,8 @@ const postRegister = async (req, res) => {
         }
 
     } catch (error) {
-        console.log('Post register Error :', error);
+        console.error('Post Register Error :', error);
+        res.render('user-views/login', { message: 'Some thing went wrong' })
     }
 }
 
@@ -256,16 +322,15 @@ const postRegister = async (req, res) => {
 const getForgotPassword = async (req, res) => {
     try {
         res.status(200);
-        let alertMessage = {
-            type: req.session.mType,
-            message: req.session.mContent,
-        }
-        req.session.mType = ' ';
-        req.session.mContent = " ";
+
+        //Handle Alert Message
+        let alertMessage = req.session.alertMessage;
+        req.session.alertMessage = null;
+
         res.render('user-views/forgotPassword', { alertMessage })
     } catch (error) {
-
-        console.log('get  forgot mail Error :', error);
+        console.error('Get Forgot Password Error :', error);
+        res.render('user-views/login', { message: 'Some thing went wrong' })
     }
 }
 
@@ -273,12 +338,16 @@ const postForgotPassword = async (req, res) => {
     try {
         res.status(200);
         let { email } = req.body;
+
+        //validate email
         let checkEmail = await User.findOne({ email: email });
+
+        //handle If Email is valid
         if (checkEmail) {
 
-            let otpToken = generateOtp()
+            let otpToken = generateOtp() // used generate unique Token
             req.session.resetToken = otpToken;
-            console.log(email)
+
             let mailOptions = {
                 from: process.env.USER_NAME,
                 to: email,
@@ -287,31 +356,38 @@ const postForgotPassword = async (req, res) => {
                 html: `<b>  <h4 >visit here </h4>    
                 <br>  <a href="http://localhost:3000/resetPassword?tk=${otpToken}&@=${email}">Click here</a></b>`, // html body
             };
+
             transporter.sendMail(mailOptions, function (error, info) {
                 if (error) {
-                    console.log('Node mailer Error :', error);
-                    req.session.mType = 'error';
-                    req.session.mContent = "please try after some time ";
+                    console.error('Node mailer Error :', error);
+                    req.session.alertMessage = {
+                        type: 'error',
+                        message: 'some thing went wrong while sending Mail , try later'
+                    }
                     res.redirect('/forgotPassword')
                 } else {
-                    console.log('Email sent: ' + info.response);
                     console.log(`link generated http://localhost:3000/resetPassword?tk=${otpToken}&for=${email}`)
-                    req.session.mType = 'success';
-                    req.session.mContent = "Reset Link is shared in the mail ";
+                    req.session.alertMessage = {
+                        type: 'success',
+                        message: 'Reset Link Has Shared to Your Mail Please Check it'
+                    }
                     res.redirect('/forgotPassword');
                 }
             });
         }
         else {
-            req.session.mType = 'error';
-            req.session.mContent = "Email is not Registered Yet ";
+            req.session.alertMessage = {
+                type: 'error',
+                message: 'Email is Not Registerd yet'
+            }
             res.redirect('/forgotPassword');
         }
 
 
     } catch (error) {
 
-        console.log('Post forgoy mail Error :', error);
+        console.error('Post forgot password Error :', error);
+        res.render('user-views/login', { message: 'Some thing went wrong' })
     }
 }
 
@@ -319,59 +395,74 @@ const postForgotPassword = async (req, res) => {
 const getResetPassword = async (req, res) => {
     try {
         res.status(200);
-        req.session.tokenFromUser = req.query.tk;
-        req.session.resetMail = req.query.for;
-        let alertMessage = {
-            type: req.session.mType,
-            message: req.session.mContent,
-        }
-        req.session.mType = ' ';
-        req.session.mContent = " ";
+
+        req.session.tokenFromUser = req.query.tk; //Token from query saving to session
+        req.session.resetMail = req.query.for;//email from query saving to session
+
+        //Handle Alert Message
+        let alertMessage = req.session.alertMessage;
+        req.session.alertMessage = null;
+
         res.render('user-views/resetPassword', { alertMessage })
     } catch (error) {
-
-        console.log('get reset mail Error :', error);
+        console.error('Get Reset password Error :', error);
+        res.render('user-views/login', { message: 'Some thing went wrong' })
     }
 }
 
 const postResetPassword = async (req, res) => {
     try {
         res.status(200);
-        console.log('Reset Password post body', req.body)
+
+        //Fetch Password from user input
         let conPass = req.body.conPass;
+
+        //validate user Email
         let user = await User.findOne({ email: req.session.resetMail });
+
+        //check email is valid and token is same in session
         if (user && (req.session.tokenFromUser == req.session.resetToken)) {
-            console.log(user.username)
+
             let hashedPass = await generateHashedPassword(conPass);
             user.password = hashedPass;
             await user.save()
+
             res.redirect('/login');
 
         }
         else {
-            req.session.mType = 'error';
-            req.session.mContent = "Youre Token is incorrect ,Please click Resend the link ";
+            req.session.alertMessage = {
+                type: 'error',
+                message: 'Invalid Link or Credentials'
+            }
             res.redirect('/resetPassword')
         }
     } catch (error) {
-
-        console.log('Post reset mail Error :', error);
+        console.error('Post reset password Error :', error);
+        res.render('user-views/login', { message: 'Some thing went wrong' })
     }
 }
 
 
-//google auth cntrl
+//google auth cntrl(cb)
 const googleAuth = async (req, res) => {
 
+    //handle callabck after user validated
     req.logIn(req.user, (err) => {
+
+        //Handle Error 
         if (err) {
-            console.log('Login failed')
             return res.render('user-views/login', { message: 'Google Login failed ' });
         }
-        console.log('google authenticated  id', req.user.id);
+
+        //Else set Access to user 
         req.session.userAuth = true;
         req.session.user_id = req.user.id;
-        return res.redirect('/');
+
+        //for handling the req from diffrent url
+        const redirectTo = req.session.userReturnTo || '/';
+        delete req.session.userReturnTo; // Clean up returnTo after redirect
+        return res.redirect(redirectTo)
     });
 }
 

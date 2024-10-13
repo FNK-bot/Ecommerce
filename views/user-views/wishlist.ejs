@@ -8,11 +8,12 @@
     <div class="container mt-5 pt-5">
         <div class="wishlist-container">
             <div class="mt-3">
-                <i class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" onclick="return history.back()"></i>
+                <i class="fa fa-chevron-circle-left fa-2x" aria-hidden="true"
+                    onclick="return window.location.href= '/' "></i>
             </div>
             <h1 class="text-center mb-4">Wishlist</h1>
 
-            <% if (wishList.length> 0) { %>
+            <% if (wishListItems.length> 0) { %>
                 <div class="table-responsive">
                     <table class="table table-striped">
                         <thead class="thead-light">
@@ -24,31 +25,34 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <% for (x of wishList) { %>
+                            <% for (items of wishListItems) { %>
                                 <tr>
                                     <td class="d-flex align-items-center">
-                                        <img src="/admin/assets/images/catagory/<%= x.images[0] %>" alt="Product Image"
-                                            class="img-fluid mr-3"
+                                        <img src="/admin/assets/images/catagory/<%= items.productId.images[0] %>"
+                                            alt="Product Image" class="img-fluid mr-3"
                                             style="width: 50px; height: 50px; border-radius: 5px;">
                                         <span>
-                                            <a href="/product?product=<%= x._id %>">
-                                                <%= x.name %>
+                                            <a href="/product?product=<%= items.productId._id %>">
+                                                <%= items.productId.name %>
                                             </a>
                                         </span>
                                     </td>
-                                    <td>₹<%= x.price %>
+                                    <td>₹<%= items.productId.price %>
                                     </td>
-                                    <% if (x.quantity> 0) { %>
+                                    <% if (items.productId.quantity> 0) { %>
                                         <td>
                                             <span class="badge badge-success">In </span>
                                         </td>
                                         <td>
                                             <button class="btn btn-success btn-sm"
-                                                onclick="addTOCart('<%= x._id %>')"><i class="fa fa-cart-plus"
-                                                    aria-hidden="true"></i></button>
-                                            <a href='/deleteFromWishlist?id=<%= x._id %>' class="ml-3 text-danger">
-                                                <i class="fa fa-times-circle" aria-hidden="true"></i>
-                                            </a>
+                                                onclick="addTOCart('<%= items.productId._id %>')"><i
+                                                    class="fa fa-cart-plus" aria-hidden="true"></i></button>
+                                            <button class="deleteBtn btn btn-danger btn-sm"
+                                                onclick="deleteItem('<%=items._id%>')"><i class="fa fa-times-circle"
+                                                    aria-hidden="true"></i>
+                                                </i></button>
+
+
                                         </td>
                                         <% } else { %>
                                             <td>
@@ -57,9 +61,11 @@
                                             <td>
                                                 <button class="btn btn-secondary btn-sm" disabled><i
                                                         class="fa fa-cart-plus" aria-hidden="true"></i></button>
-                                                <a href='/deleteFromWishlist?id=<%= x._id %>' class="ml-3 text-danger">
-                                                    <i class="fa fa-times-circle" aria-hidden="true"></i>
-                                                </a>
+                                                <button class="deleteBtn btn btn-danger btn-sm"
+                                                    onclick="deleteItem('<%=items._id%>')"><i class="fa fa-times-circle"
+                                                        aria-hidden="true"></i>
+                                                    </i></button>
+
                                             </td>
                                             <% } %>
                                 </tr>
@@ -121,5 +127,19 @@
                         footer: 'Cannot Add item to cart'
                     });
                 });
+        }
+
+        //Delete Wishlist Item
+        function deleteItem(id) {
+            axios.delete('/deleteWishlistItem', { data: { id } })
+                .then((result) => {
+                    window.location.reload();
+                }).catch((err) => {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: `${err}`,
+                    });
+                })
         }
     </script>

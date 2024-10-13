@@ -305,9 +305,10 @@
           n = n - 1;
         }, 1000);
       }
-      timer(15);
+      timer(300);
+
       document.getElementById("resend").onclick = function () {
-        timer(15);
+        timer(300);
         document.getElementById('title').innerText = 'OTP Resended'
         message.innerText = "We've sent a new OTP to <%=email%>";
         fetch("/resendOtp", {

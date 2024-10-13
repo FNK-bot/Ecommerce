@@ -1,20 +1,21 @@
-const User = require('../models/user'); // Adjust the path as per your project structure
-const Product = require('../models/product'); // Adjust the path as per your project structure
+const User = require('../models/user');
+const Product = require('../models/product');
 
 const checkCartQuantities = async (req, res, next) => {
     try {
         const user = await User.findById(req.session.user_id).populate('cart.cartItems.ProductId');
+        // If user not found or cart is empty, redirect to cart page
         if (!user || user.cart.cartItems.length === 0) {
-            return res.redirect('/cart'); // If user not found or cart is empty, redirect to cart page
+            return res.redirect('/cart');
         }
 
         let cartHasExceededQuantity = false;
         let updatedCart = false;
 
-        // Iterate through the cart items and check quantities
         for (let item of user.cart.cartItems) {
+            // If product is not found for any cart item, redirect to cart
             if (!item.ProductId) {
-                return res.redirect('/cart'); // If product is not found for any cart item, redirect to cart
+                return res.redirect('/cart');
             }
 
             const cartQuantity = item.quantity;
@@ -30,23 +31,21 @@ const checkCartQuantities = async (req, res, next) => {
                     { _id: req.session.user_id, 'cart.cartItems.ProductId': item.ProductId._id },
                     {
                         $set: {
-                            'cart.cartItems.$.quantity': availableQuantity, // Set cart quantity to the available quantity
-                            'cart.cartItems.$.total': availableQuantity * item.ProductId.price // Update total price for the item
+                            'cart.cartItems.$.quantity': availableQuantity,
+                            'cart.cartItems.$.total': availableQuantity * item.ProductId.price
                         }
                     }
                 );
-                updatedCart = true; // Flag that cart has been updated
+                updatedCart = true;
             }
         }
 
         // If the cart was updated due to quantity changes, set a session message
         if (updatedCart) {
-            req.session.mType = 'info'; // Message type (can be displayed on the front end)
+            req.session.mType = 'info';
             req.session.mContent = 'Cart Product stock updated, so your cart quantity has been changed to the maximum available purchase quantity.';
-            return res.redirect('/cart'); // Redirect back to the cart page after updating quantities
+            return res.redirect('/cart');
         }
-
-        // If all quantities are valid, proceed to the next middleware or route handler
         next();
 
     } catch (error) {

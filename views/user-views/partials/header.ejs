@@ -119,11 +119,8 @@
                 fetch(`/search?query=${query}`)
                     .then(response => response.json())
                     .then(data => {
-                        // alert(res.data)
-                        // console.log('ss')
-                        console.log(data)
                         let suggestions = '';
-                        let products = data;
+                        let products = data.products;
                         if (products.length > 0) {
                             products.forEach(product => {
                                 suggestions += `<div class="suggestion-item" style="padding: 8px; cursor: pointer;" onclick="window.location.href='/product?product=${product._id}'">${product.name}</div>`;
@@ -134,7 +131,9 @@
 
                         document.getElementById('suggestions').innerHTML = suggestions;
                         document.getElementById('suggestions').style.display = 'block';
-                    });
+                    }).catch((error) => {
+                        alert('some thing gone wrong')
+                    })
             } else {
 
                 document.getElementById('suggestions').style.display = 'none';

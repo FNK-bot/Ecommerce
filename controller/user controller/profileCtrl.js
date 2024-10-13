@@ -3,7 +3,7 @@ const Catagory = require('../../models/catagory')
 const User = require('../../models/user')
 const bcrypt = require('bcrypt');
 const Order = require('../../models/order');
-
+const { isValidObjectId } = require('mongoose')
 
 // hashed password
 const generateHashedPassword = async (password) => {
@@ -15,56 +15,57 @@ const generateHashedPassword = async (password) => {
 
 
 
-//landing
+//Profile landing
 const getProfile = async (req, res) => {
-
-    let user = await User.findById({ _id: req.session.user_id })
-    // const orders = await Order.find({ userId: req.session.user_id, isDeleted: false });
-    const orders = await Order.find({
-        userId: req.session.user_id,
-        isDeleted: false
-    })
-        .sort({ createdOn: -1 })
-        .populate({
-            path: 'productDetails.ProductId', // Path to the ProductId field
-            select: 'name' // Select only the product name field from the Product model
-        });
-
-    console.log('orders', orders);
     try {
-        let alertMessage;
-        if (!req.session.alertMessage) {
-            alertMessage = {
-                type: req.session.mType,
-                message: req.session.mContent,
-            }
-        }
-        else {
-            alertMessage = req.session.alertMessage
-        }
+        // Fetch user information
+        const user = await User.findById(req.session.user_id)
 
+        // Fetch orders for the user
+        const orders = await Order.find({
+            userId: req.session.user_id,
+            isDeleted: false
+        })
+            .sort({ createdOn: -1 })
+            .populate({
+                path: 'productDetails.ProductId',
+                select: 'name' // Select only the product name field from the Product model
+            });
+
+        // Sort the transactionHistory by date in descending order
+        user.transactionHistory.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        //Filter addres by Not Deleted
+        user.address = user.address.filter((item) => !item.isDeleted)
+
+        // Prepare alert message
+        let alertMessage = req.session.alertMessage;
         req.session.alertMessage = null;
-        req.session.mType = ' ';
-        req.session.mContent = " ";
-        // console.log(`User profile User Data : ${user}`)
 
-        // console.log('order.productDetails', orders[0].productDetails[0].ProductId.name)
 
-        res.render('user-views/profile', { user, alertMessage, orders })
-
+        res.render('user-views/profile', { user, alertMessage, orders });
     } catch (error) {
-        console.log("error while getting profile error", error)
+        console.error("Error while getting profile: ", error);
+        res.status(500).json({ message: "Internal Server Error" })
     }
-}
+};
+
+
 
 //address
 const getAddAdress = async (req, res) => {
     try {
+        //fetch User
         let user = await User.findById({ _id: req.session.user_id })
-        const alertMessage = null
+
+        //Prepare alert Message
+        const alertMessage = req.session.alertMessage;
+        req.session.alertMessage = null;
+
         res.render('user-views/addAdress', { user, alertMessage })
     } catch (error) {
-        console.log('Error in get address error', error)
+        console.error('Error in get address error', error)
+        res.status(500).json({ message: "Internal Server Error" })
     }
 }
 
@@ -72,7 +73,8 @@ const getAddAdress = async (req, res) => {
 const postAddAddress = async (req, res) => {
     try {
         let user = await User.findById({ _id: req.session.user_id })
-        console.log(req.body)
+
+        // creating new Address
         const newAddress = {
             addressType: req.body.addressType,
             addressLine: req.body.addressLine1,
@@ -85,67 +87,80 @@ const postAddAddress = async (req, res) => {
             pinCode: req.body.pin,
         }
         user.address.push(newAddress)
+
+        //set as main Address if only one address
         if (user.address.length == 1) {
-            user.address.isMain = true;
+            user.address[0].isMain = true;
         }
-        if (await user.save()) {
-            const alertMessage = {
-                type: 'success', // Can be 'success', 'error', 'warning', or 'info'
-                message: 'New Adress Added'
-            };
-            req.session.alertMessage = alertMessage;
-            res.redirect('/profile')
 
-        }
-        else {
-            const alertMessage = {
-                type: 'error', // Can be 'success', 'error', 'warning', or 'info'
-                message: 'Cannot Add New Address'
-            };
-            req.session.alertMessage = alertMessage;
-            res.redirect('/profile')
-        }
+        // Save the user 
+        await user.save();
+
+        // Set success message and redirect
+        req.session.alertMessage = {
+            type: 'success',
+            message: 'New Address Added'
+        };
+        res.redirect('/profile');
+
     } catch (error) {
-        console.log(`Error In Post Add Address Error ${error}`)
+        console.error(`Error In Post Add Address Error ${error}`)
 
-        const alertMessage = {
+        //set Error Message and redirecr
+        req.session.alertMessage = {
             type: 'error',
             message: 'Cannot Add New Address'
         };
-        req.session.alertMessage = alertMessage;
         res.redirect('/profile')
     }
 }
+
 
 const getEditAdress = async (req, res) => {
     try {
-        let user = await User.findById({ _id: req.session.user_id })
-        let id = req.query.id;
-        let address = user.address.id(id)
-        const alertMessage = null;
-        console.log(`Edit address : user obj \n ${address}`)
-        res.render('user-views/editAdress', { user, alertMessage, address })
-    } catch (error) {
-        console.log(`Error In get edit Address Error ${error}`)
+        const user = await User.findById(req.session.user_id);
 
-        const alertMessage = {
+        const id = req.query.id;
+
+        // Find the specific address by ID
+        const address = user.address.id(id);
+
+        // Check if the address exists or deleted
+        if (!address || address.isDeleted) {
+            req.session.alertMessage = {
+                type: 'error',
+                message: 'Address not found ,it may be deleted'
+            };
+            return res.redirect('/profile');
+        }
+
+        //Prepare alert Message
+        const alertMessage = req.session.alertMessage;
+        req.session.alertMessage = null;
+
+        res.render('user-views/editAdress', { user, alertMessage, address });
+    } catch (error) {
+        console.error(`Error in getEditAdress: ${error}`);
+
+        req.session.alertMessage = {
             type: 'error',
             message: 'Cannot Edit Address'
         };
-        req.session.alertMessage = alertMessage;
-        res.redirect('/profile')
+        res.redirect('/profile');
     }
-}
+};
+
 
 const postEditAdress = async (req, res) => {
     try {
-        let user = await User.findById({ _id: req.session.user_id })
-        console.log(`post Edit Address body `, req.body)
+
+        const user = await User.findById(req.session.user_id);
+
         const addressId = req.body.addressId;
         const address = user.address.id(addressId);
-        let alertMessage = null;
+
         if (address) {
-            console.log('adress  found')
+            // Update the address fields
             address.adressType = req.body.addressType;
             address.name = req.body.name;
             address.mobile = req.body.phone;
@@ -155,372 +170,345 @@ const postEditAdress = async (req, res) => {
             address.areaStreet = req.body.areaStreet;
             address.district = req.body.district;
             address.landmark = req.body.landmark;
-            await user.save()
-            req.session.mType = 'success'
-            req.session.mContent = 'Address updated successfully'
-            res.redirect('/profile')
-        }
-        else {
-            console.log('adress not found')
-            alertMessage = {
-                type: 'error', // Can be 'success', 'error', 'warning', or 'info'
-                message: 'Cannot Edit Address'
-            };
-            req.session.alertMessage = alertMessage;
-            res.redirect('/profile')
-        }
-        // req.session.alertMessage = alertMessage;
-        // res.redirect('/profile')
-    } catch (error) {
-        console.log(`Error In post edit Address Error ${error}`)
-        const alertMessage = {
-            type: 'error',
-            message: 'Cannot Edit Address'
-        }
-        req.session.alertMessage = alertMessage;
-        res.redirect('/profile')
-    }
-}
 
+            // Save the updated user 
+            await user.save();
 
-const getDeleteAddress = async (req, res) => {
-    try {
-        let user = await User.findById({ _id: req.session.user_id })
-        const id = req.query.id;
-        let deleteAdress = user.address.id(id)
-        deleteAdress.isDeleted = true;
-        if (await user.save()) {
-            const alertMessage = {
-                type: 'success', // Can be 'success', 'error', 'warning', or 'info'
-                message: 'Adress Deleted'
+            req.session.alertMessage = {
+                type: 'success',
+                message: 'Address updated successfully'
             };
-            req.session.alertMessage = alertMessage;
-            res.redirect('/profile')
-        }
-        else {
-            const alertMessage = {
-                type: 'error', // Can be 'success', 'error', 'warning', or 'info'
-                message: 'Cannot  delete  Address'
+
+            return res.redirect('/profile');
+
+        } else {
+
+            // Handle  address is not found
+            req.session.alertMessage = {
+                type: 'error',
+                message: 'Cannot Edit Address, Address not found.'
             };
-            req.session.alertMessage = alertMessage;
-            res.redirect('/profile')
+
+            return res.redirect('/profile');
         }
     } catch (error) {
-        console.log(`Erro while deleting address`)
-        const alertMessage = {
+
+        console.error(`Error in postEditAdress: ${error}`);
+
+        req.session.alertMessage = {
             type: 'error',
-            message: 'Cannot delete  Address'
+            message: 'An error occurred while updating the address.'
         };
-        req.session.alertMessage = alertMessage;
-        res.redirect('/profile')
+        return res.redirect('/profile');
     }
-}
+};
+
+
+//delete address api ctrl
+const deleteAddress = async (req, res) => {
+    try {
+        const user = await User.findById(req.session.user_id);
+
+        // Get the address ID from the request body
+        const id = req.body.id;
+        if (!id) {
+            return res.status(400).json({ error: 'Address not found' });
+        }
+
+        const addressToDelete = user.address.id(id);
+        // Check if the address exists
+        if (!addressToDelete) {
+            return res.status(400).json({ error: 'Address not found' });
+        }
+
+        // Mark the address as deleted
+        addressToDelete.isDeleted = true;
+
+        // Save the updated user
+        await user.save();
+
+        return res.status(200).json({ message: 'Address deleted successfully' });
+    } catch (error) {
+        console.error(`Error while deleting address: ${error}`);
+        return res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
 
 
 
 
-
-//profile
-
+//Edit profile Data
 const getEditProfile = async (req, res) => {
     try {
-        let user = await User.findById({ _id: req.session.user_id })
-        res.render('user-views/editProfile', { user })
+        // Fetch user
+        const user = await User.findById(req.session.user_id);
+
+        // Render page
+        res.render('user-views/editProfile', { user });
+
     } catch (error) {
 
+        console.error('Error in edit profile:', error);
+
+        req.session.alertMessage = {
+            type: 'error',
+            message: 'Some thig went wrong'
+        };
+        return res.redirect('/profile');
     }
-}
-
-
+};
 
 
 const postEditProfile = async (req, res) => {
     try {
-        let user = await User.findById({ _id: req.session.user_id })
-        console.log(`Posted data from post edit - ${req.body.name}`);
-        console.log(req.body)
-        // console.log(`Posted image from post edit - ${req.file.filename}`);
-        let image = null;
-        try {
-            image = req.file.filename
-        } catch (error) {
-            console.log('error in reciving image ')
-        }
-        console.log('image', image)
+        const user = await User.findById(req.session.user_id);
 
-        if (image) {
-            console.log(`image is uploaded`)
-            await User.findByIdAndUpdate({ _id: req.session.user_id }, {
-                username: req.body.name,
-                mobile: req.body.phone,
-                image: image
+        // Handle image upload
+        let image = req.file ? req.file.filename : null;
 
-            }, { new: true })
-        }
-        else {
-            console.log(`image is not uploaded`)
-            await User.findByIdAndUpdate({ _id: req.session.user_id }, {
-                username: req.body.name,
-                mobile: req.body.phone,
-            }, { new: true })
-        }
-        const alertMessage = {
-            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
-            message: 'Profile Updated'
+        // Update user profile
+        const updatedData = {
+            username: req.body.name,
+            mobile: req.body.phone,
+            ...(image && { image }) // Conditionally add image if it exists
         };
-        req.session.alertMessage = alertMessage;
-        res.redirect('/profile')
 
+        await User.findByIdAndUpdate(req.session.user_id, updatedData, { new: true });
+
+        // Set success message
+        req.session.alertMessage = {
+            type: 'success',
+            message: 'Profile updated successfully'
+        };
+
+        res.redirect('/profile');
     } catch (error) {
-        console.log(`error in post edit profile error : ${error}`)
-        const alertMessage = {
-            type: 'error', // Can be 'success', 'error', 'warning', or 'info'
-            message: 'Cannot  update  Profile'
-        };
-        req.session.alertMessage = alertMessage;
-        res.redirect('/profile')
-    }
 
-}
+        console.log(`Error in post edit profile: ${error}`);
+        req.session.alertMessage = {
+            type: 'error',
+            message: 'Cannot update profile'
+        };
+        res.redirect('/profile');
+    }
+};
+
 
 const getChangePassword = async (req, res) => {
     try {
-        let user = await User.findById({ _id: req.session.user_id })
-        let alertMessage = {
-            type: req.session.mType,
-            message: req.session.mContent,
-        }
-        req.session.mType = ' ';
-        req.session.mContent = " ";
+        let user = await User.findById({ _id: req.session.user_id });
+
+        let alertMessage = req.session.alertMessage;
+        req.session.alertMessage = null;
+
         res.render('user-views/changePassword', { user, alertMessage });
     } catch (error) {
-        console.log(`error in get change password`)
+
+        console.error(`error in get change password: ${error}`);
+
         req.session.alertMessage = {
             type: 'error', // Can be 'success', 'error', 'warning', or 'info'
-            message: 'Cannot  get change password'
+            message: 'Cannot  change password'
         };
-        res.redirect('/profile')
+        res.redirect('/profile');
     }
-}
+};
+
 const postChangePassword = async (req, res) => {
     try {
+        //validate current Password 
         let currentPassword = req.body.currentPassword || false;
-        console.log('curr', currentPassword)
+
         let { newPassword, confirmPassword } = req.body;
         let user = await User.findById({ _id: req.session.user_id })
+        // Handle If current Passsword is there
         if (currentPassword) {
             if (newPassword !== confirmPassword) {
-                req.session.mType = 'info';
-                req.session.mContent = "new password and confirm password are not same ";
+                req.session.alertMessage = {
+                    type: 'info',
+                    message: 'new password and confirm password are not Matched '
+                }
                 return res.redirect('/changepass');
             }
 
             if (await user.isPasswordMatched(newPassword)) {
-                req.session.mType = 'info';
-                req.session.mContent = "new password and Current password is same ";
+                req.session.alertMessage = {
+                    type: 'info',
+                    message: 'New Password and Old Password is Same '
+                }
                 return res.redirect('/changepass');
             }
 
 
             if (await user.isPasswordMatched(currentPassword)) {
-                console.log('pass matched');
                 let hashed = await generateHashedPassword(confirmPassword);
                 user.password = hashed;
                 await user.save()
-                req.session.mType = 'success';
-                req.session.mContent = "Password changed ";
+                req.session.alertMessage = {
+                    type: 'success',
+                    message: 'Password Changed'
+                }
                 return res.redirect('/profile')
             }
             else {
-                req.session.mType = 'error';
-                req.session.mContent = "Current Password is Not Matched";
+
+                req.session.alertMessage = {
+                    type: 'error',
+                    message: 'Old Password is Wrong'
+                }
                 return res.redirect('/changepass');
             }
 
 
         }
+        // Handle If not current Passsword 
         else if (!currentPassword && !user.password) {
-            console.log('pass matched');
             let hashed = await generateHashedPassword(confirmPassword);
             user.password = hashed;
             await user.save()
-            req.session.mType = 'success';
-            req.session.mContent = "Password changed ";
+
+            req.session.alertMessage = {
+                type: 'success',
+                message: 'Password Changed'
+            }
             return res.redirect('/profile')
         }
         else {
-            req.session.mType = 'error';
-            req.session.mContent = "Enter the Fieds ";
+
+            req.session.alertMessage = {
+                type: 'error',
+                message: 'Enter the fields'
+            }
             return res.redirect('/changepass');
         }
 
     } catch (error) {
-        console.log(`error in post change password`)
-    }
-}
+        console.error(`error in post change password`)
 
-//return and cancel order
-const returnOrder = async (req, res) => {
-    try {
-        let user = await User.findById({ _id: req.session.user_id });
-        const order_id = req.query.id;
-        const order = await Order.findById(order_id);
-        console.log('returned order', order)
-        order.isReturned.status = true;
-        order.isReturned.isRefunded = true;
-        order.isReturned.refundAmount = order.totalPrice;
-        order.status = 'returned';
-        // order.totalPrice = 0;
-        req.session.mType = 'success'
-        req.session.mContent = `₹${order.totalPrice} is added to youre wallet please check balence`;
-        user.wallet = user.wallet + order.totalPrice,
-            user.transactionHistory.push({
-                amount: order.totalPrice
-            })
-
-        //manage stock
-        for (let item of order.productDetails) {
-            await Product.updateOne(
-                { _id: item.ProductId }, // Find the product by its ProductId
-                { $inc: { quantity: item.quantity } } // Decrease the quantity using $inc
-            );
-        }
-
-        await order.save();
-        await user.save();
-
+        req.session.alertMessage = {
+            type: 'error', // Can be 'success', 'error', 'warning', or 'info'
+            message: 'Cannot  change password'
+        };
         res.redirect('/profile')
-    } catch (error) {
-        console.log(`error in return oder err`, error)
     }
 }
 
-const cancelOrder = async (req, res) => {
-    try {
-        let user = await User.findById({ _id: req.session.user_id });
-        const order_id = req.query.id;
-        const order = await Order.findById(order_id);
-        console.log('cancelled order', order)
-        order.status = 'cancelled'
-        // order.totalPrice = 0;
-        req.session.mType = 'success'
-        req.session.mContent = `₹${order.totalPrice} is added to youre wallet please check balence`;
-        user.wallet = user.wallet + order.totalPrice,
-            user.transactionHistory.push({
-                amount: order.totalPrice
-            })
-        await order.save();
-        await user.save();
-        //manage stock
-        for (let item of order.productDetails) {
-            await Product.updateOne(
-                { _id: item.ProductId }, // Find the product by its ProductId
-                { $inc: { quantity: item.quantity } } // Decrease the quantity using $inc
-            );
-        }
-
-        res.redirect('/profile')
-
-    } catch (error) {
-        console.log('Error in cancel order', error)
-    }
-}
-
-
-// Cancel One item From order details
 const cancelOneItem = async (req, res) => {
     try {
-        console.log(req.query)
-        const { oid, iid } = req.query;
+        //oid --Order ID
+        //iid --Order item ID( id of Product Details item)
+        const { oid, iid } = req.body;
 
+        // Validate query parameters
+        if (!oid || !iid || !isValidObjectId(oid) || !isValidObjectId(iid)) {
+            return res.status(400).json({ error: 'Product Not Found' });
+        }
+
+        // Find the order by ID
         const findOrder = await Order.findById(oid);
-        console.log('some')
+        if (!findOrder) {
+            return res.status(400).json({ error: 'Ordered Product Not Found' });
+        }
+
+        // Find the user by session ID
         let user = await User.findById({ _id: req.session.user_id });
 
-        const order = await Order.updateOne(
-            { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
-            {
-                $set: { "productDetails.$.status": "Cancelled", status: 'some item Cancelled' } // Use the positional operator $ to update the product's status
-            }, {
-
-        }
+        // Update the order item status to "Cancelled"
+        await Order.updateOne(
+            { _id: oid, "productDetails._id": iid },
+            { $set: { "productDetails.$.status": "Cancelled", status: 'some item Cancelled' } }
         );
-        const item = findOrder.productDetails.id(iid)
-        console.log(item)
-        const refundAmaunt = item.total
-        // console.log(refundAmaunt)
 
-        user.wallet += parseInt(refundAmaunt);
-        user.transactionHistory.push({
-            amount: refundAmaunt
-        })
+        //Produt(item)
+        const item = findOrder.productDetails.id(iid);
+
+        // Calculate refund amount
+        const refundAmount = item.total;
+
+        // Add refund to user's wallet and log the transaction
+        user.wallet += parseInt(refundAmount);
+        user.transactionHistory.push({ amount: refundAmount });
         await user.save();
 
-        console.log(item.quantity)
-        //manage stock
-        await Product.findOneAndUpdate({ _id: item.ProductId }, {
-            $inc: { quantity: item.quantity },
-        });
+        // Manage stock by incrementing the product quantity
+        await Product.findOneAndUpdate(
+            { _id: item.ProductId },
+            { $inc: { quantity: item.quantity } }
+        );
 
+        // Set success message and send response
         const alertMessage = {
-            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
-            message: `Order Item cancelled ₹${refundAmaunt} is Added to Youre Wallet`
+            type: 'success',
+            message: `Order Item Cancelled ₹${refundAmount} is Added to Your Wallet`
         };
         req.session.alertMessage = alertMessage;
 
-        res.redirect('/profile')
-    } catch (error) {
-        console.log('Error in Cancel One item ', error)
-    }
-}
+        return res.status(200).json({ message: 'Success' });
 
-// Cancel One item From order details
+
+    } catch (error) {
+
+        console.error('Error in Cancel One Item:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
 const returnOneItem = async (req, res) => {
     try {
-        console.log(req.query)
-        const { oid, iid } = req.query;
+        //oid --Order ID
+        //iid --Order item ID( id of Product Details item)
+        const { oid, iid } = req.body;
 
+        // Validate order ID and item ID
+        if (!oid || !iid || !isValidObjectId(oid) || !isValidObjectId(iid)) {
+            return res.status(400).json({ error: 'Ordered Product Not Found' });
+        }
+
+        // Find order by ID
         const findOrder = await Order.findById(oid);
-        console.log('some', findOrder)
+        if (!findOrder) {
+            return res.status(400).json({ error: 'Order not found' });
+        }
+
         let user = await User.findById({ _id: req.session.user_id });
 
-        const order = await Order.updateOne(
-            { _id: oid, "productDetails._id": iid }, // Find the order by orderID and the specific product by its _id in productDetails
-            {
-                $set: { "productDetails.$.status": "Returned", status: 'some item returned' } // Use the positional operator $ to update the product's status
-            }
+        // Update order item status and order status
+        await Order.updateOne(
+            { _id: oid, "productDetails._id": iid },
+            { $set: { "productDetails.$.status": "Returned", status: 'some item returned' } }
         );
 
-        const item = findOrder.productDetails.id(iid)
-        const refundAmaunt = item.total
-        console.log(refundAmaunt)
+        // Get the refunded item and calculate refund amount
+        const item = findOrder.productDetails.id(iid); //Produt(item)
+        const refundAmount = item.total;
 
-        user.wallet += parseInt(refundAmaunt);
-        user.transactionHistory.push({
-            amount: refundAmaunt
-        })
+        // Add refund to user's wallet and transaction history
+        user.wallet += parseInt(refundAmount);
+        user.transactionHistory.push({ amount: refundAmount });
         await user.save();
-        // console.log(user)
 
-        //manage stock
-        await Product.findOneAndUpdate({ _id: item.ProductId }, {
-            $inc: { quantity: item.quantity }
-        });
+        // Manage product stock
+        await Product.findOneAndUpdate({ _id: item.ProductId },
+            { $inc: { quantity: item.quantity } });
 
+        // Set success message and send response
         const alertMessage = {
-            type: 'success', // Can be 'success', 'error', 'warning', or 'info'
-            message: `Order Item Refunded ₹${refundAmaunt} is Added to Youre Wallet`
+            type: 'success',
+            message: `Order Item Refunded ₹${refundAmount} is Added to Your Wallet`
         };
         req.session.alertMessage = alertMessage;
 
-        res.redirect('/profile')
+        res.status(200).json({ message: 'success' });
     } catch (error) {
-        console.log('Error in Return One item ', error)
+        console.error('Error in Return One Item:', error);
+        return res.status(500).json({ error: 'Internal Server Error' });
     }
-}
+};
+
 module.exports = {
     getProfile, getEditAdress, getEditProfile, getAddAdress,
-    postAddAddress, getDeleteAddress, postEditProfile, postEditAdress
-    , getChangePassword, postChangePassword, returnOrder, cancelOrder,
+    postAddAddress, deleteAddress, postEditProfile, postEditAdress
+    , getChangePassword, postChangePassword,
     cancelOneItem, returnOneItem
 }

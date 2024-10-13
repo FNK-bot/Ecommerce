@@ -1,92 +1,109 @@
 const Product = require('../../models/product')
-const Catagory = require('../../models/catagory')
 const User = require('../../models/user');
-
+const { isValidObjectId } = require('mongoose');
 
 const getWishlist = async (req, res) => {
     try {
-        const user = await User.findById(req.session.user_id)
-        const wishList = user.wishList.map((item) => item.productId)
-        console.log('User wuishList ', wishList);
-        const wishlistProducts = await Product.find({ _id: { $in: wishList } });
-        console.log('whislist products list', wishlistProducts)
+        //Fetch User Data
+        const user = await User.findOne({ _id: req.session.user_id })
+            .populate('wishList.productId');
+
+        const wishList = user.wishList;
 
         //page contrl
-        let totalList = wishlistProducts.length;
-        const itemsperpage = totalList > 3 ? 3 : totalList;
-        console.log('item per page' + itemsperpage)
+        let wishListLength = wishList.length;
+        const itemsperpage = wishListLength > 3 ? 3 : wishListLength;
         const currentpage = parseInt(req.query.page) || 1;
         const startindex = (currentpage - 1) * itemsperpage;
         const endindex = startindex + itemsperpage;
-        const totalpages = Math.ceil(totalList / 3);
-        let currentlist = wishlistProducts.slice(startindex, endindex);
+        const totalpages = Math.ceil(wishListLength / 3);
+        let currentList = wishList.slice(startindex, endindex);
 
-        res.render('user-views/wishlist', { user, wishList: currentlist, totalpages, currentpage })
+        //return response
+        res.render('user-views/wishlist', { user, wishListItems: currentList, totalpages, currentpage })
     } catch (error) {
-        console.log('Error in get whishList Error', error)
+
+        console.error('Error in get whishList Error', error)
+        res.status(500).json({ message: 'Internal Server Error' })
     }
 };
 
-
+//Add to whish List 
 const addToWishlist = async (req, res) => {
     try {
+        const productId = req.query.id || null;
+
+        //Check is object id is valid
+        if (!productId || !isValidObjectId(productId)) {
+            return res.status(400).json({ msg: 'Product Not Found', type: 'info' })
+        }
+
         const user = await User.findById(req.session.user_id)
-        const productId = req.query.id;
-        console.log('prId', productId)
+
+        //check if Product is there in wishlist
         const alreadyExist = user.wishList.find((item) => item.productId.toString() === productId);
 
+        //if there return response 
         if (alreadyExist) {
-            console.log('product already exist in wishlist');
-            res.status(200).json({ msg: 'product already exist in wishlist', type: 'info' })
-        }
-        else {
-            const findProduct = await Product.findById(productId);
+            return res.status(200).json({ msg: 'product already exist in wishlist', type: 'info' })
+        } else {
+
+            //Else add Product to wishlist if Product not Deleted
+            const findProduct = await Product.findOne({ _id: productId, isDeleted: false });
             if (findProduct) {
                 user.wishList.push({
                     productId: findProduct._id
                 });
                 await user.save()
-                console.log('product wishlist   pr:', findProduct);
-                res.status(200).json({ msg: 'product  added to wishlist', type: 'success' })
+                return res.status(200).json({ msg: 'Product  Added to wishlist', type: 'success' })
             }
-            console.log('product Id is not walid pid:', productId);
-            res.status(200).json({ msg: 'product data  is not valid', type: 'error' })
+            // else return response not found
+            return res.status(200).json({ msg: 'Product Not found or Deleted', type: 'error' })
         }
-        // res.render('user-views/wishlist')
+
     } catch (error) {
-        console.log('Error while adding to whishList Error', error)
+
+        console.error('Error while adding to whishList Error', error)
+        res.status(500).json({ message: 'internal Server Error' });
+
     }
 };
 
-
+//Delete whishlist item
 const deleteWishlist = async (req, res) => {
     try {
-        console.log('Starting wishlist deletion process');
 
         const user = await User.findById(req.session.user_id);
-        const productId = req.query.id;
-        console.log('Product ID to delete:', productId);
+        const wishListId = req.body.id || false;
+
+
+        //Check is object id is valid
+        if (!wishListId || !isValidObjectId(wishListId)) {
+            return res.status(400).json({ msg: 'Product Not Found', type: 'info' })
+        }
 
         // Find the item in the wishlist
-        const alreadyExist = user.wishList.find((item) => item.productId.toString() === productId);
+        const isExist = user.wishList.id(wishListId)
 
-        if (alreadyExist) {
-            console.log('Product found in wishlist, proceeding to delete');
-            // Filter out the item with the matching productId
-            user.wishList = user.wishList.filter(item => item.productId.toString() !== productId);
+        if (isExist) {
+            // Find and pull the whishlist item
+            await User.findOneAndUpdate({ _id: req.session.user_id },
+                {
+                    $pull: { wishList: { _id: wishListId } }
+                },
+                { new: true }
+            )
 
-            // Save the updated document
-            await user.save();
-            console.log('Product deleted from wishlist:', user.wishList);
-            res.redirect('/wishlist')
+            return res.status(200).json({ msg: 'Item  in wishlist', type: 'success' });
 
         } else {
-            console.log('Product not found in wishlist');
-            res.redirect('/wishlist')
 
+            return res.status(404).json({ msg: 'Item not found in wishlist', type: 'error' });
         }
     } catch (error) {
-        console.log('Error while deleting item from wishlist:', error);
+
+        console.error('Error while deleting item from wishlist:', error);
+        res.status(500).json({ message: 'internal Server Error' });
 
     }
 };
