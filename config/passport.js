@@ -13,7 +13,6 @@ passport.use(new googleStrategy({
         try {
             let user = await User.findOne({ googleID: profile.id });
             if (user) {
-                console.log(`/googele auth/ :User already registered  ${profile.emails[0].value}`)
 
                 return cb(null, user, {
                     message: 'User Already Exist'
@@ -23,18 +22,18 @@ passport.use(new googleStrategy({
                 let checkEmailExist = await User.findOne({ email: profile.emails[0].value })
 
                 if (!checkEmailExist) {
-                    console.log(`/googele auth/ :new user creating.... with   ${profile.emails[0].value}`)
+
                     let newUser = await User.create({
                         username: profile.displayName,
                         email: profile.emails[0].value,
                         googleID: profile.id,
                         isGoogle: true,
                     })
-                    console.log(`/googele auth/ :new user created   ${profile.emails[0].value}`)
+
                     return cb(null, newUser)
                 }
                 else {
-                    console.log(`/googele auth/ :email exists  ${profile.emails[0].value}`)
+
 
                     if (!checkEmailExist.googleID) {
                         await User.findOneAndUpdate(
@@ -42,14 +41,14 @@ passport.use(new googleStrategy({
                             { $set: { googleID: profile.id, isGoogle: true } },
                             { new: true }
                         );
-                        console.log(`/google auth/ :Updated existing user with Google ID ${profile.emails[0].value}`)
+
                     }
                     return cb(null, checkEmailExist, { message: 'User Email Already exist' })
                 }
 
             }
         } catch (error) {
-            console.log(`/googele auth/ :error => ${error}`)
+            console.error(`/googele auth/ :error => ${error}`)
             return cb(error, null)
         }
     }

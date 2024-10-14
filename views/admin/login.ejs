@@ -69,9 +69,11 @@
                                         </div>
 
                                     </div>
-                                    <div class="form-floating mb-4">
+                                    <div class="form-floating mb-4 position-relative">
                                         <input type="password" class="form-control" id="password" placeholder="Password"
                                             name="password" minlength="8" required>
+                                        <i class="fas fa-eye position-absolute" id="togglePassword"
+                                            style="right: 35px; top: 21px; cursor: pointer;"></i>
                                         <label for="password">Password</label>
                                         <div class="invalid-feedback">
                                             Password is required and must be at least 8 characters
@@ -134,6 +136,18 @@
 
         })
 
+        // Toggle password visibility
+        const passwordField = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+
+            // Toggle the eye icon
+            this.classList.toggle('fa-eye'); //it will add if not there else remove from class
+            this.classList.toggle('fa-eye-slash');
+        });
 
     </script>
     <!-- JavaScript Libraries -->

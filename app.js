@@ -8,22 +8,22 @@ const dbConnect = require('./config/db')
 const passport = require('./config/passport');
 const nocache = require('nocache');
 const dotenv = require('dotenv');
+const helmet = require('helmet');
 
-
+//configuring .env
 dotenv.config();
-// const methodOverRide =require('method-override')
+
+
+//Routs 
 const adminRouter = require('./routes/admin');
 const usersRouter = require('./routes/users');
 
-const app = express();
-dbConnect()
+const app = express();//express instance
+dbConnect()//calling database connection function
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
-
-// //method overide
-// app.use(methodOverRide('_method'))
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -31,8 +31,12 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Use Helmet to secure headers 
+app.use(helmet());
+
+
 app.use(session({
-  secret:'secret',
+  secret: 'secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
@@ -42,29 +46,52 @@ app.use(session({
 })
 );
 
+//Passport for Oauth (google login)
 app.use(passport.initialize())
 app.use(passport.session())
+
+//Setting no cache 
 app.use(nocache())
 
 
-// routs
+// routs middleware
 app.use('/admin', adminRouter);
 app.use('/', usersRouter);
 
-// catch 404 and forward to error handler
-app.use(function(req, res, next) {
+
+// catch 404 and forward to error handler(for non existing url path)
+app.use((req, res, next) => {
   next(createError(404));
 });
 
-// error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
+
+// Custom Error Handler Middleware
+app.use((err, req, res, next) => {
+  // Set error details in locals, available for the view
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  // Check for specific error status codes
+  if (err.status === 404) {
+    // Render a custom 404 page
+    res.status(404).render('error-responses/404', {
+      title: 'Page Not Found',
+      message: 'Sorry, the page you are looking for does not exist.'
+    });
+  } else if (err.status === 400) {
+    // Handle 400 Bad Request
+    res.status(400).render('error-responses/400', {
+      title: 'Bad Request',
+      message: 'The request could not be understood by the server due to malformed syntax.'
+    });
+  } else {
+    // For other errors, including 500 Internal Server Error
+    res.status(err.status || 500).render('error-responses/500', {
+      title: 'Something Went Wrong',
+      message: 'Please try again later. We are working on fixing it.'
+    });
+  }
 });
+
 
 module.exports = app;

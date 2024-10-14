@@ -2,11 +2,12 @@ const multer = require('multer')
 const path = require('path')
 
 const storage = multer.diskStorage({
+
   destination: function (req, file, callback) {
     callback(null, './public/admin/assets/images/catagory');
   },
   filename: function (req, file, callback) {
-    console.log(file)
+
     callback(null, file.fieldname + '-' + Date.now() + path.extname(file.originalname))
   }
 });

@@ -33,15 +33,15 @@
                                                 Email is invalid
                                             </div>
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-3 position-relative">
                                             <div class="mb-2 w-100">
                                                 <label class="text-muted" for="password">Password</label>
-                                                <a href="/forgotPassword" class="float-end">
-                                                    Forgot Password?
-                                                </a>
+                                                <a href="/forgotPassword" class="float-end">Forgot Password?</a>
                                             </div>
                                             <input id="password" type="password" class="form-control" name="password"
                                                 minlength="8" required>
+                                            <i class="fas fa-eye position-absolute" id="togglePassword"
+                                                style="right: 35px; top: 43px; cursor: pointer;"></i>
                                             <div class="invalid-feedback">
                                                 Password is required and must be at least 8 characters
                                             </div>
@@ -73,6 +73,7 @@
             </div>
         </div>
     </section>
+
     <script>
         const form = document.getElementById('loginForm');
         const inputs = form.querySelectorAll('input');
@@ -117,7 +118,20 @@
                 return true;
             }
         }
+
+        // Toggle password visibility
+        const passwordField = document.getElementById('password');
+        const togglePassword = document.getElementById('togglePassword');
+
+        togglePassword.addEventListener('click', function () {
+            const type = passwordField.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordField.setAttribute('type', type);
+
+            // Toggle the eye icon
+            this.classList.toggle('fa-eye'); //it will add if not there else remove from class
+            this.classList.toggle('fa-eye-slash');
+        });
     </script>
 </body>
 
-</html
+</html>

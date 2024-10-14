@@ -10,12 +10,12 @@ const dbConnect = async () => {
             ssl: true,
             tlsAllowInvalidCertificates: true,
         });
-        
+
         console.log('db connected');
     } catch (error) {
-        console.log('mongo db connection error', error);
+        console.error('mongo db connection error', error);
     }
 };
 
 module.exports = dbConnect;
-  
+

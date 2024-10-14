@@ -1,27 +1,37 @@
 const User = require('../models/user')
 
 
+const isLogged = async (req, res, next) => {
+    try {
+        if (req.session.user_id) {
+            // Fetch the user details from the database
+            const user = await User.findById({ _id: req.session.user_id }).lean();
 
-const isLogged = ((req, res, next) => {
-
-    if (req.session.user_id) {
-
-        User.findById({ _id: req.session.user_id }).lean()
-            .then((data) => {
-
-                if (data?.isBlocked == false) {
-                    console.log(`${data.username} has access -- from user Auth`)
-
-                    next()
+            if (user) {
+                if (user.isBlocked === false) {
+                    return next(); // Proceed to the next middleware if not blocked
                 } else {
-                    res.render('user-views/login', { message: 'This Account is blocked by the Admin , contact at Eseenceofficial@gmail.com ' })
+                    return res.render('user-views/login', {
+                        message: 'This account is blocked by the Admin. Contact us at Essenceofficial@gmail.com.'
+                    });
                 }
-            })
-    } else {
-        //for handling the req from diffrent url
-        req.session.userReturnTo = req.originalUrl
-        console.log('Return url', req.session.userReturnTo)
-        res.render('user-views/login', { message: 'You need to login for continue shopping' });
+            } else {
+                return res.render('user-views/login', {
+                    message: 'User not found, please login again.'
+                });
+            }
+        } else {
+            // Store the requested URL for later use after login
+            req.session.userReturnTo = req.originalUrl;
+
+            return res.render('user-views/login', {
+                message: 'You need to log in to continue shopping.'
+            });
+        }
+    } catch (error) {
+        console.error('Error during login check:', error);
+        res.status(500).send('Internal Server Error');
     }
-})
+};
+
 module.exports = isLogged
