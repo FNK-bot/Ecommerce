@@ -35,7 +35,6 @@ const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem
 
 const { getWishlist, addToWishlist, deleteWishlist } = require('../controller/user controller/wishlistCtrl');
 
-const checkCartQuantities = require('../middleware/cartValidation')
 
 // get landing page
 router.get('/', getLanding)
@@ -84,7 +83,7 @@ router.delete('/deleteCartItem', isLogged, deleteCartItem)
 
 
 //checkOut
-router.get('/checkOut', isLogged, checkCartQuantities, getCheckOut)
+router.get('/checkOut', isLogged, getCheckOut)
 router.post('/checkOut', isLogged, postChekOut)
 
 //order in profile
@@ -109,7 +108,4 @@ router.get('/search', search)
 //invoice api
 router.get('/downloadInvoice', isLogged, invoice)
 
-router.all('*', (req, res) => {
-     res.render('error-responses/404')////
-})
 module.exports = router;

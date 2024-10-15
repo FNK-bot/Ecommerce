@@ -8,7 +8,6 @@ const dbConnect = require('./config/db')
 const passport = require('./config/passport');
 const nocache = require('nocache');
 const dotenv = require('dotenv');
-const helmet = require('helmet');
 
 //configuring .env
 dotenv.config();
@@ -30,9 +29,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
-
-// Use Helmet to secure headers 
-app.use(helmet());
 
 
 app.use(session({

@@ -380,12 +380,64 @@ const deleteCartItem = async (req, res) => {
 //checkout ctrl
 const getCheckOut = async (req, res) => {
     try {
+
         // Fetch user
         let user_id = req.session.user_id;
         let user = await User.findById(user_id).populate('cart.cartItems.ProductId');
 
         // Check if the user or cart is invalid
         if (!user || user.cart.cartItems.length === 0) {
+            return res.redirect('/cart');
+        }
+
+        let cartHasExceededQuantity = false;
+        let updatedCart = false;
+
+        // Validate cart quantities and check for deleted products
+        for (let item of user.cart.cartItems) {
+            // If product is not found, redirect to cart
+            if (!item.ProductId) {
+                return res.redirect('/cart');
+            }
+
+            const cartQuantity = item.quantity;
+            const availableQuantity = item.ProductId.quantity;
+
+            // If the cart quantity exceeds available stock
+            if (cartQuantity > availableQuantity) {
+                cartHasExceededQuantity = true;
+
+                // Update the cart with available stock
+                await User.updateOne(
+                    { _id: user_id, 'cart.cartItems.ProductId': item.ProductId._id },
+                    {
+                        $set: {
+                            'cart.cartItems.$.quantity': availableQuantity,
+                            'cart.cartItems.$.total': availableQuantity * item.ProductId.price
+                        }
+                    }
+                );
+                updatedCart = true;
+            }
+
+            // Remove the product if it is marked as deleted
+            if (item.ProductId.isDeleted) {
+                await User.updateOne(
+                    { _id: user_id },
+                    {
+                        $pull: {
+                            'cart.cartItems': { ProductId: item.ProductId._id }
+                        }
+                    }
+                );
+                updatedCart = true;
+            }
+        }
+
+        // If the cart was updated, redirect the user to the cart page
+        if (updatedCart) {
+            req.session.mType = 'info';
+            req.session.mContent = 'Cart updated due to stock or product changes. Please review your cart before checkout.';
             return res.redirect('/cart');
         }
 
@@ -404,8 +456,8 @@ const getCheckOut = async (req, res) => {
         let discount = user.cart.discount || 0;
         let total = total_ - discount;
 
-        // Filter the Address not Deleted
-        let address = user.address.filter((item) => !item.isDeleted)
+        // Filter out deleted addresses
+        let address = user.address.filter(item => !item.isDeleted);
 
         // Render the checkout page
         res.render('user-views/checkout', {
@@ -430,12 +482,12 @@ const getCheckOut = async (req, res) => {
 const postChekOut = async (req, res) => {
     try {
         //fetch user
-        let user = await User.findById(req.session.user_id)
+        let user = await User.findById(req.session.user_id);
 
         // Map Product Ids from User cart
         const product_ids = user.cart.cartItems.map((item) => {
             return item.ProductId
-        })
+        });
 
         const products_details = user.cart.cartItems;
 
@@ -444,7 +496,7 @@ const postChekOut = async (req, res) => {
         user.cart.cartItems.forEach((val) => {
             total_ += val.total;
             subTotal += val.total;
-        })
+        });
 
         let discount = user.cart.discount;
         let total = total_ - discount

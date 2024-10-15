@@ -210,15 +210,15 @@
                     });
                 })
             };
+
             function addTOCart(id) {
-                console.log('Function called with ID:', id);
+
 
                 return axios.post('/addToCart', {
                     product_id: id,
                 })
                     .then((response) => {
-                        console.log(response);
-                        console.log(`${id} is added -- ${response.data.messageType}`);
+
                         Swal.fire({
                             title: "CART",
                             text: response.data.message,
@@ -227,7 +227,7 @@
                         });
                     })
                     .catch((error) => {
-                        console.log(error);
+
                         Swal.fire({
                             icon: "error",
                             title: "Oops...",

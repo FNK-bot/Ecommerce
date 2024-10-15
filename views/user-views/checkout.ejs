@@ -119,17 +119,7 @@
                                         <div>
                                             <h5 class="font-size-14 mb-3">Payment method :</h5>
                                             <div class="row">
-                                                <!-- <div class="col-lg-3 col-sm-6">
-                                                    <div>
-                                                        <label class="card-radio-label">
-                                                            <input type="radio" name="paymentMethod" value="card" class="card-radio-input" required>
-                                                            <span class="card-radio py-3 text-center text-truncate">
-                                                                <i class="bx bx-credit-card d-block h2 mb-3"></i>
-                                                                Credit / Debit Card
-                                                            </span>
-                                                        </label>
-                                                    </div>
-                                                </div> -->
+
 
                                                 <div class="col-lg-3 col-sm-6">
                                                     <div>
@@ -138,7 +128,7 @@
                                                                 class="card-radio-input" />
                                                             <span class="card-radio py-3 text-center text-truncate">
                                                                 <img class="d-block h2 mb-3" referrerpolicy="origin"
-                                                                    src="https://badges.razorpay.com/badge-dark.png "
+                                                                    src="/images/razorpay-img2.png"
                                                                     style="height: 45px; width: 113px"
                                                                     alt="Razorpay | Payment Gateway | Neobank" />
                                                                 Razorpay
@@ -361,7 +351,7 @@
                 });
                 return;
             }
-            console.log('possst')
+
             const response = await fetch('/checkout', {
                 method: 'POST',
                 headers: {
@@ -372,31 +362,31 @@
                     paymentMethod: paymentMethod.value,
                 })
             });
-            console.log('possst2')
+
             const data = await response.json();
             if (data.paymentCod == true) {
-                console.log('cod payment done')
+
                 Swal.fire({
                     title: "Order Placed !",
                     text: `Order Placed By COD`,
                     icon: "success"
                 });
-                console.log(data)
+
                 let orderId = data.orderId;
                 location.href = `/orderSuccess?id=${orderId}`
-                console.log('redireceted')
+
             }
             if (data.paymentWallet == true) {
-                console.log('Wallet payment done')
+
                 Swal.fire({
                     title: "Order Placed !",
                     text: `Order Placed By Wallet`,
                     icon: "success"
                 });
-                console.log(data)
+
                 let orderId = data.orderId;
                 location.href = `/orderSuccess?id=${orderId}`
-                console.log('redireceted')
+
             }
             if (data.message === 'Razorpay gateway') {
                 const options = {
@@ -407,7 +397,7 @@
                     description: 'Order Payment',
                     order_id: data.order_id, // This is the order_id created in the backend
                     handler: function (response) {
-                        console.log(response)
+
                         // Check if payment was successful
 
                         Swal.fire({

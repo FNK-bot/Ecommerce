@@ -57,7 +57,9 @@ const manageOffers = async (req, res) => {
                         product.actualPrice.amount = product.price;
                         product.actualPrice.set = true;
                     }
-                    product.price = product.actualPrice.amount - Math.floor(product.actualPrice.amount * (input / 100));
+                    // Calculate the new price with the offer percentage
+                    let newPrice = product.actualPrice.amount - Math.floor(product.actualPrice.amount * (input / 100));
+                    product.price = Math.max(newPrice, 0); // Ensure price is not negative
                     await product.save();
                 }
 
@@ -112,13 +114,9 @@ const deleteOffer = async (req, res) => {
 
             for (let product of allProductsOfCatagory) {
 
-                //offer for all products -- offer calculated by percentage
-                if (!product.actualPrice.set) {
-                    product.actualPrice.set = true;
-                }
-                product.actualPrice.amount = product.price;
-                product.price = product.actualPrice.amount + Math.floor(product.actualPrice.amount * (input / 100));
-                await product.save()
+                let restoredPrice = product.actualPrice.amount;
+                product.price = Math.max(restoredPrice, 0); // Ensure price is not negative
+                await product.save();
 
             }
 
