@@ -139,7 +139,7 @@ const getOtpPage = async (req, res) => {
 
         let email = req.session.email;
 
-        console.log('current Otp ', req.session.OTP)
+        // console.log('current Otp ', req.session.OTP)
 
         //Handle Message needed for otp Page
         let message = req.session.otpMessage || null
@@ -283,7 +283,7 @@ const postRegister = async (req, res) => {
             req.session.OTP = otp;
             req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // Set expiration time to 5 minutes
 
-            console.log('Register Otp', req.session.OTP)
+            // console.log('Register Otp', req.session.OTP)
 
             //Node Mailer Option Config
             let mailOptions = {
