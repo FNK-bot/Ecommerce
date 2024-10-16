@@ -301,11 +301,25 @@
             clearInterval(interval);
             document.getElementById("resend").disabled = false;
           }
-          document.querySelector(".time").innerHTML = n;
+
+          // Convert seconds to minutes and seconds
+          let minutes = Math.floor(n / 60);
+          let seconds = n % 60;
+
+          // Pad the seconds with a leading zero if less than 10
+          seconds = seconds < 10 ? '0' + seconds : seconds;
+
+          // Display the time in "minutes:seconds" format
+          document.querySelector(".time").innerHTML = `${minutes}:${seconds}`;
+
           n = n - 1;
         }, 1000);
+      };
+
+      let messageFromFrontend = '<%=message%>'
+      if (!messageFromFrontend || messageFromFrontend == 'undefined') {
+        timer(300);// 5 minutes = 300 seconds
       }
-      timer(300);
 
       document.getElementById("resend").onclick = function () {
         timer(300);
