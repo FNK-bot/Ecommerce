@@ -139,8 +139,6 @@ const getOtpPage = async (req, res) => {
 
         let email = req.session.email;
 
-        // console.log('current Otp ', req.session.OTP)
-
         //Handle Message needed for otp Page
         let message = req.session.otpMessage || null
 
@@ -160,7 +158,7 @@ const resendOtp = async (req, res) => {
         let otp = generateOtp();
 
         req.session.OTP = otp;
-        console.log('resended Otp', otp)
+
         req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // Set expiration time to 5 minutes
 
 
@@ -201,7 +199,6 @@ const postOtp = async (req, res) => {
         let orgOtp = req.session.OTP;
         let otpExpiresAt = req.session.otpExpiresAt;
 
-        console.log('session otp ', orgOtp); ///test
 
         //validate Expiry
         if (Date.now() > otpExpiresAt) {
@@ -283,7 +280,6 @@ const postRegister = async (req, res) => {
             req.session.OTP = otp;
             req.session.otpExpiresAt = Date.now() + 5 * 60 * 1000; // Set expiration time to 5 minutes
 
-            // console.log('Register Otp', req.session.OTP)
 
             //Node Mailer Option Config
             let mailOptions = {
@@ -354,7 +350,7 @@ const postForgotPassword = async (req, res) => {
                 subject: 'Forgot Password',
                 text: `Click link below to reset password`, // plain text body
                 html: `<b>  <h4 >visit here </h4>    
-                <br>  <a href="http://localhost:3000/resetPassword?tk=${otpToken}&@=${email}">Click here</a></b>`, // html body
+                <br>  <a href="http://https://essenceecommerce.shop/resetPassword?tk=${otpToken}&@=${email}">Click here</a></b>`, // html body
             };
 
             transporter.sendMail(mailOptions, function (error, info) {
@@ -366,7 +362,7 @@ const postForgotPassword = async (req, res) => {
                     }
                     res.redirect('/forgotPassword')
                 } else {
-                    console.log(`link generated http://localhost:3000/resetPassword?tk=${otpToken}&for=${email}`)
+
                     req.session.alertMessage = {
                         type: 'success',
                         message: 'Reset Link Has Shared to Your Mail Please Check it'
