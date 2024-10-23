@@ -7,22 +7,22 @@ const isLogged = require('../middleware/authUser')
 const passport = require('passport');
 const upload = require('../multer/multer')
 
-const { getLanding, search } = require('../controller/user controller/landing_page')
+const { getLanding, search } = require('../controller/user-ctrl/landing_page')
 
-const getShoping = require('../controller/user controller/shop_controller')
+const getShoping = require('../controller/user-ctrl/shop_controller')
 
-const getSingleProduct = require('../controller/user controller/single_product');
+const getSingleProduct = require('../controller/user-ctrl/single_product');
 
 const { getOtpPage, getLogin, getRegister, getForgotPassword, postRegister,
      postOtp, postLogin, getLogOut, googleAuth, getResetPassword, postResetPassword,
-     postForgotPassword, resendOtp } = require('../controller/user controller/userAuthCtrl');
+     postForgotPassword, resendOtp } = require('../controller/user-ctrl/userAuthCtrl');
 
 const { getProfile, getEditAdress, getEditProfile, getAddAdress, postAddAddress,
      deleteAddress, postEditProfile, postEditAdress,
      getChangePassword,
      postChangePassword,
      cancelOneItem, returnOneItem,
-} = require('../controller/user controller/profileCtrl');
+} = require('../controller/user-ctrl/profileCtrl');
 
 const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem,
      getCheckOut, postChekOut,
@@ -31,9 +31,9 @@ const { getCart, postAddtoCart, putIncrementQnt, putDecrementQnt, deleteCartItem
      applyCoupen,
      cancelCoupen,
      invoice,
-     payOnOderPage } = require('../controller/user controller/cartCtrl');
+     payOnOderPage } = require('../controller/user-ctrl/cartCtrl');
 
-const { getWishlist, addToWishlist, deleteWishlist } = require('../controller/user controller/wishlistCtrl');
+const { getWishlist, addToWishlist, deleteWishlist } = require('../controller/user-ctrl/wishlistCtrl');
 
 
 // get landing page

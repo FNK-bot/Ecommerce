@@ -1,16 +1,37 @@
 <%- include('./partials/header'); %>
 
 
+    <style>
+        #paymentMethodChart {
+            width: 400px;
+            height: 200px;
+            max-width: 100%;
+        }
+    </style>
     <!-- Sales Chart Start -->
     <div class="container-fluid pt-4 px-4">
-        <div class="row g-4">
-            <div class="col-sm-12 col-xl-8">
+        <div class="row ">
+            <div class="col-sm-12 col-xl-6">
                 <div class="bg-light text-center rounded p-4">
                     <div class="d-flex align-items-center justify-content-between mb-4">
                         <h6 class="mb-0">Sales and Orders</h6>
 
                     </div>
                     <canvas id="worldwide-sales"></canvas>
+                </div>
+            </div>
+
+            <!-- <div class="col-sm-12 col-xl-6">
+                <div class="bg-light text-center rounded p-4">
+                    <h6 class="mb-4">Sales by Payment Method</h6>
+                    <canvas id="paymentMethodChart"></canvas>
+                </div>
+            </div> -->
+
+            <div class="col-sm-12 col-xl-6">
+                <div class="bg-light text-center rounded p-4">
+                    <h6 class="mb-4">Top Users by Purchase Value</h6>
+                    <canvas id="topUsersChart"></canvas>
                 </div>
             </div>
             <!-- <div class="col-sm-12 col-xl-6">
@@ -128,5 +149,97 @@
             }).catch((err) => {
                 alert(err)
             })
-            // Worldwide Sales Chart
+
+
+            // fetch('/admin/api/sales-by-payment-method')
+            //     .then(response => response.json())
+            //     .then(data => {
+            //         const paymentMethods = data.salesByPaymentMethod.map(sale => sale._id);
+            //         const totalSales = data.salesByPaymentMethod.map(sale => sale.totalSales);
+
+            //         const ctx = document.getElementById('paymentMethodChart').getContext('2d');
+            //         new Chart(ctx, {
+            //             type: 'pie',
+            //             data: {
+            //                 labels: paymentMethods,
+            //                 datasets: [{
+            //                     label: 'Sales by Payment Method',
+            //                     data: totalSales,
+            //                     backgroundColor: [
+            //                         'rgba(255, 99, 132, 0.2)',
+            //                         'rgba(54, 162, 235, 0.2)',
+            //                         'rgba(255, 206, 86, 0.2)',
+            //                         'rgba(75, 192, 192, 0.2)',
+            //                         'rgba(153, 102, 255, 0.2)',
+            //                         'rgba(255, 159, 64, 0.2)'
+            //                     ],
+            //                     borderColor: [
+            //                         'rgba(255, 99, 132, 1)',
+            //                         'rgba(54, 162, 235, 1)',
+            //                         'rgba(255, 206, 86, 1)',
+            //                         'rgba(75, 192, 192, 1)',
+            //                         'rgba(153, 102, 255, 1)',
+            //                         'rgba(255, 159, 64, 1)'
+            //                     ],
+            //                     borderWidth: 1
+            //                 }]
+            //             },
+            //             options: {
+            //                 responsive: true,
+            //                 plugins: {
+            //                     legend: {
+            //                         position: 'top',
+            //                     }
+            //                 }
+            //             }
+            //         });
+            //     })
+            //     .catch(err => {
+            //         console.error('Error loading chart data', err);
+            //     });
+
+
+
+            fetch('/admin/api/top-users-by-purchase')
+                .then(response => response.json())
+                .then(data => {
+                    const usernames = data.topUsers.map(user => user.username);
+                    const totalPurchases = data.topUsers.map(user => user.totalPurchase);
+
+                    const ctx = document.getElementById('topUsersChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: usernames, // X-axis labels (Usernames)
+                            datasets: [{
+                                label: 'Total Purchase Value',
+                                data: totalPurchases, // Y-axis data (Purchase values)
+                                borderColor: 'rgba(75, 192, 192, 1)',
+                                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                                fill: true,
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Purchase Value (in rupees)'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Users'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                })
+                .catch(err => {
+                    console.error('Error loading chart data', err);
+                });
         </script>

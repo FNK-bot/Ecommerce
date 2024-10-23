@@ -234,34 +234,7 @@
                                         </table>
                                     </div>
                                     <!-- end table-responsive -->
-                                    <div class="mt-4">
-                                        <h5 class="font-size-16 mb-3">Apply Discount Coupon</h5>
-                                        <%if(coupen=='no' ){%>
-                                            <div class="input-group">
-                                                <input type="text" class="form-control" placeholder="Enter coupon code"
-                                                    id="coupenInput">
-                                                <div class="input-group-append">
-                                                    <button class="btn btn-primary" type="button"
-                                                        id="applybtn">Apply</button>
-                                                </div>
-                                            </div>
-                                            <p class="d-none" id="coupenMessage"></p>
-                                            <%}else{%>
-                                                <div class="input-group">
-                                                    <input type="text" class="form-control" placeholder="<%=coupen%>"
-                                                        id="coupenInput" value="<%=coupen%>" disabled>
-                                                    <div class="input-group-append">
-                                                        <button class="btn btn-danger" type="button"
-                                                            id="applybtn">Remove</button>
-                                                    </div>
-                                                </div>
-                                                <p class="alert-danger" id="coupenMessage">coupen Applied</p>
-                                                <%}%>
 
-                                                    <a href="/mycoupens">View My Coupens <span
-                                                            class="mdi mdi-tag-arrow-right-outline"></span>
-                                                    </a>
-                                    </div>
                                 </div>
                             </div>
                             <!-- end card -->
@@ -314,7 +287,7 @@
                                     footer: `Cart updated`
                                 });
                             }
-                            console.log(response.data)
+                            // console.log(response.data)
 
                             const quantityInput = document.getElementById(`qnt-display-${pid}`)
                             const productTotal = document.getElementById(`singleTotal-${pid}`)
@@ -325,7 +298,7 @@
 
                             subTotal.innerText = `₹${response.data.subTotal}`;
                             total.innerText = `₹${response.data.total}`;
-                            console.log(quantityInput.value)
+                            // console.log(quantityInput.value)
                             const discount = document.getElementById('discount')
                             discount.innerText = '- ₹00'
 
@@ -362,15 +335,15 @@
                             const discount = document.getElementById('discount')
                             discount.innerText = '- ₹00'
 
-                            console.log(response.data)
+                            // console.log(response.data)
                             productTotal.innerText = `₹${response.data.singleTotal}`;
                             subTotal.innerText = `₹${response.data.subTotal}`;
                             total.innerText = `₹${response.data.total}`;
                             quantityInput.value = response.data.cartQnt;
-                            console.log(quantityInput.value)
+                            // console.log(quantityInput.value)
 
                         }).catch((error) => {
-                            console.log(error);
+                            // console.log(error);
                             Swal.fire({
                                 icon: "error",
                                 title: "Oops...",
@@ -381,64 +354,6 @@
                 }
 
 
-                //Discount coupen fucntions
-                const total = document.getElementById('total');
-                const applyBtn = document.getElementById('applybtn');
-                const coupenInput = document.getElementById('coupenInput')
-                const coupenMessage = document.getElementById('coupenMessage')
-                const discount = document.getElementById('discount')
-                function errorMessage(message, type = 'error') {
-                    // Swal.fire({
-                    //     position: "top-end",
-                    //     icon: type,
-                    //     title: message,
-                    //     showConfirmButton: false,
-                    //     timer: 1500
-                    // });
-                    coupenMessage.className = type == 'success' ? 'alert-success' : 'alert-danger';
-                    coupenMessage.innerText = message
-                }
-                applyBtn.addEventListener('click', () => {
-                    if (coupenInput.value.length > 0) {
-                        if (applyBtn.innerText == 'Apply') {
-                            axios.put('/apply-coupen', { code: coupenInput.value }).then((res) => {
-                                if (res.data.isValid) {
-                                    total.innerText = '₹' + res.data.total;
-                                    discount.innerText = '- ₹' + res.data.discount
-                                    coupenInput.disabled = true
-                                    applyBtn.innerText = 'Remove';
-                                    applyBtn.className = 'btn btn-danger';
-
-                                    errorMessage(res.data.msg, 'success')
-
-                                }
-                                else {
-                                    errorMessage(res.data.msg)
-                                }
-                            }).catch((err) => {
-                                errorMessage(err)
-                            })
-                        }
-                        if (applyBtn.innerText == 'Remove') {
-                            axios.put('/cancel-coupen', { code: coupenInput.value }).then((res) => {
-                                if (res.data.isValid) {
-                                    applyBtn.innerText = 'Apply';
-                                    applyBtn.className = 'btn btn-primary';
-                                    coupenInput.disabled = false
-                                    total.innerText = '₹' + res.data.total;
-                                    discount.innerText = '₹' + res.data.discount
-                                    errorMessage(res.data.msg, 'success')
-                                }
-                                else {
-                                    errorMessage(res.data.msg)
-                                }
-                            })
-                        }
-                    }
-                    else {
-                        errorMessage('Enter the coupen code')
-                    }
-                })
 
             </script>
 

@@ -32,6 +32,15 @@ function generateOderId() {
     return otp;
 }
 
+// reset coupen 
+async function resetCoupen(req) {
+    let user_id = req.session.user_id;
+    let user = await User.findById(user_id);
+    //handle coupen
+    user.cart.coupon = { code: '', isApplyed: false };
+    user.cart.discount = 0;
+    await user.save();
+}
 
 //load cart items page
 const getCart = async (req, res) => {
@@ -53,7 +62,7 @@ const getCart = async (req, res) => {
 
         let discount = user.cart.discount;
         let total = total_ - discount;
-        let coupen = user.cart.coupen;
+
 
         // Handle alert message for the session
         let alertMessage = null;
@@ -72,7 +81,6 @@ const getCart = async (req, res) => {
             total,
             subTotal,
             discount,
-            coupen,
             alertMessage
         });
 
@@ -112,6 +120,8 @@ const postAddtoCart = async (req, res) => {
         });
         await user.save();
 
+        //handle coupen
+        await resetCoupen(req);
         return res.status(200).json({ message: `${findProduct.name} is added to the cart`, messageType: 'success' });
 
     } catch (error) {
@@ -146,6 +156,9 @@ const putIncrementQnt = async (req, res) => {
         if (!cart) {
             return res.status(400).json({ message: 'Product Not Found In Cart' });
         }
+
+        //handle coupen
+        await resetCoupen(req);
 
         // Handle quantity increment
         if (cart.quantity < product.quantity) {
@@ -252,6 +265,9 @@ const putDecrementQnt = async (req, res) => {
         if (!cart) {
             return res.status(400).json({ message: 'Product Not Found In Cart' });
         }
+
+        //handle coupen
+        await resetCoupen(req);
 
         // Handle case where product quantity is greater than available stock (invalid in decrement context)
         // While Admin changed the stock While user performed
@@ -369,6 +385,9 @@ const deleteCartItem = async (req, res) => {
             },
             { new: true }
         );
+
+        //handle coupen
+        await resetCoupen(req);
 
         return res.status(200).json({ message: 'Item successfully deleted from cart' });
     } catch (error) {
@@ -489,7 +508,33 @@ const postChekOut = async (req, res) => {
             return item.ProductId
         });
 
-        const products_details = user.cart.cartItems;
+        //assign user cart
+        let cart = user.cart;
+
+        //total cart amount
+        let totalCartAmount = cart.cartItems.reduce((acc, item) => acc + item.total, 0);
+
+        //product details which used for creating order
+        const products_details = await Promise.all(user.cart.cartItems.map(async (item) => {
+            //Logic to adjust discount amount from each product
+
+            let findProduct = await Product.findById(item.ProductId);
+
+            // Calculate the percentage of the discount for the total cart amount
+            let percentage = (user.cart.discount / totalCartAmount) * 100;
+
+            // Find how much amount is discounted for total product 
+            let diffrenceAmount = Math.floor(((item.quantity * findProduct.price) * percentage) / 100);
+
+            return {
+                status: 'Paid',
+                ProductId: item.ProductId,
+                quantity: item.quantity,
+                singleProductActualPrice: findProduct.price,
+                total: (item.quantity * findProduct.price) - diffrenceAmount, // Decrease the discount price from actual price by percentage
+            };
+
+        }));
 
         let total_ = 0;
         let subTotal = 0;
@@ -535,7 +580,7 @@ const postChekOut = async (req, res) => {
             let newOrder = new Order({
                 orderID: orderId,
                 totalPrice: 0,
-                date: Date.now(),
+                date: new Date(Date.now()).toISOString().slice(0, 10),
                 productId: product_ids,
                 userId: user._id,
                 method: 'razorpay',
@@ -573,8 +618,15 @@ const postChekOut = async (req, res) => {
             //Update Order
             findOrder.onlinePayment.paymentId = req.body.paymentId;
             findOrder.onlinePayment.status = 'Paid';
+            findOrder.onlinePayment.isPaid = true;
             findOrder.status = 'Placed';
             findOrder.totalPrice = total
+
+            //change orde item status to paid
+            findOrder.productDetails.forEach((item) => {
+                item.status = 'Paid'
+            })
+
             await findOrder.save();
 
             //manage the stock
@@ -589,11 +641,17 @@ const postChekOut = async (req, res) => {
 
         //Handle Razorpay If Pending  (payment not Completed/closed or exited razorpay gateway )
         if (req.body.paymentStatus === 'Pending') {
+
             //fetch Order
             let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.orderId })
 
             //Update Order
-            findOrder.onlinePayment.status = 'Pending';
+            findOrder.onlinePayment.status = 'on payment';
+            findOrder.onlinePayment.isPaid = false;
+            //change orde item status to pending
+            findOrder.productDetails.forEach((item) => {
+                item.status = 'on payment'
+            })
             await findOrder.save();
 
             return res.json({ orderId: findOrder.orderID })
@@ -618,7 +676,7 @@ const postChekOut = async (req, res) => {
             let newOrder = new Order({
                 orderID: orderId,
                 totalPrice: total,
-                date: Date.now(),//
+                date: new Date(Date.now()).toISOString().slice(0, 10),//
                 productId: product_ids,
                 userId: user._id,
                 method: 'cod',
@@ -654,7 +712,7 @@ const postChekOut = async (req, res) => {
             let newOrder = new Order({
                 orderID: orderId,
                 totalPrice: total,
-                date: Date.now(),//
+                date: new Date(Date.now()).toISOString().slice(0, 10),//
                 productId: product_ids,
                 userId: user._id,
                 method: 'wallet',
@@ -739,8 +797,14 @@ const payOnOderPage = async (req, res) => {
             // Update payment status and order
             findOrder.onlinePayment.paymentId = req.body.paymentId;
             findOrder.onlinePayment.status = 'Paid';
+            findOrder.onlinePayment.isPaid = true;
             findOrder.status = 'Placed';
             findOrder.totalPrice = total;
+            findOrder.date = new Date(Date.now()).toISOString().slice(0, 10);
+            //change orde item status to paid
+            findOrder.productDetails.forEach((item) => {
+                item.status = 'Paid'
+            })
             await findOrder.save();
 
             // Manage stock and update product quantities
@@ -970,17 +1034,19 @@ const applyCoupen = async (req, res) => {
             }
 
             // Calculate discount
-            let discountAmount = Math.floor((cartTotal * coupon.percentage) / 100);
+            let calculatedDiscountAmount = Math.floor((cartTotal * coupon.percentage) / 100);
+            let discountAmount = Math.min(calculatedDiscountAmount, 500); // Ensure discount amount not morethan 500(limiting offer);
             let updatedTotal = cartTotal - discountAmount;
 
             // Update user cart with discount and coupon
             user.cart.discount = discountAmount;
-            user.cart.coupen = clientCode;
+            user.cart.coupon.code = clientCode;
+            user.cart.coupon.isApplyed = true;
             await user.save();
 
             // Return success response
             return res.status(200).json({
-                msg: 'Coupon Applied Successfully',
+                msg: calculatedDiscountAmount < 500 ? 'Coupon Applied Successfully' : 'Maximum Coupen Discount Applied',
                 total: updatedTotal,
                 discount: discountAmount,
                 isValid: true,
@@ -1006,7 +1072,7 @@ const cancelCoupen = async (req, res) => {
         let user = await User.findById(req.session.user_id);
 
         // Check if there is any coupon applied
-        if (user.cart.coupen === 'no' || !user.cart.coupen) {
+        if (!user.cart.coupon.isApplyed) {
             return res.status(400).json({
                 msg: 'No coupon applied',
                 isValid: false,
@@ -1015,7 +1081,7 @@ const cancelCoupen = async (req, res) => {
 
         // Check if the coupon being canceled matches the applied one
         let clientCode = req.body.code;
-        if (user.cart.coupen !== clientCode) {
+        if (user.cart.coupon.code !== clientCode) {
             return res.status(400).json({
                 msg: 'Coupon does not match the applied one',
                 isValid: false,
@@ -1024,13 +1090,15 @@ const cancelCoupen = async (req, res) => {
 
         // Remove the coupon and reset the discount
         user.cart.discount = 0;
-        user.cart.coupen = 'no';
+        user.cart.coupon.code = '';
+        user.cart.coupon.isApplyed = false;
         await user.save();
 
         // Calculate the new cart total (without the discount)
         let cartTotal = user.cart.cartItems.reduce((acc, cartItem) => {
             return acc + cartItem.total;
         }, 0);
+
 
         // Return response
         return res.status(200).json({

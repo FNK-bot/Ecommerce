@@ -46,12 +46,7 @@
                                                 Password is required and must be at least 8 characters
                                             </div>
                                         </div>
-                                        <div class="mb-3">
-                                            <div class="mb-2 w-100">
-                                                <label class="text-muted" for="referrel">Referral Code</label>
-                                            </div>
-                                            <input id="referrel" type="text" class="form-control" name="referrel">
-                                        </div>
+
                                         <div class="d-flex align-items-center">
                                             <div class="text-center">
                                                 <a href="/google" class="text-dark">Login with Google <i
@@ -103,10 +98,6 @@
         });
 
         function validateField(input) {
-            if (input.id === 'referrel') {
-                // Skip referral code validation
-                return true;
-            }
 
             // Default validation logic
             if (!input.checkValidity()) {

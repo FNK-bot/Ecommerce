@@ -243,6 +243,7 @@ const getEditProfile = async (req, res) => {
         // Fetch user
         const user = await User.findById(req.session.user_id);
 
+
         // Render page
         res.render('user-views/editProfile', { user });
 
@@ -416,7 +417,13 @@ const cancelOneItem = async (req, res) => {
         // Update the order item status to "Cancelled"
         await Order.updateOne(
             { _id: oid, "productDetails._id": iid },
-            { $set: { "productDetails.$.status": "Cancelled", status: 'some item Cancelled' } }
+            {
+                $set: {
+                    "productDetails.$.status": "Cancelled",
+                    status: 'some item Cancelled',
+                    "productDetails.$.isCancelled": true
+                }
+            }
         );
 
         //Produt(item)
@@ -476,7 +483,13 @@ const returnOneItem = async (req, res) => {
         // Update order item status and order status
         await Order.updateOne(
             { _id: oid, "productDetails._id": iid },
-            { $set: { "productDetails.$.status": "Returned", status: 'some item returned' } }
+            {
+                $set: {
+                    "productDetails.$.status": "Returned",
+                    status: 'some item returned',
+                    "productDetails.$.isReturned": true
+                }
+            }
         );
 
         // Get the refunded item and calculate refund amount
@@ -488,9 +501,6 @@ const returnOneItem = async (req, res) => {
         user.transactionHistory.push({ amount: refundAmount });
         await user.save();
 
-        // Manage product stock
-        await Product.findOneAndUpdate({ _id: item.ProductId },
-            { $inc: { quantity: item.quantity } });
 
         // Set success message and send response
         const alertMessage = {

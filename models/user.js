@@ -120,7 +120,10 @@ const userSchema = new mongoose.Schema({
         }],
         discount: { type: Number, default: 0 },
 
-        coupen: { type: String, default: 'no' }
+        coupon: {
+            code: { type: String },
+            isApplyed: { type: Boolean, default: false },
+        }
 
     },
     coupens: {
@@ -170,8 +173,16 @@ const userSchema = new mongoose.Schema({
                 default: false,
             }
         }
-    ]
+    ],
 
+    referrelCode: {
+        type: String,
+    },
+
+    referredBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
 
 });
 

@@ -1,16 +1,17 @@
 let express = require('express');
 let router = express.Router();
 const upload = require('../multer/multer.js')
-const { getDashboard, getSalesReportApi, getSalesReportPage } = require('../controller/admin/dashbaord');
-const { getAllUsers, blockUser, unBlockUser } = require('../controller/admin/users.js');
-const { getAllProduct, getAddProduct, postAddProduct, getEditProduct, postEditProduct, deleteProduct, deleteImage, addImage } = require('../controller/admin/product');
-const { getAllCatagory, getAddCatagory, getEditCatagory, postAddCatagory, postEditCatagory, deleteCatagory } = require('../controller/admin/catagory');
-const { getlogIn, postLogIn, logout } = require('../controller/admin/login_out');
+const { getDashboard, getSalesReportApi, getSalesReportPage, getSalesByPaymentMethod, getTopUsersByPurchase } = require('../controller/admin-ctrl/dashbaord');
+const { getAllUsers, blockUser, unBlockUser } = require('../controller/admin-ctrl/users.js');
+const { getAllProduct, getAddProduct, postAddProduct, getEditProduct, postEditProduct,
+    deleteProduct, deleteImage, addImage, restoreProduct } = require('../controller/admin-ctrl/product');
+const { getAllCatagory, getAddCatagory, getEditCatagory, postAddCatagory, postEditCatagory, deleteCatagory } = require('../controller/admin-ctrl/catagory');
+const { getlogIn, postLogIn, logout } = require('../controller/admin-ctrl/login_out');
 const isLogged = require('../middleware/authAdmin.js');
-const { getOrders, deleteOrder, getOrderDetails, deleverOneItem } = require('../controller/admin/ordersCntrl.js');
-const { getBrands, getEditBrand, postEditBrand, getAddBrand, postAddBrand, deleteBrand } = require('../controller/admin/brandCtrl.js');
-const { manageOffers, deleteOffer } = require('../controller/admin/offerCtrl.js');
-const { getCoupens, getAddCoupen, postAddCoupen, deleteCoupen, getEditCoupen, postEditCoupen } = require('../controller/admin/coupenCtrl.js');
+const { getOrders, deleteOrder, getOrderDetails, deleverOneItem, placeOneItem, OneItemMarkAsOnDelevery, shipOneItem } = require('../controller/admin-ctrl/ordersCntrl.js');
+const { getBrands, getEditBrand, postEditBrand, getAddBrand, postAddBrand, deleteBrand } = require('../controller/admin-ctrl/brandCtrl.js');
+const { manageOffers, deleteOffer } = require('../controller/admin-ctrl/offerCtrl.js');
+const { getCoupens, getAddCoupen, postAddCoupen, deleteCoupen, getEditCoupen, postEditCoupen } = require('../controller/admin-ctrl/coupenCtrl.js');
 
 //auth
 router.get('/login', getlogIn);
@@ -33,6 +34,7 @@ router.get('/editProduct', isLogged, getEditProduct)
 router.post('/editProduct/:id', upload.array('images', 12), isLogged, postEditProduct); //edit product
 router.put('/addImage', upload.single('image'), isLogged, addImage)
 router.delete('/deleteProduct/:id', isLogged, deleteProduct)
+router.put('/restoreProduct/:id', isLogged, restoreProduct)
 router.delete('/deleteImage', isLogged, deleteImage)
 
 //catagory
@@ -60,11 +62,15 @@ router.delete('/deleteOrder', isLogged, deleteOrder);
 //order Details
 router.get('/orderDetails', isLogged, getOrderDetails);
 router.put('/deleverOneItem', isLogged, deleverOneItem);
+router.put('/shipOneItem', isLogged, shipOneItem);
+router.put('/placeOneItem', isLogged, placeOneItem);
+router.put('/markAsOnDelevery', isLogged, OneItemMarkAsOnDelevery);
 
 // sales report(dashboard page)
 router.get('/salesReport', isLogged, getSalesReportPage)
 router.get('/api/sales-report', isLogged, getSalesReportApi)
-
+router.get('/api/sales-by-payment-method', getSalesByPaymentMethod);
+router.get('/api/top-users-by-purchase', getTopUsersByPurchase);
 //offer
 router.post('/api/addOffer', isLogged, manageOffers)
 router.delete('/deleteOffer', isLogged, deleteOffer)

@@ -68,6 +68,13 @@
                       <div class="invalid-feedback ">Passwords not matched</div>
                     </div>
 
+                    <div class="mb-3">
+                      <div class="mb-2 w-100">
+                        <label class="text-muted" for="referrel">Referral Code</label>
+                      </div>
+                      <input id="referrel" type="text" class="form-control" name="referrel">
+                    </div>
+
                     <div class="align-items-center d-flex">
                       <button type="submit" class="btn btn-primary form-control">Verify With OTP</button>
                     </div>
@@ -112,6 +119,11 @@
     });
 
     function validateField(input) {
+      if (input.id === 'referrel') {
+        // Skip referral code validation
+        return true;
+      }
+
       if (input.id === 'confirmPassword') {
         // Custom validation for confirm password
         const password = document.getElementById('password').value;

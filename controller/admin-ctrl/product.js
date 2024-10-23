@@ -7,7 +7,7 @@ const { isValidObjectId } = require('mongoose');
 const getAllProduct = async (req, res) => {
     try {
         //fetch All products
-        const allProducts = await Product.find({ isDeleted: false })
+        const allProducts = await Product.find();
 
         //Pagination Logic
         const itemsperpage = 5;
@@ -306,7 +306,33 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+
+// Restore Product
+const restoreProduct = async (req, res) => {
+    try {
+        const id = req.params.id;
+
+        // Update product 
+        const product = await Product.findOneAndUpdate(
+            { _id: id },
+            { $set: { isDeleted: false } },
+            { new: true }
+        );
+
+        // Check if the product was found and updated
+        if (!product) {
+            return res.status(400).json({ error: 'Product Not found' })
+        }
+        console.log(product)
+
+        return res.status(200).json({ message: 'success' })
+    } catch (err) {
+        console.error('Error in Restore product', err);
+        return res.status(500).json({ error: 'Interal Server error' })
+    }
+};
+
 module.exports = {
     getAllProduct, postEditProduct,
-    getAddProduct, getEditProduct, postAddProduct, deleteProduct, deleteImage, addImage
+    getAddProduct, getEditProduct, postAddProduct, deleteProduct, deleteImage, addImage, restoreProduct
 };

@@ -256,7 +256,7 @@
                                                     <td colspan="2">
                                                         <h5 class="font-size-14 m-0">Discount :</h5>
                                                     </td>
-                                                    <td>- ₹<%=discount%>
+                                                    <td id="discount">- ₹<%=discount%>
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -269,11 +269,39 @@
                                                     <td colspan="2">
                                                         <h5 class="font-size-14 m-0">Total :</h5>
                                                     </td>
-                                                    <td id="totalAmount">₹<%= totalCartPrice %>
+                                                    <td id="total">₹<%= totalCartPrice %>
                                                     </td>
                                                 </tr>
                                     </tbody>
                                 </table>
+                                <div class="mt-4">
+                                    <h5 class="font-size-16 mb-3">Apply Discount Coupon</h5>
+                                    <%if(!user.cart.coupon.isApplyed){%>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" placeholder="Enter coupon code"
+                                                id="coupenInput">
+                                            <div class="input-group-append">
+                                                <button class="btn btn-primary" type="button"
+                                                    id="applybtn">Apply</button>
+                                            </div>
+                                        </div>
+                                        <p class="d-none" id="coupenMessage"></p>
+                                        <%}else{%>
+                                            <div class="input-group">
+                                                <input type="text" class="form-control" id="coupenInput"
+                                                    value="<%=user.cart.coupon.code%>" disabled>
+                                                <div class="input-group-append">
+                                                    <button class="btn btn-danger" type="button"
+                                                        id="applybtn">Remove</button>
+                                                </div>
+                                            </div>
+                                            <p class="alert-danger" id="coupenMessage">coupen Applied</p>
+                                            <%}%>
+
+                                                <a href="/mycoupens">View My Coupens <span
+                                                        class="mdi mdi-tag-arrow-right-outline"></span>
+                                                </a>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -282,7 +310,61 @@
         </form>
     </div>
 
+    <script>
+        //Discount coupen fucntions
+        const total = document.getElementById('total');
+        const discount = document.getElementById('discount')
+        const applyBtn = document.getElementById('applybtn');
+        const coupenInput = document.getElementById('coupenInput')
+        const coupenMessage = document.getElementById('coupenMessage')
+        function errorMessage(message, type = 'error') {
 
+            coupenMessage.className = type == 'success' ? 'alert-success' : 'alert-danger';
+            coupenMessage.innerText = message
+        }
+        applyBtn.addEventListener('click', () => {
+            if (coupenInput.value.length > 0) {
+                if (applyBtn.innerText == 'Apply') {
+                    axios.put('/apply-coupen', { code: coupenInput.value }).then((res) => {
+                        if (res.data.isValid) {
+                            total.innerText = '₹' + res.data.total;
+                            discount.innerText = '- ₹' + res.data.discount
+                            coupenInput.disabled = true
+                            applyBtn.innerText = 'Remove';
+                            applyBtn.className = 'btn btn-danger';
+
+                            errorMessage(res.data.msg, 'success')
+
+                        }
+                        else {
+                            errorMessage(res.data.msg)
+                        }
+                    }).catch((err) => {
+                        errorMessage('Not valid code ')
+                    })
+                }
+                if (applyBtn.innerText == 'Remove') {
+                    axios.put('/cancel-coupen', { code: coupenInput.value }).then((res) => {
+                        if (res.data.isValid) {
+                            applyBtn.innerText = 'Apply';
+                            applyBtn.className = 'btn btn-primary';
+                            coupenInput.disabled = false
+                            total.innerText = '₹' + res.data.total;
+                            discount.innerText = '₹' + res.data.discount
+                            errorMessage(res.data.msg, 'success')
+                        }
+                        else {
+                            errorMessage(res.data.msg)
+                        }
+                    })
+                }
+            }
+            else {
+                errorMessage('Enter the coupen code')
+            }
+        })
+
+    </script>
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     <script>
 

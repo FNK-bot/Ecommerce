@@ -109,6 +109,70 @@ const getSalesReportApi = async (req, res) => {
     }
 };
 
+//chart of sales by payment Method
+const getSalesByPaymentMethod = async (req, res) => {
+    try {
+        const salesByPaymentMethod = await Order.aggregate([
+            {
+                $group: {
+                    _id: "$method", // Group by payment method
+                    totalSales: { $sum: "$totalPrice" }, // Total price for each method
+                    orderCount: { $sum: 1 } // Count of orders
+                }
+            }
+        ]);
+
+        res.status(200).json({ salesByPaymentMethod });
+    } catch (error) {
+        console.error('Error fetching sales by payment method:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+
+const getTopUsersByPurchase = async (req, res) => {
+    try {
+        // Aggregate total purchase for each user
+        const usersByPurchase = await Order.aggregate([
+            {
+                $group: {
+                    _id: "$userId", // Group by userId
+                    totalPurchase: { $sum: "$totalPrice" } // Sum totalPrice for each user
+                }
+            },
+            {
+                $lookup: {
+                    from: "users", // Join with User collection
+                    localField: "_id", // Field from Order collection
+                    foreignField: "_id", // Field from User collection
+                    as: "userDetails"
+                }
+            },
+            {
+                $unwind: "$userDetails" // Flatten the user details array
+            },
+            {
+                $sort: { totalPurchase: -1 } // Sort by totalPurchase in descending order
+            },
+            {
+                $limit: 5 // Limit to top 5 users (adjust as needed)
+            },
+            {
+                $project: {
+                    _id: 0,
+                    username: "$userDetails.username",
+                    totalPurchase: 1
+                }
+            }
+        ]);
+
+        res.json({ topUsers: usersByPurchase });
+    } catch (error) {
+        console.error('Error fetching top users by purchase:', error);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
 // Generate Excel Function
 const generateExcel = async (orders, totalRevenue, totalDiscount, totalSale) => {
     const dirPath = path.join(__dirname, '../../public/admin/assets/excel');
@@ -192,46 +256,51 @@ const getSalesReportPage = async (req, res) => {
         let startDate, endDate;
 
         const now = new Date();
-
+        let collectionFilter = {};
         switch (filter) {
             case 'daily':
                 startDate = new Date(now.setHours(0, 0, 0, 0));
                 endDate = new Date(now.setHours(23, 59, 59, 999));
+                collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
             case 'weekly':
                 startDate = new Date(now.setDate(now.getDate() - now.getDay()));
                 startDate.setHours(0, 0, 0, 0);
                 endDate = new Date(now.setDate(startDate.getDate() + 6));
                 endDate.setHours(23, 59, 59, 999);
+                collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
             case 'monthly':
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
                 endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
+                collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
             case 'yearly':
                 startDate = new Date(now.getFullYear(), 0, 1);
                 endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+                collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
             case 'custom':
-                startDate = new Date(req.query.startDate);
-                endDate = new Date(req.query.endDate);
+                startDate = req.query.startDate
+                endDate = req.query.endDate
+
+                collectionFilter = {
+                    isAllDelevered: true,
+                    date: { $gte: startDate, $lte: endDate },
+                }
                 break;
             default:
-                startDate = new Date(0);
-                endDate = new Date();
+                collectionFilter = { isAllDelevered: true }
         }
 
-        const orders = await Order.find({
-            createdOn: { $gte: startDate, $lte: endDate },
-            isDeleted: false
-        }).populate('userId')
+        const orders = await Order.find(collectionFilter).populate('userId')
 
         const totalRevenue = orders.reduce((acc, item) => acc + item.totalPrice, 0);
         const totalDiscount = orders.reduce((acc, item) => acc + item.discount, 0);
         const totalSale = orders.length;
 
-        const availableDates = await Order.distinct('createdOn');
-        const dates = availableDates.map(date => date.toISOString().split('T')[0]);
+        const dates = await Order.find({ isAllDelevered: true }).distinct('date');
+        // const dates = availableDates.map(date => date.toISOString().split('T')[0]);
 
         if (req.query.download === 'pdf') {
             const filePath = generatePDF(orders, totalRevenue, totalDiscount, totalSale);
@@ -271,4 +340,7 @@ const getSalesReportPage = async (req, res) => {
     }
 };
 
-module.exports = { getDashboard, getSalesReportApi, getSalesReportPage };
+module.exports = {
+    getDashboard, getSalesReportApi, getSalesReportPage,
+    getSalesByPaymentMethod, getTopUsersByPurchase
+}

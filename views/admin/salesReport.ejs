@@ -151,8 +151,10 @@
                 <%- include('./partials/footer'); %>
 
                     <script>
-                        const availableDates = '<%= JSON.stringify(dates) %>';
+                        const availableDates = '<%=dates%>'.split(',')
+
                         const startDateInput = document.getElementById('startDate');
+
                         const endDateInput = document.getElementById('endDate');
 
                         // Function to check if a date is available
@@ -166,6 +168,7 @@
                                 alert('Selected start date is not available.');
                                 this.value = ''; // Reset the input value
                             }
+
                         });
 
                         endDateInput.addEventListener('focusout', function () {

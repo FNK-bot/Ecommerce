@@ -81,17 +81,33 @@ let oderSchema = new mongoose.Schema({
             type: Number,
 
         },
-        size: {
-            type: String,
-        },
+
         total: {
+            type: Number,
+
+        },
+        singleProductActualPrice: {
             type: Number,
 
         },
         status: {
             type: String,
-            default: 'Placed'
+            default: 'Initial'
         },
+        isReturned: {
+            type: Boolean,
+            default: false
+        },
+        isCancelled: {
+            type: Boolean,
+            default: false
+        },
+
+        isDelevered: {
+            type: Boolean,
+            default: false
+        },
+
     }],
     shippingCharge: {
         type: Number,
@@ -110,7 +126,15 @@ let oderSchema = new mongoose.Schema({
         },
         orderId: {
             type: String,
+        },
+        isPaid: {
+            type: Boolean,
+            default: true,
         }
+    },
+    isAllDelevered: {
+        type: Boolean,
+        default: false
     }
 
 });

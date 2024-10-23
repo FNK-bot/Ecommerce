@@ -1,8 +1,11 @@
 const User = require('../../models/user');
 const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt')
 const dotenv = require('dotenv');
 dotenv.config();
+
+const { generateReferrelCode,
+    generateOtp, generateHashedPassword } = require('../utils/generation-functions');
+
 
 // setup node mailer
 let transporter = nodemailer.createTransport({
@@ -14,23 +17,6 @@ let transporter = nodemailer.createTransport({
     }
 });
 
-//generte Otp
-function generateOtp() {
-    var digits = "1234567890";
-    var otp = "";
-    for (i = 0; i < 4; i++) {
-        otp += digits[Math.floor(Math.random() * 10)];
-    }
-    return otp;
-}
-
-// generate Hashed password using bcryt
-const generateHashedPassword = async (password) => {
-    const saltRounds = 10; // Number of salt rounds
-    const salt = await bcrypt.genSalt(saltRounds);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    return hashedPassword;
-};
 
 
 
@@ -50,8 +36,7 @@ const postLogin = async (req, res) => {
 
         let { email, password } = req.body;
 
-        //Handle Refferel offer Input
-        let referrel = req.body.referrel || null;
+
         let userData = await User.findOne({ email });
 
         //validate User
@@ -69,23 +54,7 @@ const postLogin = async (req, res) => {
                 else {
                     // If password Matched
                     if (await userData.isPasswordMatched(password)) {
-                        //referrel 
-                        if (referrel) {
-                            let validateRefferel = await User.findOne({ email: referrel });
 
-                            if (validateRefferel) {
-                                userData.wallet += 25;
-                                userData.transactionHistory.push({
-                                    amount: 25
-                                })
-                                await userData.save();
-                                req.session.alertMessage = {
-                                    type: 'success',
-                                    message: 'You got ₹25 with refferl offer,check your wallet'
-                                }
-
-                            }
-                        }
 
                         req.session.user_id = userData._id;
                         req.session.userAuth = true;
@@ -121,7 +90,6 @@ const postLogin = async (req, res) => {
 
 const getLogOut = (req, res) => {
     try {
-        res.status(200);
 
         //delete user id from session 
         delete req.session.user_id
@@ -135,7 +103,6 @@ const getLogOut = (req, res) => {
 
 const getOtpPage = async (req, res) => {
     try {
-        res.status(200);
 
         let email = req.session.email;
 
@@ -218,8 +185,42 @@ const postOtp = async (req, res) => {
                 email: email,
                 mobile: phone,
                 password: hashedPassword,
+                referrelCode: generateReferrelCode(),
             });
             await newUser.save()
+
+            req.session.email = null;//manage session
+
+            //referrel Handle
+            let referrel = req.session.referrel;
+            if (referrel) {
+                let validateRefferel = await User.findOne({ referrelCode: referrel });
+                if (validateRefferel) {
+                    //find user 
+                    let userData = await User.findOne({ email });
+                    //add 25 to wallet
+                    userData.wallet += 25;
+                    userData.transactionHistory.push({
+                        amount: 25
+                    });
+                    //store who reffered user by sharing referrel code
+                    userData.referredBy = validateRefferel._id;
+                    await userData.save();
+                    let referredByName = validateRefferel.username;
+                    req.session.alertMessage = {
+                        type: 'success',
+                        message: `You got ₹25 with refferl offer shared by ${referredByName} ,check your wallet`
+                    }
+
+                    //also add the refferd user reward
+                    validateRefferel.wallet += 25;
+                    validateRefferel.transactionHistory.push({
+                        amount: 25
+                    });
+                    await validateRefferel.save();
+
+                }
+            };
 
             //Verified Logic
             req.session.user_id = newUser._id;
@@ -244,7 +245,6 @@ const postOtp = async (req, res) => {
 // Register Loading Page
 const getRegister = async (req, res) => {
     try {
-        res.status(200);
         res.render('user-views/register', { message: null })
     } catch (error) {
         console.error('Get Register Error :', error);
@@ -254,7 +254,6 @@ const getRegister = async (req, res) => {
 
 const postRegister = async (req, res) => {
     try {
-        res.status(200);
 
         let { email, phone, name } = req.body;
 
@@ -274,6 +273,9 @@ const postRegister = async (req, res) => {
             //If user Not Registered
             req.session.User = req.body;
             req.session.email = req.body.email
+
+            //Handle Refferel offer Input
+            req.session.referrel = req.body.referrel || null;
 
             //configure otp
             let otp = generateOtp();
@@ -317,7 +319,6 @@ const postRegister = async (req, res) => {
 //forgot password
 const getForgotPassword = async (req, res) => {
     try {
-        res.status(200);
 
         //Handle Alert Message
         let alertMessage = req.session.alertMessage;
@@ -332,7 +333,7 @@ const getForgotPassword = async (req, res) => {
 
 const postForgotPassword = async (req, res) => {
     try {
-        res.status(200);
+
         let { email } = req.body;
 
         //validate email
@@ -350,7 +351,7 @@ const postForgotPassword = async (req, res) => {
                 subject: 'Forgot Password',
                 text: `Click link below to reset password`, // plain text body
                 html: `<b>  <h4 >visit here </h4>    
-                <br>  <a href="http://https://essenceecommerce.shop/resetPassword?tk=${otpToken}&@=${email}">Click here</a></b>`, // html body
+                <br>  <a href="https://essenceecommerce.shop/resetPassword?tk=${otpToken}&@=${email}">Click here</a></b>`, // html body
             };
 
             transporter.sendMail(mailOptions, function (error, info) {
@@ -390,7 +391,6 @@ const postForgotPassword = async (req, res) => {
 //rest password
 const getResetPassword = async (req, res) => {
     try {
-        res.status(200);
 
         req.session.tokenFromUser = req.query.tk; //Token from query saving to session
         req.session.resetMail = req.query.for;//email from query saving to session
@@ -408,7 +408,6 @@ const getResetPassword = async (req, res) => {
 
 const postResetPassword = async (req, res) => {
     try {
-        res.status(200);
 
         //Fetch Password from user input
         let conPass = req.body.conPass;

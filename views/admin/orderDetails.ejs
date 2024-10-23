@@ -19,7 +19,7 @@
                             <th scope="col">Quantity</th>
                             <th scope="col">Total Price</th>
                             <th scope="col">Status</th>
-                            <th scope="col" colspan="2">Actions</th>
+                            <th scope="col" colspan="2">Mark as</th>
                         </tr>
                     </thead>
                     <% if (orderDetails.length> 0) { %>
@@ -43,19 +43,48 @@
                                         <%= orderDetails[i].status %>
                                     </td>
                                     <td>
-                                        <%if(orderDetails[i]?.status=='Placed'){%>
+                                        <%if(!orderDetails[i]?.isDelevered &&!orderDetails[i]?.isCancelled
+                                            &&orderDetails[i]?.status !=='Cancelled' ){%>
 
                                             <button class="btn btn-sm btn-success "
                                                 onclick="deleverOneItem('<%=orderDetails[i]._id%>','<%=oid%>')">
-                                                Mark as Delevered
+                                                Delevered
+                                            </button>
+                                            <button class="btn btn-sm btn-warning "
+                                                onclick="shipOneItem('<%=orderDetails[i]._id%>','<%=oid%>')">
+                                                Shipped
+                                            </button>
+
+                                            <button class="btn btn-sm btn-warning "
+                                                onclick="markAsOnDelevery('<%=orderDetails[i]._id%>','<%=oid%>')">
+                                                On Delevery
+                                            </button>
+
+                                            <button class="btn btn-sm btn-warning "
+                                                onclick="markAsPlaced('<%=orderDetails[i]._id%>','<%=oid%>')">
+                                                Placed
                                             </button>
 
 
                                             <%}else{%>
 
                                                 <button class="btn btn-sm btn-secondary " disabled>
-                                                    Mark as Delevered
+                                                    Delevered
                                                 </button>
+
+                                                <button class="btn btn-sm btn-secondary " disabled>
+                                                    Shipped
+                                                </button>
+
+                                                <button class="btn btn-sm btn-secondary " disabled>
+                                                    On Delevery
+                                                </button>
+
+                                                <button class="btn btn-sm btn-secondary " disabled>
+                                                    Placed
+                                                </button>
+
+
 
 
                                                 <% } %>
@@ -112,6 +141,133 @@
                     Swal.fire(
                         'Cancelled',
                         'The item delivery process was cancelled.',
+                        'info'
+                    );
+                }
+            });
+        };
+
+
+        function shipOneItem(iid, oid) {
+            // Show confirmation dialog using SweetAlert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will mark this item as Shipped!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, Shipped it!',
+                cancelButtonText: 'No, cancel!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send PUT request using Axios if confirmed
+                    axios.put(`/admin/shipOneItem?iid=${iid}&oid=${oid}`)
+                        .then((response) => {
+                            Swal.fire(
+                                'Shipped!',
+                                'The item has been marked as Shipped.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Reload the page to reflect the change
+                            });
+                        })
+                        .catch((error) => {
+                            Swal.fire(
+                                'Error!',
+                                'There was a problem Shipping the item. Please try again.',
+                                'error'
+                            );
+                            console.error("Error shipping item:", error);
+                        });
+                } else {
+                    Swal.fire(
+                        'Cancelled',
+                        'The item Shipping process was cancelled.',
+                        'info'
+                    );
+                }
+            });
+        }
+
+        function markAsOnDelevery(iid, oid) {
+            // Show confirmation dialog using SweetAlert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will mark this item as On Delevery!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, make it!',
+                cancelButtonText: 'No, cancel!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send PUT request using Axios if confirmed
+                    axios.put(`/admin/markAsOnDelevery?iid=${iid}&oid=${oid}`)
+                        .then((response) => {
+                            Swal.fire(
+                                'Changed!',
+                                'The item has been marked as On Delevery.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Reload the page to reflect the change
+                            });
+                        })
+                        .catch((error) => {
+                            Swal.fire(
+                                'Error!',
+                                'There was a problem on changing the item status. Please try again.',
+                                'error'
+                            );
+                            console.error("Error markAsOnDelevery item:", error);
+                        });
+                } else {
+                    Swal.fire(
+                        'Cancelled',
+                        'The item status changing process was cancelled.',
+                        'info'
+                    );
+                }
+            });
+        }
+
+        function markAsPlaced(iid, oid) {
+            // Show confirmation dialog using SweetAlert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action will mark this item as placed!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, make it!',
+                cancelButtonText: 'No, cancel!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Send PUT request using Axios if confirmed
+                    axios.put(`/admin/placeOneItem?iid=${iid}&oid=${oid}`)
+                        .then((response) => {
+                            Swal.fire(
+                                'Changed!',
+                                'The item has been marked as Placed.',
+                                'success'
+                            ).then(() => {
+                                window.location.reload(); // Reload the page to reflect the change
+                            });
+                        })
+                        .catch((error) => {
+                            Swal.fire(
+                                'Error!',
+                                'There was a problem on placing the item. Please try again.',
+                                'error'
+                            );
+                            console.error("Error mark As Placed item:", error);
+                        });
+                } else {
+                    Swal.fire(
+                        'Cancelled',
+                        'The item status changing process was cancelled.',
                         'info'
                     );
                 }

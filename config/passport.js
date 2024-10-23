@@ -3,7 +3,7 @@ const googleStrategy = require('passport-google-oauth20').Strategy;
 const User = require('../models/user');
 const dotenv = require('dotenv');
 dotenv.config();
-
+const { generateReferrelCode } = require('../controller/utils/generation-functions')
 passport.use(new googleStrategy({
     clientID: process.env.clientID,
     clientSecret: process.env.clientSecret,
@@ -28,6 +28,7 @@ passport.use(new googleStrategy({
                         email: profile.emails[0].value,
                         googleID: profile.id,
                         isGoogle: true,
+                        referrelCode: generateReferrelCode(),
                     })
 
                     return cb(null, newUser)

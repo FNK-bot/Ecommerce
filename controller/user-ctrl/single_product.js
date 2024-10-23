@@ -8,7 +8,10 @@ const getSingleProduct = async (req, res) => {
 
         // Check if product_id exists in the query and is it valid id (santizing)
         if (!product_id || !isValidObjectId(product_id)) {
-            return res.status(400).json({ message: 'Product ID is required or Product Id is not valid' });
+            return res.status(404).render('error-responses/404', {
+                title: 'Page Not Found',
+                message: 'Sorry, the page you are looking for does not exist.'
+            });
         }
 
         const user = req.session.user_id || null;
@@ -23,7 +26,10 @@ const getSingleProduct = async (req, res) => {
 
         //check is the product is there or is it soft Deleted, And the logic
         if (product.isDeleted || !product) {
-            return res.status(404).json({ message: 'product not found' })
+            return res.status(404).render('error-responses/404', {
+                title: 'Page Not Found',
+                message: 'Sorry, the page you are looking for does not exist.'
+            });
         }
 
         let userData = null;
