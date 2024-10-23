@@ -34,10 +34,7 @@
                                         <%= orders[i].createdOn.toLocaleDateString() %>
                                     </td>
                                     <td>
-                                        <% let val='Placed All' ; for (let x=0; x < orders[i].productDetails.length;
-                                            x++) { if(orders[i].productDetails[x].status !=='Placed' ) {
-                                            val='Not Placed All' ; break; } } %>
-                                            <%= val %>
+                                        <%= orders[i].status %>
 
                                     </td>
 
