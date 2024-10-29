@@ -571,30 +571,30 @@ const postChekOut = async (req, res) => {
                 payment_capture: 1
             });
 
-            let orderId = generateOderId();
-            let addressId = req.body.address
-            let address = user.address.find((item) => {
-                return item._id.toString() === addressId.toString()
-            })
+            // let orderId = generateOderId();
+            // let addressId = req.body.address
+            // let address = user.address.find((item) => {
+            //     return item._id.toString() === addressId.toString()
+            // })
 
-            let newOrder = new Order({
-                orderID: orderId,
-                totalPrice: 0,
-                date: new Date(Date.now()).toISOString().slice(0, 10),
-                productId: product_ids,
-                userId: user._id,
-                method: 'razorpay',
-                status: 'Payment Pending',
-                address: address,
-                discount: user.cart.discount,
-                productDetails: products_details,
-                onlinePayment: {
-                    status: 'initial',
-                    isOnlinePayment: true,
-                    orderId: razorpayOrder.id
-                },
-            })
-            await newOrder.save()
+            // let newOrder = new Order({
+            //     orderID: orderId,
+            //     totalPrice: 0,
+            //     date: new Date(Date.now()).toLocaleDateString('en-IN'),
+            //     productId: product_ids,
+            //     userId: user._id,
+            //     method: 'razorpay',
+            //     status: 'Payment Pending',
+            //     address: address,
+            //     discount: user.cart.discount,
+            //     productDetails: products_details,
+            //     onlinePayment: {
+            //         status: 'initial',
+            //         isOnlinePayment: true,
+            //         orderId: razorpayOrder.id
+            //     },
+            // })
+            // await newOrder.save()
 
             return res.json({
                 message: 'Razorpay gateway',
@@ -612,22 +612,52 @@ const postChekOut = async (req, res) => {
         //Handle Razorpay If Paid (payment Completed)
         if (req.body.paymentStatus === 'Paid') {
 
-            //fetch Order
-            let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.orderId })
+            // //fetch Order
+            // let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.orderId })
 
-            //Update Order
-            findOrder.onlinePayment.paymentId = req.body.paymentId;
-            findOrder.onlinePayment.status = 'Paid';
-            findOrder.onlinePayment.isPaid = true;
-            findOrder.status = 'Placed';
-            findOrder.totalPrice = total
+            // //Update Order
+            // findOrder.onlinePayment.paymentId = req.body.paymentId;
+            // findOrder.onlinePayment.status = 'Paid';
+            // findOrder.onlinePayment.isPaid = true;
+            // findOrder.status = 'Placed';
+            // findOrder.totalPrice = total
 
             //change orde item status to paid
-            findOrder.productDetails.forEach((item) => {
+            products_details.forEach((item) => {
                 item.status = 'Paid'
+            });
+
+            // await findOrder.save();
+
+
+            let orderId = generateOderId();
+            let addressId = req.body.address
+            let address = user.address.find((item) => {
+                return item._id.toString() === addressId.toString()
             })
 
-            await findOrder.save();
+            let newOrder = new Order({
+                orderID: orderId,
+                totalPrice: total,
+                date: new Date(Date.now()).toLocaleDateString('en-IN'),
+                productId: product_ids,
+                userId: user._id,
+                method: 'razorpay',
+                status: 'Paid',
+                address: address,
+                discount: user.cart.discount,
+                productDetails: products_details,
+                onlinePayment: {
+                    status: 'Paid',
+                    isOnlinePayment: true,
+                    orderId: req.body.orderId,
+                    paymentId: req.body.paymentId,
+                    isPaid: true,
+                },
+            })
+            await newOrder.save()
+
+
 
             //manage the stock
             await manageStock(products_details)
@@ -636,25 +666,53 @@ const postChekOut = async (req, res) => {
             user.cart = {};
             await user.save()
 
-            res.json({ orderId: findOrder.orderID })
+            res.json({ orderId })
         }
 
         //Handle Razorpay If Pending  (payment not Completed/closed or exited razorpay gateway )
         if (req.body.paymentStatus === 'Pending') {
 
             //fetch Order
-            let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.orderId })
+            // let findOrder = await Order.findOne({ 'onlinePayment.orderId': req.body.orderId })
 
-            //Update Order
-            findOrder.onlinePayment.status = 'on payment';
-            findOrder.onlinePayment.isPaid = false;
+            // //Update Order
+            // findOrder.onlinePayment.status = 'on payment';
+            // findOrder.onlinePayment.isPaid = false;
+
             //change orde item status to pending
-            findOrder.productDetails.forEach((item) => {
+            products_details.forEach((item) => {
                 item.status = 'on payment'
             })
-            await findOrder.save();
+            // await findOrder.save();
 
-            return res.json({ orderId: findOrder.orderID })
+
+            let orderId = generateOderId();
+            let addressId = req.body.address
+            let address = user.address.find((item) => {
+                return item._id.toString() === addressId.toString()
+            })
+
+            let newOrder = new Order({
+                orderID: orderId,
+                totalPrice: 0,
+                date: new Date(Date.now()).toLocaleDateString('en-IN'),
+                productId: product_ids,
+                userId: user._id,
+                method: 'razorpay',
+                status: 'Payment Pending',
+                address: address,
+                discount: user.cart.discount,
+                productDetails: products_details,
+                onlinePayment: {
+                    status: 'Pending',
+                    isOnlinePayment: true,
+                    orderId: req.body.orderId,
+                    isPaid: false,
+                },
+            })
+            await newOrder.save()
+
+            return res.json({ orderId })
 
         }
 
@@ -676,7 +734,7 @@ const postChekOut = async (req, res) => {
             let newOrder = new Order({
                 orderID: orderId,
                 totalPrice: total,
-                date: new Date(Date.now()).toISOString().slice(0, 10),//
+                date: new Date(Date.now()).toLocaleDateString('en-IN'),//
                 productId: product_ids,
                 userId: user._id,
                 method: 'cod',
@@ -712,7 +770,7 @@ const postChekOut = async (req, res) => {
             let newOrder = new Order({
                 orderID: orderId,
                 totalPrice: total,
-                date: new Date(Date.now()).toISOString().slice(0, 10),//
+                date: new Date(Date.now()).toLocaleDateString('en-IN'),//
                 productId: product_ids,
                 userId: user._id,
                 method: 'wallet',
@@ -800,7 +858,7 @@ const payOnOderPage = async (req, res) => {
             findOrder.onlinePayment.isPaid = true;
             findOrder.status = 'Placed';
             findOrder.totalPrice = total;
-            findOrder.date = new Date(Date.now()).toISOString().slice(0, 10);
+            findOrder.date = new Date(Date.now()).toLocaleDateString('en-IN');
             //change orde item status to paid
             findOrder.productDetails.forEach((item) => {
                 item.status = 'Paid'
@@ -1026,8 +1084,9 @@ const applyCoupen = async (req, res) => {
         if (coupon) {
             //validate Expiry
             let currentDate = new Date();
-            if (currentDate > new Date(coupon.expiryDate)) {
-                return res.status(400).json({
+
+            if (currentDate > coupon.expiry) {
+                return res.json({
                     msg: 'Coupon has expired',
                     isValid: false,
                 });
@@ -1035,7 +1094,7 @@ const applyCoupen = async (req, res) => {
 
             // Calculate discount
             let calculatedDiscountAmount = Math.floor((cartTotal * coupon.percentage) / 100);
-            let discountAmount = Math.min(calculatedDiscountAmount, 500); // Ensure discount amount not morethan 500(limiting offer);
+            let discountAmount = Math.min(calculatedDiscountAmount, coupon.maxLimit); // Ensure discount amount not morethan 500(limiting offer);
             let updatedTotal = cartTotal - discountAmount;
 
             // Update user cart with discount and coupon
@@ -1046,7 +1105,7 @@ const applyCoupen = async (req, res) => {
 
             // Return success response
             return res.status(200).json({
-                msg: calculatedDiscountAmount < 500 ? 'Coupon Applied Successfully' : 'Maximum Coupen Discount Applied',
+                msg: calculatedDiscountAmount < coupon.maxLimit ? 'Coupon Applied Successfully' : 'Maximum Coupen Discount Applied',
                 total: updatedTotal,
                 discount: discountAmount,
                 isValid: true,

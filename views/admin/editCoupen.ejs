@@ -24,9 +24,17 @@
                 <!-- Offer Percentage -->
                 <div class="form-group">
                     <label for="percentage">Offer Percentage</label>
-                    <input type="number" maxlength="3" max="100" required name="percentage" placeholder="Type here"
-                        class="form-control" id="percentage" value="<%=coupen.percentage%>">
-                    <div class="invalid-feedback">Percentage is required and should be less than or equl to 100</div>
+                    <input type="number" required name="percentage" placeholder="Type here" class="form-control"
+                        id="percentage" value="<%=coupen.percentage%>" min="0" max="100">
+                    <div class="invalid-feedback">Percentage is required and should be between 0 and 100</div>
+                </div>
+
+                <!-- Max Limit -->
+                <div class="form-group">
+                    <label for="maxLimit">Maximum Offer Discount Limit</label>
+                    <input type="number" required name="maxLimit" placeholder="Type here" class="form-control"
+                        id="maxLimit" value="<%=coupen.maxLimit%>" min="1">
+                    <div class="invalid-feedback">Maximum offer Limit is required and should be greater than 0</div>
                 </div>
 
                 <!-- Expiry Date -->
@@ -48,13 +56,12 @@
         <%- include('../user-views/partials/alertMessages'); %>
 
             <script>
-
                 document.addEventListener('DOMContentLoaded', () => {
                     const dateInput = document.getElementById('date');
                     const currentDate = new Date('<%=coupen.expiry%>');
                     const formattedDate = currentDate.toISOString().split('T')[0]; // Get the date part only
                     dateInput.value = formattedDate;
-                })
+                });
 
                 // Get the form
                 const form = document.getElementById('form');
@@ -77,6 +84,23 @@
                     if (!form.checkValidity()) {
                         event.preventDefault();  // Prevent form submission if validation fails
                         event.stopPropagation();
+                    }
+
+                    // Custom validation for Offer Percentage and Max Limit
+                    const percentageInput = document.getElementById('percentage');
+                    const maxLimitInput = document.getElementById('maxLimit');
+
+                    const percentageValue = parseFloat(percentageInput.value);
+                    const maxLimitValue = parseFloat(maxLimitInput.value);
+
+                    if (percentageValue < 0 || percentageValue > 100) {
+                        percentageInput.classList.add('is-invalid');
+                        event.preventDefault();
+                    }
+
+                    if (maxLimitValue <= 0) {
+                        maxLimitInput.classList.add('is-invalid');
+                        event.preventDefault();
                     }
 
                     form.classList.add('was-validated');  // Add Bootstrap's validation class to the form

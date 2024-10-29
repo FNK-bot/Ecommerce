@@ -284,14 +284,40 @@ const getSalesReportPage = async (req, res) => {
                 startDate = req.query.startDate
                 endDate = req.query.endDate
 
+                if (!startDate || !endDate || startDate.length !== 10 || endDate.length !== 10) {
+                    req.session.alertMessage = {
+                        type: 'error',
+                        message: 'Dates are not Valid'
+                    };
+                    return res.redirect('salesReport')
+                }
+
+                function formatDateString(dateString) {
+                    // Convert the input string to a Date object
+                    const date = new Date(dateString);
+
+                    // Get the day, month, and year
+                    const day = String(date.getDate()).padStart(2, '0'); // Get day and pad with zero if needed
+                    const month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+                    const year = date.getFullYear();
+
+                    // Format the date to DD-MM-YYYY
+                    return `${day}/${month}/${year}`;
+                }
+
+                let formateStartingDate = formatDateString(startDate);
+                let formatedEndingDate = formatDateString(endDate);
                 collectionFilter = {
                     isAllDelevered: true,
-                    date: { $gte: startDate, $lte: endDate },
+                    date: { $gte: formateStartingDate, $lte: formatedEndingDate },
                 }
                 break;
             default:
                 collectionFilter = { isAllDelevered: true }
         }
+
+        let alertMessage = req.session.alertMessage
+        req.session.alertMessage = null;
 
         const orders = await Order.find(collectionFilter).populate('userId')
 
@@ -331,7 +357,7 @@ const getSalesReportPage = async (req, res) => {
 
             res.render('admin/salesReport', {
                 orders, totalRevenue, totalSale, totalDiscount,
-                dates,
+                dates, alertMessage
             });
         }
     } catch (error) {

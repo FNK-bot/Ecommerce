@@ -46,6 +46,22 @@
                 const imagePreviewContainer = document.getElementById('upimage')
 
                 input.addEventListener('change', (e) => {
+                    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+                    const filesType = Array.from(input.files);
+
+                    // Check if any file is of an unsupported type
+                    for (const file of filesType) {
+                        if (!allowedTypes.includes(file.type)) {
+                            Swal.fire({
+                                title: "Invalid File Type",
+                                text: 'Only JPEG, PNG, and JPG files are allowed.',
+                                icon: "warning",
+                            });
+                            input.value = ''; // Clear the input
+                            return;
+                        }
+                    }
+
                     const files = e.target.files;
                     console.log(files)
                     if (files && files.length > 0) {

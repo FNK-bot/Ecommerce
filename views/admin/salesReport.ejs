@@ -117,7 +117,7 @@
                                         <%= order.orderID %>
                                     </td>
                                     <td>
-                                        <%= order.userId?.username %>
+                                        <%= order.userId?.username ?order.userId?.username:'Not Found' %>
                                     </td>
                                     <td>₹<%= order.discount %>
                                     </td>
@@ -143,53 +143,75 @@
 
                 <div class="bg-light text-center rounded p-4">
                     <div class="notFound text-center ">
-                        <h5>No Orders found !</h5>
+                        <h5>No Orders Has Delevered !</h5>
                     </div>
                 </div>
             </div>
             <% } %>
                 <%- include('./partials/footer'); %>
+                    <%- include('../user-views/partials/alertMessages'); %>
 
-                    <script>
-                        const availableDates = '<%=dates%>'.split(',')
+                        <script>
+                            const availableDates = '<%=dates%>'.split(',');
+                            console.log(availableDates)
 
-                        const startDateInput = document.getElementById('startDate');
+                            const startDateInput = document.getElementById('startDate');
 
-                        const endDateInput = document.getElementById('endDate');
+                            const endDateInput = document.getElementById('endDate');
 
-                        // Function to check if a date is available
-                        function isDateAvailable(date) {
-                            return availableDates.includes(date);
-                        }
-
-                        // Restrict date selection to available dates
-                        startDateInput.addEventListener('focusout', function () {
-                            if (!isDateAvailable(this.value)) {
-                                alert('Selected start date is not available.');
-                                this.value = ''; // Reset the input value
+                            // Function to check if a date is available
+                            function isDateAvailable(date) {
+                                console.log(availableDates.includes(date))
+                                return availableDates.includes(date);
                             }
 
-                        });
+                            // Restrict date selection to available dates
+                            startDateInput.addEventListener('change', function () {
 
-                        endDateInput.addEventListener('focusout', function () {
-                            if (!isDateAvailable(this.value)) {
-                                alert('Selected end date is not available.');
-                                this.value = ''; // Reset the input value
-                            }
-                        });
+                                const selectedDate = new Date(this.value);
+                                const day = String(selectedDate.getDate()).padStart(2, '0');
+                                const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+                                const year = selectedDate.getFullYear();
 
-                        // Enable or disable date inputs based on the filter selected
-                        document.getElementById('filter').addEventListener('change', function () {
-                            const filter = this.value;
+                                // Format to DD-MM-YYYY
+                                const formattedDate = `${day}/${month}/${year}`;
 
-                            if (filter === 'custom') {
-                                startDateInput.disabled = false;
-                                endDateInput.disabled = false;
-                            } else {
-                                startDateInput.disabled = true;
-                                endDateInput.disabled = true;
-                                startDateInput.value = '';
-                                endDateInput.value = '';
-                            }
-                        });
-                    </script>
+                                if (!isDateAvailable(formattedDate)) {
+                                    alert('Selected start date is not available.');
+                                    this.value = ''; // Reset the input value
+                                }
+
+
+                            });
+
+                            endDateInput.addEventListener('change', function () {
+
+                                const selectedDate = new Date(this.value);
+                                const day = String(selectedDate.getDate()).padStart(2, '0');
+                                const month = String(selectedDate.getMonth() + 1).padStart(2, '0'); // Months are zero-indexed
+                                const year = selectedDate.getFullYear();
+
+                                // Format to DD-MM-YYYY
+                                const formattedDate = `${day}/${month}/${year}`;
+
+                                if (!isDateAvailable(formattedDate)) {
+                                    alert('Selected start date is not available.');
+                                    this.value = ''; // Reset the input value
+                                }
+                            });
+
+                            // Enable or disable date inputs based on the filter selected
+                            document.getElementById('filter').addEventListener('change', function () {
+                                const filter = this.value;
+
+                                if (filter === 'custom') {
+                                    startDateInput.disabled = false;
+                                    endDateInput.disabled = false;
+                                } else {
+                                    startDateInput.disabled = true;
+                                    endDateInput.disabled = true;
+                                    startDateInput.value = '';
+                                    endDateInput.value = '';
+                                }
+                            });
+                        </script>

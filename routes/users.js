@@ -7,7 +7,7 @@ const isLogged = require('../middleware/authUser')
 const passport = require('passport');
 const upload = require('../multer/multer')
 
-const { getLanding, search } = require('../controller/user-ctrl/landing_page')
+const { getLanding, search, searchPage } = require('../controller/user-ctrl/landing_page')
 
 const getShoping = require('../controller/user-ctrl/shop_controller')
 
@@ -103,7 +103,8 @@ router.get('/addToWishlist', isLogged, addToWishlist)
 router.delete('/deleteWishlistItem', isLogged, deleteWishlist)
 
 //search 
-router.get('/search', search)
+router.get('/search', search);
+router.get('/search-product', searchPage);
 
 //invoice api
 router.get('/downloadInvoice', isLogged, invoice)

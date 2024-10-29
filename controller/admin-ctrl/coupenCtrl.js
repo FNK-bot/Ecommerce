@@ -48,8 +48,9 @@ const getAddCoupen = async (req, res) => {
 
 const postAddCoupen = async (req, res) => {
     try {
-        let { name, code, date, percentage } = req.body;
+        let { name, code, date, percentage, maxLimit } = req.body;
 
+        console.log(req.body)
         let checkCodeExist = await Coupen.findOne({ code })
 
         if (checkCodeExist) {
@@ -64,7 +65,8 @@ const postAddCoupen = async (req, res) => {
                 name,
                 expiry: date,
                 percentage,
-                code
+                code,
+                maxLimit
             });
             await newCoupen.save()
 
@@ -120,7 +122,7 @@ const getEditCoupen = async (req, res) => {
 const postEditCoupen = async (req, res) => {
     try {
 
-        let { name, code, date, percentage, id } = req.body;
+        let { name, code, date, percentage, id, maxLimit } = req.body;
 
         await Coupen.findOneAndUpdate({ _id: id }, {
             $set: {
@@ -128,6 +130,7 @@ const postEditCoupen = async (req, res) => {
                 code,
                 expiry: date,
                 percentage,
+                maxLimit
             }
         })
 

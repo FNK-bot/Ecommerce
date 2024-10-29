@@ -172,7 +172,7 @@
             axios.delete('/admin/deleteImage', {
                 data: { imageName, productId }
             }).then((res) => {
-                console.log(res)
+                // console.log(res)
                 if (res.status == 201) {
                     Swal.fire({
                         title: "Image Deletion Error",
@@ -185,11 +185,27 @@
                 imagePreviewContainer.removeChild(findDiv)
             }).catch((err) => {
                 console.log(err)
-                alert(err.message)
+                // alert(err.message)
             })
         }
 
         input.addEventListener('change', () => {
+
+            const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg'];
+            const files = Array.from(input.files);
+
+            // Check if any file is of an unsupported type
+            for (const file of files) {
+                if (!allowedTypes.includes(file.type)) {
+                    Swal.fire({
+                        title: "Invalid File Type",
+                        text: 'Only JPEG, PNG, and JPG files are allowed.',
+                        icon: "warning",
+                    });
+                    input.value = ''; // Clear the input
+                    return;
+                }
+            }
 
 
             const dataTransfer = new DataTransfer(); // Initialize DataTransfer to keep track of all cropped files
@@ -321,8 +337,8 @@
             function validateNumberField(field, errorFieldId, fieldName) {
                 const value = field.value.trim();
                 const errorField = document.getElementById(errorFieldId);
-                if (isNaN(value) || value === '') {
-                    errorField.textContent = `${fieldName} must be a number.`;
+                if (isNaN(value) || value === '' || parseInt(value) < 0) {
+                    errorField.textContent = `${fieldName} must be a number. And It Cannot be Negative`;
                     return false;
                 } else {
                     errorField.textContent = '';

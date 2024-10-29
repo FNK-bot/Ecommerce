@@ -36,7 +36,7 @@ const getLanding = async (req, res) => {
 const search = async (req, res) => {
 
     // Validate and sanitize the query
-    await query('query')
+    query('query')
         .trim() // Remove whitespace from both ends
         .isString().withMessage('Query must be a string')
         .isLength({ min: 1 }).withMessage('Query cannot be empty')
@@ -68,4 +68,30 @@ const search = async (req, res) => {
     }
 }
 
-module.exports = { getLanding, search }
+// Search Product Page 
+const searchPage = async (req, res) => {
+    try {
+        let user = await User.findById(req.session.user_id);
+
+
+        // Ensure searchString is a string
+        let searchString = String(req.body.search || req.query.search || '').trim();
+
+        // Fetch products that either match exactly or are similar
+        const products = await Product.find({
+            isDeleted: false,
+            $or: [
+
+                { name: { $regex: searchString, $options: 'i' } }         // Partial match (case-insensitive)
+            ]
+        });
+
+        console.log(searchString);
+        res.render('user-views/search', { product: products, user, searchString });
+    } catch (error) {
+        console.error('Something happened at Search Page Controller', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+};
+
+module.exports = { getLanding, search, searchPage }

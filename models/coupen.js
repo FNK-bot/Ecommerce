@@ -10,10 +10,7 @@ let coupenSchema = new mongoose.Schema({
     },
     expiry: {
         type: Date,
-        default: () => {
-            let createdDate = this.createdDate || new Date();
-            return new Date(createdDate.setMonth(createdDate.getMonth() + 3))
-        }
+        required: true
     },
     code: {
         type: String,
@@ -30,6 +27,10 @@ let coupenSchema = new mongoose.Schema({
     },
     name: {
         type: String,
+        required: true,
+    },
+    maxLimit: {
+        type: Number,
         required: true,
     },
     isDeleted: {

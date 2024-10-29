@@ -1,0 +1,193 @@
+<%- include('./partials/header'); %>
+  <!-- ##### Breadcumb Area Start ##### -->
+  <div class="breadcumb_area bg-img" style="background-image: url(/img/bg-img/breadcumb.jpg)">
+    <div class="container h-100">
+      <div class="row h-100 align-items-center">
+        <div class="col-12">
+          <div class="page-title text-center">
+            <h2>
+              Search
+            </h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- ##### Breadcumb Area End ##### -->
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+  <!-- ##### Shop Grid Area Start ##### -->
+  <section class="shop_grid_area section-padding-80">
+    <div class="container">
+      <div class="row">
+
+
+        <div class="col-12 col-md-8 col-lg-9">
+          <div class="shop_grid_product_area">
+            <div class="row">
+              <div class="col-12">
+                <div class="product-topbar d-flex align-items-center justify-content-between">
+                  <!-- Total Products -->
+                  <div class="total-products">
+                    <p>
+                      Showing Result for ' <%=searchString%> '
+                        <span>
+                          <%=product.length%>
+                        </span> products found</p>
+                  </div>
+
+                  <!-- Sorting -->
+                  <div class="product-sorting d-flex">
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" id="products-container">
+            <% if (product.length> 0) { %> <% for (let i=0; i < product.length; i++) { %>
+                <!-- Single Product -->
+                <div class="col-12 col-sm-6 col-lg-4" id="products-sec">
+                  <div class="single-product-wrapper">
+                    <!-- Product Image -->
+                    <div class="product-img">
+                      <img src="/admin/assets/images/catagory/<%= product[i].images[0] %>" alt="" />
+                      <!-- Hover Thumb -->
+                      <img class="hover-img" src="/admin/assets/images/catagory/<%= product[i].images[1] %>" alt="" />
+
+                      <!-- Product Badge -->
+                      <!-- <div class="product-badge new-badge">
+                        <span>New</span>
+                      </div> -->
+
+                      <%if(product[i].categary?.offer?.status==true){%>
+                        <div class="product-badge offer-badge">
+                          <span>
+                            <%= product[i].categary?.offer.percentage%>% Off
+                          </span>
+                        </div>
+                        <%}%>
+
+                          <%if(product[i].quantity <=0){%>
+                            <div class="product-badge offer-badge">
+                              <span>
+                                Out of Stock
+                              </span>
+                            </div>
+                            <%}%>
+
+                              <%if(user){%>
+                                <!-- Favourite -->
+                                <div class="product-favourite" id="favorite-<%= product[i]._id %>"
+                                  onclick="addToFav('<%= product[i]._id %>')">
+                                  <a class="favme fa fa-heart"></a>
+                                </div>
+                                <%}%>
+                    </div>
+
+                    <!-- Product Description -->
+                    <div class="product-description">
+                      <span>
+                        <%= product[i]?.brand?.name %>
+                      </span>
+                      <a href="/product?product=<%= product[i]._id %>">
+                        <h6>
+                          <%= product[i]?.name %>
+                        </h6>
+                      </a>
+                      <p class="product-price">
+                      <p class="product-price">
+                        <%if(product[i]?.actualPrice.amount !==product[i]?.price && product[i]?.actualPrice.amount
+                          !=undefined ){%>
+                          <span class="old-price">
+                            <%='₹'+product[i]?.actualPrice.amount %>
+                          </span>
+                          <%}%>
+                            ₹<%= product[i].price %>
+
+                      </p>
+
+
+                      <!-- Hover Content -->
+                      <div class="hover-content">
+                        <!-- Add to Cart -->
+                        <%if(product[i].quantity>0 && user){%>
+                          <div class="add-to-cart-btn" onclick="addTOCart('<%= product[i]._id %>')">
+                            <a class="btn essence-btn">Add to Cart</a>
+                          </div>
+                          <%}%>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <% } %>
+                  <% } else { %>
+
+                    <div class="not-found">
+                      <p>No Product Found Matching '<%=searchString%>'</p>
+                      <p onclick="location.href='/shop'" style="cursor: pointer;"> click here to view shop</a></p>
+                    </div>
+                    <% } %>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    </div>
+  </section>
+  </BODY>
+  <script>
+
+
+
+
+    // add to favarate
+    function addToFav(id) {
+      axios.get(`/addToWishlist?id=${id}`,).then((res) => {
+        Swal.fire({
+          icon: res.data.type,
+          title: res.data.msg,
+          showConfirmButton: false,
+          timer: 1000
+        });
+      }).catch((err) => {
+        Swal.fire({
+          icon: "error",
+          title: err,
+          showConfirmButton: false,
+          timer: 1000
+        });
+      })
+    }
+    //ADD TO CART
+    function addTOCart(id) {
+
+
+      return axios.post('/addToCart', {
+        product_id: id,
+      })
+        .then((response) => {
+
+          Swal.fire({
+            title: "CART",
+            text: response.data.message,
+            icon: response.data.messageType,
+            footer: `<a href='/cart'>Click here to View Cart</a>`
+          });
+        })
+        .catch((error) => {
+
+          Swal.fire({
+            icon: "error",
+            title: "Oops...",
+            text: "Something went wrong!",
+            footer: 'Cannot Add item to cart'
+          });
+        });
+    }
+
+  </script>
