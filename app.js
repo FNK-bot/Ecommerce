@@ -82,7 +82,7 @@ app.use((err, req, res, next) => {
     });
   } else {
     // For other errors, including 500 Internal Server Error
-    res.status(err.status || 500).render('error', {
+    res.status(err.status || 500).render('error-responses/500', {
       title: 'Something Went Wrong',
       message: 'Please try again later. We are working on fixing it.'
     });
