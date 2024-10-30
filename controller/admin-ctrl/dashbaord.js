@@ -258,29 +258,29 @@ const getSalesReportPage = async (req, res) => {
         const now = new Date();
         let collectionFilter = {};
         switch (filter) {
-            case 'daily':
+            case 'Daily':
                 startDate = new Date(now.setHours(0, 0, 0, 0));
                 endDate = new Date(now.setHours(23, 59, 59, 999));
                 collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
-            case 'weekly':
+            case 'Weekly':
                 startDate = new Date(now.setDate(now.getDate() - now.getDay()));
                 startDate.setHours(0, 0, 0, 0);
                 endDate = new Date(now.setDate(startDate.getDate() + 6));
                 endDate.setHours(23, 59, 59, 999);
                 collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
-            case 'monthly':
+            case 'Monthly':
                 startDate = new Date(now.getFullYear(), now.getMonth(), 1);
                 endDate = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
                 collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
-            case 'yearly':
+            case 'Yearly':
                 startDate = new Date(now.getFullYear(), 0, 1);
                 endDate = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
                 collectionFilter = { isAllDelevered: true, createdOn: { $gte: startDate, $lte: endDate } }
                 break;
-            case 'custom':
+            case 'Custom':
                 startDate = req.query.startDate
                 endDate = req.query.endDate
 
@@ -357,7 +357,7 @@ const getSalesReportPage = async (req, res) => {
 
             res.render('admin/salesReport', {
                 orders, totalRevenue, totalSale, totalDiscount,
-                dates, alertMessage
+                dates, alertMessage, filter
             });
         }
     } catch (error) {

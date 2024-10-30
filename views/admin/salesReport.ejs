@@ -51,11 +51,20 @@
             <div class="col-12 col-sm-6 col-md-3">
                 <label for="filter" class="form-label">Filter By:</label>
                 <select name="filter" id="filter" class="form-select">
-                    <option value="daily">Daily</option>
-                    <option value="weekly">Weekly</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="yearly">Yearly</option>
-                    <option value="custom">Custom</option>
+                    <%if(filter){%>
+                        <option value="<%=filter%>" selected>
+                            <%=filter%>
+                        </option>
+                        <%}else{%>
+                            <option value="All" selected>
+                                All
+                            </option>
+                            <%}%>
+                                <option value="Daily">Daily</option>
+                                <option value="Weekly">Weekly</option>
+                                <option value="Monthly">Monthly</option>
+                                <option value="Yearly">Yearly</option>
+                                <option value="Custom">Custom</option>
                 </select>
             </div>
             <!-- Start Date -->
@@ -111,7 +120,7 @@
                                 <tr>
                                     <td><input class="form-check-input" type="checkbox"></td>
                                     <td>
-                                        <%= order.createdOn.toLocaleDateString() %>
+                                        <%= order.date %>
                                     </td>
                                     <td>
                                         <%= order.orderID %>
@@ -153,7 +162,7 @@
 
                         <script>
                             const availableDates = '<%=dates%>'.split(',');
-                            console.log(availableDates)
+                            // console.log(availableDates)
 
                             const startDateInput = document.getElementById('startDate');
 
@@ -161,7 +170,7 @@
 
                             // Function to check if a date is available
                             function isDateAvailable(date) {
-                                console.log(availableDates.includes(date))
+                                // console.log(availableDates.includes(date))
                                 return availableDates.includes(date);
                             }
 

@@ -858,6 +858,7 @@ const payOnOderPage = async (req, res) => {
             findOrder.onlinePayment.isPaid = true;
             findOrder.status = 'Placed';
             findOrder.totalPrice = total;
+            findOrder.createdOn = new Date();
             findOrder.date = new Date(Date.now()).toLocaleDateString('en-IN');
             //change orde item status to paid
             findOrder.productDetails.forEach((item) => {
