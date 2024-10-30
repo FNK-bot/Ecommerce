@@ -44,7 +44,8 @@
                                     </td>
                                     <td>
                                         <%if(!orderDetails[i]?.isDelevered &&!orderDetails[i]?.isCancelled
-                                            &&orderDetails[i]?.status !=='Cancelled' ){%>
+                                            &&orderDetails[i]?.status !=='Cancelled' &&orderDetails[i]?.status
+                                            !=='on payment' ){%>
 
                                             <button class="btn btn-sm btn-success "
                                                 onclick="deleverOneItem('<%=orderDetails[i]._id%>','<%=oid%>')">
